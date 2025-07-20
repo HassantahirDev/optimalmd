@@ -1,6 +1,7 @@
 import { Check, Phone, Shield, Truck, Users } from "lucide-react";
 import { Button } from "./ui/button";
 import phoneImage from "../assets/phone-consultation.jpg";
+import { useEffect, useRef, useState } from "react";
 
 const InvestmentSection = () => {
   const benefits = [
@@ -33,29 +34,55 @@ const InvestmentSection = () => {
     { icon: Users, text: "Partnered with licensed Medical Providers" }
   ];
 
+  const cardRef = useRef(null);
+  const [cardVisible, setCardVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!cardRef.current) return;
+      const { top } = cardRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      if (top < windowHeight * 0.8) {
+        setCardVisible(true);
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <section className="section-padding bg-muted/20">
       <div className="container-custom">
-        <div className="card-gradient p-8 lg:p-16 rounded-3xl">
+        <div
+          ref={cardRef}
+          className="p-8 lg:p-16 rounded-3xl bg-white border-2 border-white"
+          style={{
+            opacity: cardVisible ? 1 : 0,
+            transform: cardVisible ? "scale(1)" : "scale(0.85)",
+            transition: "opacity 1.2s cubic-bezier(0.4,0,0.2,1), transform 1.2s cubic-bezier(0.4,0,0.2,1)",
+          }}
+        >
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Content - Phone Image */}
             <div className="relative">
               <img 
                 src={phoneImage}
                 alt="OptimalMD consultation on phone"
-                className="w-full max-w-md mx-auto rounded-2xl shadow-[var(--shadow-card)]"
+                className="w-full max-w-sm mx-auto rounded-2xl shadow-[var(--shadow-card)]"
               />
             </div>
 
             {/* Right Content */}
             <div className="space-y-8">
               <div className="space-y-4">
-                <h2 className="text-3xl lg:text-4xl font-bold">
+                <h2 className="text-3xl lg:text-4xl font-bold text-black">
                   Invest in your health with
                   <br />
                   <span className="text-gradient">Guided Optimization</span>®
                 </h2>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-lg text-black">
                   The first step towards optimizing your health online is to book your intake 
                   assessment, which includes:
                 </p>
@@ -63,14 +90,14 @@ const InvestmentSection = () => {
 
               {/* Benefits List */}
               <div className="space-y-6">
-                {benefits.map((benefit, index) => (
+                {benefits.slice(0, 3).map((benefit, index) => (
                   <div key={index} className="flex items-start space-x-4">
                     <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
                       <Check size={14} className="text-primary-foreground" />
                     </div>
                     <div className="space-y-1">
-                      <h4 className="font-semibold text-foreground">{benefit.title}:</h4>
-                      <p className="text-muted-foreground leading-relaxed">
+                      <h4 className="font-semibold text-black">{benefit.title}:</h4>
+                      <p className="leading-relaxed text-black">
                         {benefit.description}
                       </p>
                     </div>
@@ -84,21 +111,28 @@ const InvestmentSection = () => {
                   Start treatment online
                 </Button>
                 <div className="text-right">
-                  <div className="text-3xl font-bold">$250</div>
-                  <div className="text-muted-foreground line-through">$500</div>
+                  <div className="text-3xl font-bold text-black">$250</div>
+                  <div className="line-through text-black/50">$500</div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Trust Badges */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-12 pt-8 border-t border-border">
-            {trustBadges.map((badge, index) => (
-              <div key={index} className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <badge.icon size={16} className="text-primary" />
-                <span>{badge.text}</span>
-              </div>
-            ))}
+        {/* Trust Badges Banner */}
+        <div className="relative w-full mt-12 pt-8 border-t border-border">
+          <div className="w-full bg-primary rounded-full overflow-hidden h-20 flex items-center">
+            <div
+              className="flex gap-16 items-center animate-trust-banner whitespace-nowrap px-2"
+              style={{ animation: 'trustBanner 16s linear infinite', width: '100%' }}
+            >
+              {[...trustBadges, ...trustBadges].map((badge, index) => (
+                <div key={index} className="flex items-center space-x-2 text-sm text-primary-foreground px-8">
+                  <badge.icon size={16} className="text-primary-foreground" />
+                  <span>{badge.text}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -107,3 +141,10 @@ const InvestmentSection = () => {
 };
 
 export default InvestmentSection;
+
+/* Add this to your global CSS (index.css):
+@keyframes trustBanner {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+*/

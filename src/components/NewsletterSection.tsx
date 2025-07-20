@@ -41,7 +41,7 @@ const NewsletterSection = () => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-xl"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-full"
               />
               <Input
                 type="text"
@@ -49,7 +49,7 @@ const NewsletterSection = () => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-xl"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-full"
               />
             </div>
             
@@ -60,11 +60,11 @@ const NewsletterSection = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-xl"
+                className="bg-background border-border text-foreground placeholder:text-muted-foreground h-14 text-lg rounded-full"
               />
               <Button 
                 type="submit"
-                className="btn-hero h-14 px-8 text-lg rounded-xl"
+                className="btn-hero h-14 px-8 text-lg rounded-full"
               >
                 Subscribe
               </Button>

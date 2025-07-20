@@ -10,6 +10,7 @@ import FounderSection from "../components/FounderSection";
 import ExpertsSection from "../components/ExpertsSection";
 import FAQSection from "../components/FAQSection";
 import NewsletterSection from "../components/NewsletterSection";
+import Footer from "../components/Footer";
 
 const Index = () => {
   return (
@@ -20,12 +21,12 @@ const Index = () => {
       <OptimizationSection />
       <InvestmentSection />
       <TreatmentGoalsSection />
-      <ProcessSection />
       <TestimonialsSection />
       <FounderSection />
       <ExpertsSection />
       <FAQSection />
       <NewsletterSection />
+      <Footer />
     </div>
   );
 };
