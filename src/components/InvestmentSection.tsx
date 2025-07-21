@@ -7,7 +7,7 @@ const InvestmentSection = () => {
   const benefits = [
     {
       title: "Personalized Assessment",
-      description: "Meet your expert OptimaleMD Coach to discuss your symptoms and goals. Unlock exclusive discounted pricing on advanced lab testing— minimum $450 lab panel purchase required."
+      description: "Meet your expert OptimaleMD Coach to discuss your symptoms and goals."
     },
     {
       title: "In-Depth Lab Analysis", 

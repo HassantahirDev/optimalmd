@@ -55,11 +55,11 @@ const ExpertsSection = () => {
         <div className="space-y-16">
           {/* Header */}
           <div className="text-left space-y-4">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white">
-              Our expert process.
+            <h2 className="text-4xl lg:text-6xl font-bold leading-tight text-white">
+              Our expert process
             </h2>
-            <p className="text-lg text-white/80 max-w-2xl">
-              Our 4 step process was developed with convenience in mind. We partner with medical providers to bring high quality treatment straight to your door.
+            <p className="text-xl text-white/80 max-w-2xl">
+              We partner with medical providers to bring high quality treatment straight to your door.
             </p>
           </div>
 
@@ -78,7 +78,9 @@ const ExpertsSection = () => {
                     }`}
                     style={{ outline: "none" }}
                   >
-                    {['One', 'Two', 'Three', 'Four'][idx]}
+                    <span className="text-xl text-white text-left w-full transition-opacity">
+                      {['One', 'Two', 'Three', 'Four'][idx]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -89,10 +91,10 @@ const ExpertsSection = () => {
               <div className="bg-black border border-white/30 rounded-2xl p-10 flex flex-col justify-center w-full max-w-2xl ml-auto shadow-[0_2px_24px_0_rgba(0,0,0,0.5)]">
                 <div className="flex items-center mb-6">
                   <span className="text-red-400 text-4xl font-bold mr-4">{steps[currentStep].number}</span>
-                  <span className="text-white text-2xl font-medium">{steps[currentStep].title}</span>
+                  <span className="text-2xl text-white font-medium">{steps[currentStep].title}</span>
                 </div>
-                <p className="text-white/80 text-xl">
-                  {steps[currentStep].description}
+                <p className="text-lg text-white/80">
+                  {steps[currentStep].description.split('.').slice(0,1).join('. ')}
                 </p>
               </div>
             </div>

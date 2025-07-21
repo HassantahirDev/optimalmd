@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +13,8 @@ const Navigation = () => {
     "Education",
     "Apparel",
     "FAQs",
-    "Testimonials"
+    "Testimonials",
+    "Leadership"
   ];
 
   return (
@@ -24,22 +26,33 @@ const Navigation = () => {
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">O</span>
             </div>
-            <span className="text-xl font-bold">
-              OPTIMAL<span className="text-primary">MD</span>
-            </span>
+            <Link to="/" className="text-xl font-bold focus:outline-none">
+              OPTIMALE<span className="text-primary">MD</span>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-foreground hover:text-primary transition-colors duration-200"
-              >
-                {item}
-              </a>
-            ))}
+            {navItems.map((item) =>
+              item === "Leadership" ? (
+                <Link
+                  key={item}
+                  to="/leadership"
+                  className="text-foreground hover:text-primary transition-colors duration-200"
+                >
+                  {item}
+                </Link>
+              ) : (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-foreground hover:text-primary transition-colors duration-200"
+                >
+                  {item}
+                </a>
+              )
+            )}
+
           </div>
 
           {/* CTA Button */}
@@ -63,14 +76,25 @@ const Navigation = () => {
           <div className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border">
             <div className="px-4 py-4 space-y-4">
               {navItems.map((item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item}
-                </a>
+                item === "Leadership" ? (
+                  <Link
+                    key={item}
+                    to="/leadership"
+                    className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ) : (
+                  <a
+                    key={item}
+                    href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                    className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item}
+                  </a>
+                )
               ))}
               <Button className="btn-hero w-full mt-4">
                 Start your journey

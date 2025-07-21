@@ -36,12 +36,12 @@ const HeroSection = () => {
 
             {/* Main Headline */}
             <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-                Look, Feel, &{" "}
-                <span className="text-gradient">Perform</span>
-                <br />
-                Better Today
-              </h1>
+              <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
+                Look, Feel, & Perform Better Today
+              </h2>
+              <span className="text-xl text-muted-foreground">
+                {stats[0].number} OptimaleMD clients transformed
+              </span>
             </div>
 
             {/* Features List */}
@@ -51,7 +51,7 @@ const HeroSection = () => {
                   <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                     <Check size={14} className="text-primary-foreground" />
                   </div>
-                  <span className="text-lg text-foreground">{feature}</span>
+                  <span className="text-xl text-foreground">{feature}</span>
                 </div>
               ))}
             </div>

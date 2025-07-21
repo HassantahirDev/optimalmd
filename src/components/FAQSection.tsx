@@ -37,11 +37,11 @@ const FAQSection = () => {
         <div className="max-w-4xl mx-auto space-y-12">
           {/* Header */}
           <div className="text-center space-y-6">
-            <h2 className="text-3xl lg:text-5xl font-bold">
+            <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
               Frequently Asked Questions
             </h2>
-            <p className="text-muted-foreground text-lg">
-              More questions and answers can be found on our FAQ page
+            <p className="text-xl text-muted-foreground">
+              More questions? See our FAQ page.
             </p>
           </div>
 
@@ -53,7 +53,7 @@ const FAQSection = () => {
                   onClick={() => toggleItem(index)}
                   className="w-full py-6 flex items-center justify-between text-left hover:text-primary transition-colors group"
                 >
-                  <span className="text-lg font-medium pr-4">{faq.question}</span>
+                  <span className="text-xl font-medium pr-4">{faq.question}</span>
                   <div className={`w-6 h-6 text-primary transition-transform duration-200 ${
                     openItems.includes(index) ? 'rotate-45' : ''
                   }`}>
@@ -63,8 +63,8 @@ const FAQSection = () => {
                 
                 {openItems.includes(index) && (
                   <div className="pb-6 animate-fade-in">
-                    <p className="text-muted-foreground leading-relaxed">
-                      {faq.answer}
+                    <p className="text-lg text-muted-foreground">
+                      {faq.answer.split('.').slice(0,1).join('. ')}
                     </p>
                   </div>
                 )}

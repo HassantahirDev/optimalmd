@@ -8,25 +8,25 @@ const TestimonialsSection = () => {
     {
       name: "Cheyanne",
       date: "Dec 16, 2023",
-      text: "Not to sound dramatic, but OptimaleMD has literally changed the course of my life. After having my first consultation with Derek and learning about the blood work, I was amazed at how much information was available about my health that I had never known before.",
+      text: "OptimaleMD gave me the clarity and support I needed to truly transform my health.",
       rating: 5
     },
     {
       name: "L.R.",
       date: "Jul 26, 2022", 
-      text: "I waited too long to seek hormonal health optimization. The symptoms crept into my life slowly and I just accepted them as part of aging. Working with OptimaleMD has been life-changing.",
+      text: "I never imagined feeling this energetic and focused until I joined OptimaleMD.",
       rating: 5
     },
     {
       name: "Jack",
       date: "Jun 29, 2023",
-      text: "Life Changer. OptimaleMD's team and solutions are nothing short of life changing. In 2.5 months, I've seen incredible improvements in energy, focus, and overall well-being.",
+      text: "The OptimaleMD team helped me unlock a new level of wellness and confidence.",
       rating: 5
     },
     {
       name: "Alexander Sutton", 
       date: "Mar 11, 2024",
-      text: "I've had an excellent experience!!! So much more Energy! I've been using their service for a little over a year now and I couldn't be happier with the results.",
+      text: "OptimaleMD’s approach made a real difference in my daily life and happiness.",
       rating: 5
     }
   ];
@@ -42,36 +42,42 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <section className="section-padding">
+    <section className="section-padding bg-black">
       <div className="container-custom">
-        <div className="space-y-16">
+        <div className="space-y-10">
           {/* Header */}
-          <div className="text-center space-y-6">
-            <h2 className="text-3xl lg:text-5xl font-bold">
+          <div className="text-center space-y-4">
+            <h2 className="text-5xl font-bold leading-tight text-white mb-2">
               Our community has a lot to say
             </h2>
-            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-              We can tell you why OptimaleMD is the future of health optimization 
-              all day long, but we'd rather you hear it from our clients. You can read 
-              all of our 5 star reviews... but it's gonna take a while.
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              We can tell you why OptimaleMD is the future of health optimization all day long, but we'd rather you hear it from our clients. You can read all of our 5 star reviews... but it's gonna take a while.
             </p>
           </div>
 
           {/* Testimonials Grid - Desktop */}
           <div className="hidden lg:grid lg:grid-cols-4 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="card-gradient p-6 space-y-4 hover:shadow-[var(--shadow-card)] transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold">{testimonial.name}</span>
-                  <span className="text-sm text-muted-foreground">{testimonial.date}</span>
+              <div key={index} className="bg-black border border-gray-400 rounded-xl p-6 space-y-4 flex flex-col justify-between min-h-[220px]">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-white text-lg">{testimonial.name}</span>
+                  <span className="text-sm text-gray-400">{testimonial.date}</span>
                 </div>
-                
-                <p className="text-foreground leading-relaxed">
+                <p className="text-xl lg:text-2xl text-white leading-relaxed mb-4 font-normal">
                   "{testimonial.text}"
                 </p>
-                
                 <div className="flex space-x-1">
-                  {renderStars(testimonial.rating)}
+                  {/* Trustpilot stars inside green boxes, centered */}
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className="inline-block w-6 h-6 relative">
+                      <svg viewBox="0 0 24 24" width="24" height="24">
+                        <rect width="24" height="24" rx="4" fill="#00b67a" />
+                      </svg>
+                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <Star size={16} className="text-white" fill="white" />
+                      </span>
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
@@ -79,31 +85,32 @@ const TestimonialsSection = () => {
 
           {/* Testimonials Carousel - Mobile */}
           <div className="lg:hidden">
-            <div className="card-gradient p-6 space-y-4 min-h-[300px]">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">{testimonials[currentSlide].name}</span>
-                <span className="text-sm text-muted-foreground">{testimonials[currentSlide].date}</span>
+            <div className="bg-black border border-gray-400 rounded-xl p-6 space-y-4 min-h-[220px] flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-white text-lg">{testimonials[currentSlide].name}</span>
+                <span className="text-sm text-gray-400">{testimonials[currentSlide].date}</span>
               </div>
-              
-              <p className="text-foreground leading-relaxed">
+              <p className="text-2xl lg:text-3xl text-white leading-relaxed mb-4 font-medium">
                 "{testimonials[currentSlide].text}"
               </p>
-              
               <div className="flex space-x-1">
-                {renderStars(testimonials[currentSlide].rating)}
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="inline-block w-6 h-6">
+                    <svg viewBox="0 0 24 24" fill="#00b67a" width="24" height="24"><rect width="24" height="24" rx="4"/></svg>
+                  </span>
+                ))}
               </div>
             </div>
-
             {/* Carousel Navigation */}
             <div className="flex justify-center space-x-2 mt-6">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-colors ${
-                    currentSlide === index ? 'bg-primary' : 'bg-muted'
-                  }`}
-                />
+                  className={`w-4 h-4 rounded-full border-2 border-gray-600 bg-black flex items-center justify-center ${currentSlide === index ? 'bg-red-600' : ''}`}
+                >
+                  {currentSlide === index && <span className="block w-2 h-2 rounded-full bg-red-600" />}
+                </button>
               ))}
             </div>
           </div>

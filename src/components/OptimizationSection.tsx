@@ -35,11 +35,11 @@ const OptimizationSection = () => {
         <div className="space-y-16">
           {/* Header */}
           <div className="text-center space-y-6">
-            <h2 className="text-3xl lg:text-5xl font-bold">
+            <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
               What is Guided Optimization®?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Every OptimaleMD client receives the following:
+            <p className="text-2xl text-muted-foreground max-w-2xl mx-auto">
+              Every OptimaleMD client receives:
             </p>
           </div>
 
@@ -69,11 +69,11 @@ const OptimizationSection = () => {
                       <feature.icon size={32} />
                     </div>
                   </div>
-                  <h3 className="text-xl lg:text-2xl font-bold">
+                  <h3 className="text-2xl lg:text-3xl font-bold">
                     {feature.title}
                   </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {feature.description}
+                  <p className="text-lg text-muted-foreground">
+                    {feature.description.split('.').slice(0,2).join('. ')}
                   </p>
                 </div>
               );

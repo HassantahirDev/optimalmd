@@ -1,4 +1,4 @@
-const founderImage = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&crop=face";
+const founderImage = "https://images.unsplash.com/photo-1698510047345-ff32de8a3b74?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWVuJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D";
 
 const FounderSection = () => {
   return (
@@ -18,18 +18,17 @@ const FounderSection = () => {
               </div>
               
               <p className="text-muted-foreground text-lg">
-                - Saad, MPMD
+                - Sam Samarrai, MD
               </p>
             </div>
 
             {/* Founder Info Card */}
             <div className="card-gradient p-6 lg:p-8 space-y-4">
               <h3 className="text-2xl font-bold">
-                Meet OptimaleMD's Co-Founder Saad.
+                Meet OptimaleMD's Founder Sam Samarrai, MD.
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Saad is the founder of OptimaleMD and host of the MPMD podcast. He is dedicated to optimizing health through 
-                personalized, science-based healthcare solutions, including advanced diagnostics and expert consultations.
+                Dr. Sam Samarrai is a highly skilled and board-certified family medicine physician specializing in Men's health and wellbeing. He is dedicated to providing comprehensive and compassionate healthcare to his patients. With a strong educational background and a patient-centered approach, he has established himself as a trusted healthcare professional.
               </p>
             </div>
           </div>
