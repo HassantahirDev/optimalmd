@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* OptimalMD Design System - Dark theme with red accents */
+/* OptimaleMD Design System - Dark theme with red accents */
 
 @layer base {
   :root {
@@ -130,4 +130,4 @@
 @keyframes featuredBanner {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
-} 
+}

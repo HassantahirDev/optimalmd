@@ -7,7 +7,7 @@ const InvestmentSection = () => {
   const benefits = [
     {
       title: "Personalized Assessment",
-      description: "Meet your expert OptimalMD Coach to discuss your symptoms and goals. Unlock exclusive discounted pricing on advanced lab testing— minimum $450 lab panel purchase required."
+      description: "Meet your expert OptimaleMD Coach to discuss your symptoms and goals. Unlock exclusive discounted pricing on advanced lab testing— minimum $450 lab panel purchase required."
     },
     {
       title: "In-Depth Lab Analysis", 
@@ -19,11 +19,11 @@ const InvestmentSection = () => {
     },
     {
       title: "Delivered To Your Door",
-      description: "Exclusive access to OptimalMD's FDA-approved pharmacies and supplement dispensaries."
+      description: "Exclusive access to OptimaleMD's FDA-approved pharmacies and supplement dispensaries."
     },
     {
       title: "Proactive Care",
-      description: "Monthly OptimalMD Coach check-ins, treatment refills, follow-up lab work, and continuous support for health optimization."
+      description: "Monthly OptimaleMD Coach check-ins, treatment refills, follow-up lab work, and continuous support for health optimization."
     }
   ];
 
@@ -69,7 +69,7 @@ const InvestmentSection = () => {
             <div className="relative">
               <img 
                 src={phoneImage}
-                alt="OptimalMD consultation on phone"
+                alt="OptimaleMD consultation on phone"
                 className="w-full max-w-sm mx-auto rounded-2xl shadow-[var(--shadow-card)]"
               />
             </div>

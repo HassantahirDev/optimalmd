@@ -10,7 +10,7 @@ const HeroSection = () => {
   ];
 
   const stats = [
-    { number: "50,000+", text: "OptimalMD clients transformed" }
+    { number: "50,000+", text: "OptimaleMD clients transformed" }
   ];
 
   return (
@@ -30,7 +30,7 @@ const HeroSection = () => {
                 ))}
               </div>
               <span className="text-muted-foreground text-sm lg:text-base">
-                {stats[0].number} OptimalMD clients transformed
+                {stats[0].number} OptimaleMD clients transformed
               </span>
             </div>
 
@@ -69,7 +69,7 @@ const HeroSection = () => {
             <div className="relative rounded-2xl overflow-hidden shadow-[var(--shadow-card)]">
               <img 
                 src={heroImage} 
-                alt="Diverse group of OptimalMD clients"
+                alt="Diverse group of OptimaleMD clients"
                 className="w-full h-auto object-cover"
               />
               {/* Overlay gradient */}

@@ -33,7 +33,7 @@ const ExpertsSection = () => {
       number: "②",
       title: "Get your labs done",
       description:
-        "Visit a partnered lab location or use our at-home kit to complete your lab work. Results are sent directly to your OptimalMD provider.",
+        "Visit a partnered lab location or use our at-home kit to complete your lab work. Results are sent directly to your OptimaleMD provider.",
     },
     {
       number: "③",

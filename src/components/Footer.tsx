@@ -7,7 +7,7 @@ const Footer = () => (
         {/* Contact Info */}
         <div className="space-y-4 min-w-[220px]">
           <h4 className="font-bold text-white text-lg mb-2">Contact Info</h4>
-          <div className="text-white/80">Info@MarekHealth.com</div>
+          <div className="text-white/80">Info@OptimaleMD</div>
           <div className="text-white/80">Phone: 1 (877) 572 2582</div>
           <div className="text-white/60 text-sm">The fastest and most effective way to reach us is via email</div>
           <div className="font-bold text-white mt-4">Office hours</div>
@@ -21,7 +21,7 @@ const Footer = () => (
             <span className="font-bold text-white">Legal</span>
             <span className="text-white/60">&gt;</span>
           </div>
-          <a href="https://marekhealth.com/cancellation-refund-policy" className="text-red-400 font-semibold">Cancellation &amp; Refund Policy</a>
+          <a href="" className="text-red-400 font-semibold">Cancellation &amp; Refund Policy</a>
           <img src="/placeholder.svg" alt="LegitScript Certified" className="mt-6 w-28" />
         </div>
         {/* Services */}

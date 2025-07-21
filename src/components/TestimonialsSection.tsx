@@ -8,19 +8,19 @@ const TestimonialsSection = () => {
     {
       name: "Cheyanne",
       date: "Dec 16, 2023",
-      text: "Not to sound dramatic, but OptimalMD has literally changed the course of my life. After having my first consultation with Derek and learning about the blood work, I was amazed at how much information was available about my health that I had never known before.",
+      text: "Not to sound dramatic, but OptimaleMD has literally changed the course of my life. After having my first consultation with Derek and learning about the blood work, I was amazed at how much information was available about my health that I had never known before.",
       rating: 5
     },
     {
       name: "L.R.",
       date: "Jul 26, 2022", 
-      text: "I waited too long to seek hormonal health optimization. The symptoms crept into my life slowly and I just accepted them as part of aging. Working with OptimalMD has been life-changing.",
+      text: "I waited too long to seek hormonal health optimization. The symptoms crept into my life slowly and I just accepted them as part of aging. Working with OptimaleMD has been life-changing.",
       rating: 5
     },
     {
       name: "Jack",
       date: "Jun 29, 2023",
-      text: "Life Changer. OptimalMD's team and solutions are nothing short of life changing. In 2.5 months, I've seen incredible improvements in energy, focus, and overall well-being.",
+      text: "Life Changer. OptimaleMD's team and solutions are nothing short of life changing. In 2.5 months, I've seen incredible improvements in energy, focus, and overall well-being.",
       rating: 5
     },
     {
@@ -51,7 +51,7 @@ const TestimonialsSection = () => {
               Our community has a lot to say
             </h2>
             <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-              We can tell you why OptimalMD is the future of health optimization 
+              We can tell you why OptimaleMD is the future of health optimization 
               all day long, but we'd rather you hear it from our clients. You can read 
               all of our 5 star reviews... but it's gonna take a while.
             </p>

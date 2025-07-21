@@ -13,7 +13,7 @@ const FounderSection = () => {
                 <p className="text-xl lg:text-2xl leading-relaxed text-foreground">
                   Over time, I found it incredibly difficult to get medical oversight for myself and my 
                   family that reflected the most cutting-edge literature, and that was preventative- 
-                  that's why I started OptimalMD.
+                  that's why I started OptimaleMD.
                 </p>
               </div>
               
@@ -25,10 +25,10 @@ const FounderSection = () => {
             {/* Founder Info Card */}
             <div className="card-gradient p-6 lg:p-8 space-y-4">
               <h3 className="text-2xl font-bold">
-                Meet OptimalMD's Co-Founder Saad.
+                Meet OptimaleMD's Co-Founder Saad.
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Saad is the founder of OptimalMD and host of the MPMD podcast. He is dedicated to optimizing health through 
+                Saad is the founder of OptimaleMD and host of the MPMD podcast. He is dedicated to optimizing health through 
                 personalized, science-based healthcare solutions, including advanced diagnostics and expert consultations.
               </p>
             </div>
@@ -39,7 +39,7 @@ const FounderSection = () => {
             <div className="relative rounded-2xl overflow-hidden shadow-[var(--shadow-card)]">
               <img 
                 src={founderImage}
-                alt="Saad, Co-Founder of OptimalMD"
+                alt="Saad, Co-Founder of OptimaleMD"
                 className="w-full h-auto object-cover aspect-[4/5]"
               />
               {/* Overlay gradient */}

@@ -6,7 +6,7 @@ const ProcessSection = () => {
   const steps = [
     {
       number: 1,
-      title: "Schedule a 1 on 1 intake with an OptimalMD Coach.",
+      title: "Schedule a 1 on 1 intake with an OptimaleMD Coach.",
       description: "Meet with your health coach via video conference to examine your symptoms and goals so they can get started with your personalized protocol."
     },
     {

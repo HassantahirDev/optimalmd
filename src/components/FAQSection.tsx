@@ -6,8 +6,8 @@ const FAQSection = () => {
   
   const faqs = [
     {
-      question: "I am NOT a United States Resident, can I still work with OptimalMD?",
-      answer: "Currently, OptimalMD services are only available to residents of the United States due to regulatory requirements."
+      question: "I am NOT a United States Resident, can I still work with OptimaleMD?",
+      answer: "Currently, OptimaleMD services are only available to residents of the United States due to regulatory requirements."
     },
     {
       question: "What qualifies for Hormone Replacement Therapy?",
@@ -15,11 +15,11 @@ const FAQSection = () => {
     },
     {
       question: "Do you accept health insurance?",
-      answer: "OptimalMD operates as a direct-pay service and does not accept traditional health insurance. This allows us to provide personalized care without insurance limitations."
+      answer: "OptimaleMD operates as a direct-pay service and does not accept traditional health insurance. This allows us to provide personalized care without insurance limitations."
     },
     {
-      question: "What is OptimalMD?",
-      answer: "OptimalMD is a personalized health optimization platform that combines advanced lab testing, expert coaching, and medical oversight to help you achieve optimal health and performance."
+      question: "What is OptimaleMD?",
+      answer: "OptimaleMD is a personalized health optimization platform that combines advanced lab testing, expert coaching, and medical oversight to help you achieve optimal health and performance."
     }
   ];
 

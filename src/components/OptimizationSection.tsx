@@ -11,13 +11,13 @@ const OptimizationSection = () => {
     {
       icon: Video, 
       title: "1 on 1 expert health coaching",
-      description: "OptimalMD coaches are your health strategists, dedicated to understanding your specific health circumstances, goals, and challenges.",
+      description: "OptimaleMD coaches are your health strategists, dedicated to understanding your specific health circumstances, goals, and challenges.",
       color: "text-green-400"
     },
     {
       icon: FileText,
       title: "Customized treatment protocol",
-      description: "OptimalMD Coaches create a personalized blueprint for each client, continuously refining and adapting it to your evolving health profile.",
+      description: "OptimaleMD Coaches create a personalized blueprint for each client, continuously refining and adapting it to your evolving health profile.",
       color: "text-blue-400"
     }
   ];
@@ -39,7 +39,7 @@ const OptimizationSection = () => {
               What is Guided Optimization®?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Every OptimalMD client receives the following:
+              Every OptimaleMD client receives the following:
             </p>
           </div>
 
