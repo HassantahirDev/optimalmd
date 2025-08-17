@@ -7,14 +7,12 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    "Guided Optimization",
-    "Diagnostic Labs", 
-    "Coaching",
-    "Education",
-    "Apparel",
+    "How it Works",
+    "About Us", 
+    "Our Services",
+    "Our Blog",
+    "Contact Us",
     "FAQs",
-    "Testimonials",
-    "Leadership"
   ];
 
   return (
@@ -38,6 +36,14 @@ const Navigation = () => {
                 <Link
                   key={item}
                   to="/leadership"
+                  className="text-foreground hover:text-primary transition-colors duration-200"
+                >
+                  {item}
+                </Link>
+              ) : item === "How it Works" ? (
+                <Link
+                  key={item}
+                  to="/how-it-works"
                   className="text-foreground hover:text-primary transition-colors duration-200"
                 >
                   {item}
@@ -80,6 +86,15 @@ const Navigation = () => {
                   <Link
                     key={item}
                     to="/leadership"
+                    className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ) : item === "How it Works" ? (
+                  <Link
+                    key={item}
+                    to="/how-it-works"
                     className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
                     onClick={() => setIsOpen(false)}
                   >
