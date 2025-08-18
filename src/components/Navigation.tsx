@@ -48,6 +48,14 @@ const Navigation = () => {
                 >
                   {item}
                 </Link>
+                ) : item === "Our Services" ? (
+                  <Link
+                    key={item}
+                    to="/our-services"
+                    className="text-foreground hover:text-primary transition-colors duration-200"
+                  >
+                    {item}
+                  </Link>
               ) : (
                 <a
                   key={item}

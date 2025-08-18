@@ -48,8 +48,8 @@ export default function PageBanner({
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto h-full px-6 sm:px-8 py-16 sm:py-20 md:py-24 flex flex-col items-start justify-center text-left">
-        <h1
+      <div className="relative max-w-7xl mx-auto h-full px-6 sm:px-8 flex flex-col items-start justify-center text-left">
+      <h1
           id="page-banner-title"
           className="text-white font-extrabold text-[36px] sm:text-[44px] md:text-[56px] leading-[1.05] drop-shadow"
         >

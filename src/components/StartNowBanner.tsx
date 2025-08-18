@@ -1,13 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import leftImage from '@/assets/phone-consultation.jpg';
+import rightImage from '@/assets/hero-collage.jpg';
 
 type StartNowBannerProps = {
   title?: string;
   description?: string;
   ctaLabel?: string;
   ctaHref?: string;
-  imageLeftSrc?: string; // path string (e.g. '/doctor.png')
-  imageRightSrc?: string; // path string (e.g. '/lab.png')
+  imageLeftSrc?: string;
+  imageRightSrc?: string;
 };
 
 const StartNowBanner: React.FC<StartNowBannerProps> = ({
@@ -19,9 +21,8 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
   imageLeftSrc,
   imageRightSrc,
 }) => {
-  // Use public/doctor.png and public/lab.png as defaults
-  const leftSrc = imageLeftSrc || '/lab.png';
-  const rightSrc = imageRightSrc || '/doctor.png' ;
+  const leftSrc = imageLeftSrc || leftImage;
+  const rightSrc = imageRightSrc || rightImage;
 
   return (
     <section className="py-10 sm:py-12 md:py-16">
@@ -49,17 +50,16 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
             <div className="relative p-4 sm:p-6 md:p-8">
               <div className="h-full w-full grid grid-cols-2 gap-4 items-center">
                 <div className="col-span-1 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-2xl overflow-hidden">
-                  {/* Using images from the public folder (e.g. public/doctor.png) */}
                   <img
                     src={leftSrc}
-                    alt="Doctor"
+                    alt="Consultation"
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <div className="col-span-1 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-2xl overflow-hidden">
                   <img
                     src={rightSrc}
-                    alt="Lab"
+                    alt="Provider"
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -73,3 +73,4 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
 };
 
 export default StartNowBanner;
+
