@@ -1,16 +1,15 @@
-import Navigation from "../components/Navigation";
-import HeroSection from "../components/HeroSection";
-import ProblemsSection from "../components/ProblemsSection";
-import OptimizationSection from "../components/OptimizationSection";
-import InvestmentSection from "../components/InvestmentSection";
-import TreatmentGoalsSection from "../components/TreatmentGoalsSection";
-import ProcessSection from "../components/ProcessSection";
-import TestimonialsSection from "../components/TestimonialsSection";
-import FounderSection from "../components/FounderSection";
-import ExpertsSection from "../components/ExpertsSection";
-import FAQSection from "../components/FAQSection";
-import NewsletterSection from "../components/NewsletterSection";
-import Footer from "../components/Footer";
+import Navigation from "../components/LandingPage/Navigation";
+import HeroSection from "../components/LandingPage/HeroSection";
+import ProblemsSection from "../components/LandingPage/ProblemsSection";
+import OptimizationSection from "../components/LandingPage/OptimizationSection";
+import TestimonialsSection from "../components/LandingPage/TestimonialsSection";
+import FounderSection from "../components/LandingPage/FounderSection";
+import ExpertsSection from "../components/LandingPage/ExpertsSection";
+import FAQSection from "../components/LandingPage/FAQSection";
+import InvestmentSection from "@/components/LandingPage/InvestmentSection";
+import TreatmentGoalsSection from "@/components/LandingPage/TreatmentGoalsSection";
+import NewsletterSection from "@/components/LandingPage/NewsletterSection";
+import Footer from "@/components/LandingPage/Footer";
 
 const Index = () => {
   return (
