@@ -1,10 +1,11 @@
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import PageBanner from '@/components/Pagebanner';
-import phoneConsultation from '@/assets/phone-consultation.jpg';
-import StepProcess from '@/components/StepProcess';
-import FAQSection from '@/components/FAQSection';
-import StartNowBanner from '@/components/StartNowBanner';
+import Navigation from "@/components/LandingPage/Navigation";
+import PageBanner from "@/components/HowItWork/Pagebanner";
+import phoneConsultation from "@/assets/phone-consultation.jpg";
+import StepProcess from "@/components/HowItWork/StepProcess";
+import FAQSection from "@/components/LandingPage/FAQSection";
+import StartNowBanner from "@/components/HowItWork/StartNowBanner";
+import ProcessSection from "@/components/ProcessSection";
+import Footer from "@/components/LandingPage/Footer";
 
 const HowItWorks = () => {
   return (
@@ -13,10 +14,7 @@ const HowItWorks = () => {
 
       <PageBanner
         title="How It Works"
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'How It Works' },
-        ]}
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "How It Works" }]}
         backgroundImage={phoneConsultation}
         className="h-[320px] sm:h-[380px] md:h-[440px]"
       />

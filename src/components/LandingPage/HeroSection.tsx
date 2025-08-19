@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
-import { Button } from "./ui/button";
-import heroImage from "../assets/hero-collage.jpg";
+import { Button } from "../ui/button";
+import heroImage from "../../assets/hero-collage.jpg";
 
 const HeroSection = () => {
   const features = [
