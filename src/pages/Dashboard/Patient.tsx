@@ -1,5 +1,6 @@
 import BookAppointment from "@/components/BookAppointment";
 import Sidebar from "@/components/SideBar";
+import Navbar from "@/components/Navbar"; // Add this import
 import { useState } from "react";
 
 interface PatientDashboardProps {
@@ -20,7 +21,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
     switch (activeMenuItem) {
       case "book-appointment":
         return <BookAppointment patientName={patientName} />;
-      case "care-plan":
+       case "care-plan":
         return (
           <div className="flex-1 text-white p-8">
             <h1 className="text-3xl font-bold">Care Plan Status</h1>
@@ -44,12 +45,18 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
   };
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: "#151515" }}>
-      <Sidebar
-        activeMenuItem={activeMenuItem}
-        onMenuItemClick={handleMenuItemClick}
-      />
-      {renderContent()}
+    <div className="h-screen" style={{ backgroundColor: "#151515" }}>
+      {/* Add the Navbar at the top */}
+      <Navbar />
+      
+      {/* Main content area with sidebar and content */}
+      <div className="flex h-[calc(100vh-64px)]"> {/* Subtract navbar height */}
+        <Sidebar
+          activeMenuItem={activeMenuItem}
+          onMenuItemClick={handleMenuItemClick}
+        />
+        {renderContent()}
+      </div>
     </div>
   );
 };
