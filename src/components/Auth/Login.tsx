@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
+import { loginUser } from "@/redux/slice/authSlice";
 
 export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
@@ -8,9 +10,12 @@ export default function LoginComponent() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.auth);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempted with:", { email, password, rememberMe });
+    dispatch(loginUser({ email, password }));
   };
 
   return (
