@@ -1,21 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { loginUser } from "@/redux/slice/authSlice";
+import { toast } from "react-toastify";
 
 export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [primaryEmail, setPrimaryEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const { loading, error, user, token } = useAppSelector((state) => state.auth);
+
+  // Check for URL parameters and show appropriate messages
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    if (verified === "true") {
+      toast.success("Email verified successfully! Please login.");
+    }
+  }, [searchParams]);
+
+  // Redirect to dashboard if user is already logged in or after successful login
+  useEffect(() => {
+    if (user && token) {
+      // Check if this is a fresh login (token was just set)
+      const wasJustLoggedIn = localStorage.getItem("authToken") === token;
+      if (wasJustLoggedIn) {
+        toast.success("Login successful! Redirecting to dashboard...");
+      }
+      navigate("/dashboard");
+    }
+  }, [user, token, navigate]);
+
+  // Show error toast when login fails
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginUser({ email, password }));
+    dispatch(loginUser({ primaryEmail, password }));
   };
 
   return (
@@ -28,20 +58,20 @@ export default function LoginComponent() {
           </h1>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email */}
+            {/* Primary Email */}
             <div>
               <label
-                htmlFor="email"
+                htmlFor="primaryEmail"
                 className="block text-base sm:text-lg font-medium text-white mb-2"
               >
-                Email
+                Primary Email
               </label>
               <input
-                id="email"
+                id="primaryEmail"
                 type="email"
-                placeholder="Enter Your Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter Your Primary Email"
+                value={primaryEmail}
+                onChange={(e) => setPrimaryEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-full bg-[#1E1E1E] text-white placeholder-gray-400 border border-transparent focus:border-[#ff4757] focus:ring-0 outline-none"
               />
             </div>
@@ -84,18 +114,34 @@ export default function LoginComponent() {
                 />
                 Remember me
               </label>
-              <a href="#" className="hover:underline text-center sm:text-right">
-                Forget Password
-              </a>
+              <div className="flex flex-col gap-1 text-center sm:text-right">
+                <a href="#" className="hover:underline">
+                  Forget Password
+                </a>
+                <Link
+                  to="/verify-email-pending"
+                  className="hover:underline text-[#ff4757]"
+                >
+                  Need Email Verification?
+                </Link>
+              </div>
             </div>
 
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full py-3 sm:py-4 rounded-full bg-[#ff4757] hover:bg-[#e63b4d] text-white font-medium text-base sm:text-lg"
+              disabled={loading}
+              className="w-full py-3 sm:py-4 rounded-full bg-[#ff4757] hover:bg-[#e63b4d] disabled:bg-gray-600 text-white font-medium text-base sm:text-lg transition-colors"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
+
+            {/* Error Display */}
+            {error && (
+              <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm text-center">{error}</p>
+              </div>
+            )}
           </form>
         </div>
       </div>
@@ -124,7 +170,7 @@ export default function LoginComponent() {
 
           {/* Register */}
           <p>
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link
               to="/register"
               className="font-semibold underline hover:no-underline"

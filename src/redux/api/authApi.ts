@@ -12,7 +12,7 @@ export const registerUserApi = async (
 
 // Login User
 export const loginUserApi = async (data: {
-  email: string;
+  primaryEmail: string;
   password: string;
 }): Promise<AuthResponseDataDto> => {
   const response = await api.post("api/auth/login", data);
@@ -21,9 +21,17 @@ export const loginUserApi = async (data: {
 
 // Forgot Password
 export const forgotPasswordApi = async (
-  email: string
-): Promise<{ message: string; email: string }> => {
-  const response = await api.post("/auth/forgot-password", { email });
+  primaryEmail: string
+): Promise<{ message: string; primaryEmail: string }> => {
+  const response = await api.post("/auth/forgot-password", { primaryEmail });
+  return response.data.data;
+};
+
+// Resend Email Verification
+export const resendVerificationApi = async (
+  primaryEmail: string
+): Promise<{ message: string; primaryEmail: string }> => {
+  const response = await api.post("api/auth/resend-verification", { primaryEmail });
   return response.data.data;
 };
 

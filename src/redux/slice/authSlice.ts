@@ -1,26 +1,94 @@
 // src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUserApi, registerUserApi } from "../api/authApi";
+import { loginUserApi, registerUserApi, resendVerificationApi } from "../api/authApi";
 
 // DTOs
 export interface RegisterDto {
+  // Mandatory Fields (Green in image)
+  medicalRecordNo: string;
+  title: string;
   firstName: string;
+  middleName: string;
   lastName: string;
-  email: string;
+  dateOfBirth: string;
+  gender: string;
+  completeAddress: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  primaryEmail: string;
+  alternativeEmail: string;
+  primaryPhone: string;
+  alternativePhone: string;
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  emergencyContactPhone: string;
+  referringSource: string;
+  consentForTreatment: string;
+  hipaaPrivacyNoticeAcknowledgment: string;
+  releaseOfMedicalRecordsConsent: string;
+  preferredMethodOfCommunication: string;
+  disabilityAccessibilityNeeds: string;
+  
+  // Optional Fields (Yellow in image)
+  careProviderPhone?: string;
+  lastFourDigitsSSN?: string;
+  languagePreference?: string;
+  ethnicityRace?: string;
+  primaryCarePhysician?: string;
+  insuranceProviderName?: string;
+  insurancePolicyNumber?: string;
+  insuranceGroupNumber?: string;
+  insurancePhoneNumber?: string;
+  guarantorResponsibleParty?: string;
+  dateOfFirstVisitPlanned?: string;
+  interpreterRequired?: string;
+  advanceDirectives?: string;
+  
+  // Authentication fields
   password: string;
-  phone?: string;
-  dateOfBirth?: string;
-  city?: string;
 }
 
 export interface UserResponseDto {
   id: string;
-  email: string;
+  medicalRecordNo: string;
+  title: string;
   firstName: string;
+  middleName: string;
   lastName: string;
-  phone?: string | null;
-  dateOfBirth?: string | null;
-  city?: string | null;
+  dateOfBirth: string;
+  gender: string;
+  completeAddress: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  primaryEmail: string;
+  alternativeEmail: string;
+  primaryPhone: string;
+  alternativePhone: string;
+  emergencyContactName: string;
+  emergencyContactRelationship: string;
+  emergencyContactPhone: string;
+  referringSource: string;
+  consentForTreatment: string;
+  hipaaPrivacyNoticeAcknowledgment: string;
+  releaseOfMedicalRecordsConsent: string;
+  preferredMethodOfCommunication: string;
+  disabilityAccessibilityNeeds: string;
+  careProviderPhone?: string | null;
+  lastFourDigitsSSN?: string | null;
+  languagePreference?: string | null;
+  ethnicityRace?: string | null;
+  primaryCarePhysician?: string | null;
+  insuranceProviderName?: string | null;
+  insurancePolicyNumber?: string | null;
+  insuranceGroupNumber?: string | null;
+  insurancePhoneNumber?: string | null;
+  guarantorResponsibleParty?: string | null;
+  dateOfRegistration: string;
+  dateOfFirstVisitPlanned?: string | null;
+  interpreterRequired?: string | null;
+  advanceDirectives?: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -63,7 +131,7 @@ export const registerUser = createAsyncThunk<
 // ✅ Login thunk
 export const loginUser = createAsyncThunk<
   AuthResponseDataDto,
-  { email: string; password: string },
+  { primaryEmail: string; password: string },
   { rejectValue: string }
 >("api/auth/login", async (credentials, thunkAPI) => {
   try {
@@ -71,6 +139,21 @@ export const loginUser = createAsyncThunk<
   } catch (err) {
     return thunkAPI.rejectWithValue(
       err.response?.data?.message || "Login failed"
+    );
+  }
+});
+
+// ✅ Resend Verification thunk
+export const resendVerification = createAsyncThunk<
+  { message: string; primaryEmail: string },
+  string,
+  { rejectValue: string }
+>("api/auth/resend-verification", async (primaryEmail, thunkAPI) => {
+  try {
+    return await resendVerificationApi(primaryEmail);
+  } catch (err) {
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || "Failed to resend verification email"
     );
   }
 });
@@ -103,9 +186,8 @@ const authSlice = createSlice({
       )
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Something went wrong";
+        state.error = action.payload || "Registration failed";
       })
-
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -122,7 +204,20 @@ const authSlice = createSlice({
       )
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Something went wrong";
+        state.error = action.payload || "Login failed";
+      })
+      // Resend Verification
+      .addCase(resendVerification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendVerification.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(resendVerification.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to resend verification email";
       });
   },
 });
