@@ -1,6 +1,7 @@
 // src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUserApi, registerUserApi, resendVerificationApi } from "../api/authApi";
+import { clearAuthData } from "@/lib/utils";
+import { registerUserApi, loginUserApi, resendVerificationApi } from "../api/authApi";
 
 // DTOs
 export interface RegisterDto {
@@ -94,14 +95,46 @@ export interface UserResponseDto {
   updatedAt: string;
 }
 
+export interface DoctorResponseDto {
+  id: string;
+  email: string;
+  title: string;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  completeAddress: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  alternativeEmail: string | null;
+  primaryPhone: string;
+  alternativePhone: string | null;
+  licenseNumber: string;
+  specialization: string;
+  qualifications: string[];
+  experience: number;
+  bio: string | null;
+  isAvailable: boolean;
+  consultationFee: string;
+  workingHours: any;
+  isActive: boolean;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthResponseDataDto {
   accessToken: string;
-  user: UserResponseDto;
+  user: UserResponseDto | DoctorResponseDto;
+  userType: 'user' | 'doctor';
 }
 
 interface AuthState {
-  user: UserResponseDto | null;
+  user: UserResponseDto | DoctorResponseDto | null;
   token: string | null;
+  userType: 'user' | 'doctor' | null;
   loading: boolean;
   error: string | null;
 }
@@ -109,6 +142,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: null,
+  userType: null,
   loading: false,
   error: null,
 };
@@ -131,7 +165,7 @@ export const registerUser = createAsyncThunk<
 // ✅ Login thunk
 export const loginUser = createAsyncThunk<
   AuthResponseDataDto,
-  { primaryEmail: string; password: string },
+  { userType: 'user' | 'doctor'; email: string; password: string },
   { rejectValue: string }
 >("api/auth/login", async (credentials, thunkAPI) => {
   try {
@@ -145,12 +179,12 @@ export const loginUser = createAsyncThunk<
 
 // ✅ Resend Verification thunk
 export const resendVerification = createAsyncThunk<
-  { message: string; primaryEmail: string },
+  { message: string; email: string },
   string,
   { rejectValue: string }
->("api/auth/resend-verification", async (primaryEmail, thunkAPI) => {
+>("api/auth/resend-verification", async (email, thunkAPI) => {
   try {
-    return await resendVerificationApi(primaryEmail);
+    return await resendVerificationApi(email);
   } catch (err) {
     return thunkAPI.rejectWithValue(
       err.response?.data?.message || "Failed to resend verification email"
@@ -165,7 +199,8 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("authToken");
+      state.userType = null;
+      clearAuthData();
     },
   },
   extraReducers: (builder) => {
@@ -181,7 +216,11 @@ const authSlice = createSlice({
           state.loading = false;
           state.user = action.payload.user;
           state.token = action.payload.accessToken;
+          state.userType = action.payload.userType;
           localStorage.setItem("authToken", action.payload.accessToken);
+          localStorage.setItem("userType", action.payload.userType);
+          localStorage.setItem("userId", action.payload.user.id);
+          localStorage.setItem("name", action.payload.user.firstName);
         }
       )
       .addCase(registerUser.rejected, (state, action) => {
@@ -199,7 +238,11 @@ const authSlice = createSlice({
           state.loading = false;
           state.user = action.payload.user;
           state.token = action.payload.accessToken;
+          state.userType = action.payload.userType;
           localStorage.setItem("authToken", action.payload.accessToken);
+          localStorage.setItem("userType", action.payload.userType);
+          localStorage.setItem("userId", action.payload.user.id);
+          localStorage.setItem("name", action.payload.user.firstName);
         }
       )
       .addCase(loginUser.rejected, (state, action) => {

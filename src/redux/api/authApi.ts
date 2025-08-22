@@ -6,42 +6,45 @@ import { AuthResponseDataDto, RegisterDto } from "../slice/authSlice";
 export const registerUserApi = async (
   data: RegisterDto
 ): Promise<AuthResponseDataDto> => {
-  const response = await api.post("api/auth/register", data);
+  const response = await api.post("auth/register", data);
   return response.data.data;
 };
 
-// Login User
+// Login User/Doctor
 export const loginUserApi = async (data: {
-  primaryEmail: string;
+  userType: 'user' | 'doctor';
+  email: string;
   password: string;
 }): Promise<AuthResponseDataDto> => {
-  const response = await api.post("api/auth/login", data);
+  const response = await api.post("auth/login", data);
   return response.data.data;
 };
 
 // Forgot Password
 export const forgotPasswordApi = async (
-  primaryEmail: string
-): Promise<{ message: string; primaryEmail: string }> => {
-  const response = await api.post("/auth/forgot-password", { primaryEmail });
+  email: string
+): Promise<{ message: string; email: string }> => {
+  const response = await api.post("auth/forgot-password", { email });
   return response.data.data;
 };
 
 // Resend Email Verification
 export const resendVerificationApi = async (
-  primaryEmail: string
-): Promise<{ message: string; primaryEmail: string }> => {
-  const response = await api.post("api/auth/resend-verification", { primaryEmail });
+  email: string
+): Promise<{ message: string; email: string }> => {
+  const response = await api.post("auth/resend-verification", { email });
   return response.data.data;
 };
 
 // Reset Password
 export const resetPasswordApi = async (
   token: string,
+  accountType: 'user' | 'doctor',
   newPassword: string
 ): Promise<{ message: string }> => {
-  const response = await api.post("/auth/reset-password", {
+  const response = await api.post("auth/reset-password", {
     token,
+    accountType,
     newPassword,
   });
   return response.data.data;

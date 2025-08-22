@@ -1,27 +1,203 @@
 // components/BookAppointment.tsx
-import { Calendar, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Calendar, ChevronDown, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
+import { getUserId } from "@/lib/utils";
+import {
+  fetchDoctors,
+  fetchDoctorServices,
+  fetchAvailableSlots,
+  bookAppointment,
+  setSelectedDoctor,
+  setSelectedService,
+  setSelectedSlot,
+  setSelectedDate,
+  setSelectedTime,
+  resetForm,
+  clearBookingState,
+} from "@/redux/slice/appointmentSlice";
+import { toast } from "react-toastify";
+import PaymentModal from "./PaymentModal";
 
 interface BookAppointmentProps {
   patientName?: string;
 }
 
 const BookAppointment: React.FC<BookAppointmentProps> = ({
-  patientName = "Stephen",
+  patientName = localStorage.getItem('name') || '',
 }) => {
-  const [selectedService, setSelectedService] = useState<string>("");
-  const [selectedProvider, setSelectedProvider] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const {
+    doctors,
+    services,
+    availableSlots,
+    selectedDoctor,
+    selectedService,
+    selectedSlot,
+    selectedDate,
+    selectedTime,
+    loading,
+    error,
+    bookingLoading,
+    bookingError,
+    bookingSuccess,
+  } = useAppSelector((state) => state.appointment);
 
-  const handleReschedule = () => {
-    // Handle reschedule logic
-    console.log("Reschedule clicked");
+  // Get user ID directly from localStorage
+  const userId = getUserId();
+  
+  // Payment modal state
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [tempAppointmentData, setTempAppointmentData] = useState<any>(null);
+  const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
+
+  useEffect(() => {
+    // Fetch doctors on component mount
+    dispatch(fetchDoctors());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Fetch services when doctor is selected
+    if (selectedDoctor) {
+      dispatch(fetchDoctorServices(selectedDoctor.id));
+    }
+  }, [selectedDoctor, dispatch]);
+
+  useEffect(() => {
+    // Fetch available slots when doctor, service, and date are selected
+    if (selectedDoctor && selectedService && selectedDate) {
+      dispatch(fetchAvailableSlots({
+        doctorId: selectedDoctor.id,
+        date: selectedDate,
+        serviceId: selectedService.id,
+      }));
+    }
+  }, [selectedDoctor, selectedService, selectedDate, dispatch]);
+
+  useEffect(() => {
+    // Show success message
+    if (bookingSuccess) {
+      toast.success("Appointment booked successfully!");
+      dispatch(clearBookingState());
+      dispatch(resetForm());
+    }
+  }, [bookingSuccess, dispatch]);
+
+  useEffect(() => {
+    // Show error message
+    if (bookingError) {
+      toast.error(bookingError);
+      dispatch(clearBookingState());
+    }
+  }, [bookingError, dispatch]);
+
+  const handleDoctorChange = (doctorId: string) => {
+    const doctor = doctors?.find(d => d.id === doctorId);
+    dispatch(setSelectedDoctor(doctor || null));
+  };
+
+  const handleServiceChange = (serviceId: string) => {
+    const service = services?.find(s => s.id === serviceId);
+    dispatch(setSelectedService(service || null));
+  };
+
+  const handleSlotChange = (slotId: string) => {
+    const slot = availableSlots?.find(s => s.id === slotId);
+    dispatch(setSelectedSlot(slot || null));
+  };
+
+  const handleDateChange = (date: string) => {
+    dispatch(setSelectedDate(date));
+  };
+
+  const handleTimeChange = (time: string) => {
+    dispatch(setSelectedTime(time));
+  };
+
+  const handleBookAppointment = async () => {
+    if (!userId) {
+      toast.error("Please log in to book an appointment");
+      return;
+    }
+
+    if (!selectedDoctor || !selectedService || !selectedSlot || !selectedDate) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const appointmentData = {
+      patientId: userId,
+      doctorId: selectedDoctor.id,
+      serviceId: selectedService.id,
+      slotId: selectedSlot.id,
+      appointmentDate: selectedDate,
+      appointmentTime: selectedSlot.startTime, // Use the slot's start time
+      duration: selectedService.duration,
+      amount: selectedService.basePrice,
+    };
+
+    setIsCreatingAppointment(true);
+    
+    try {
+      // Create temporary appointment first
+      const response = await fetch('http://localhost:3000/api/appointments/temporary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify(appointmentData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create temporary appointment');
+      }
+
+      const result = await response.json();
+      
+      // Store appointment data with the created appointment ID and show payment modal
+      setTempAppointmentData({
+        ...appointmentData,
+        id: result.data.id, // Use the actual appointment ID from backend
+      });
+      setIsPaymentModalOpen(true);
+    } catch (error) {
+      console.error('Error creating temporary appointment:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create appointment');
+    } finally {
+      setIsCreatingAppointment(false);
+    }
   };
 
   const handleCancel = () => {
-    // Handle cancel logic
-    console.log("Cancel appointment clicked");
+    dispatch(resetForm());
+  };
+
+  const handlePaymentSuccess = async () => {
+    if (tempAppointmentData) {
+      // Payment was successful, appointment is already confirmed on backend
+      // Just show success message and reset the form
+      toast.success('Appointment booked successfully!');
+      dispatch(resetForm());
+      setTempAppointmentData(null);
+      setIsCreatingAppointment(false);
+    }
+  };
+
+  const handlePaymentModalClose = () => {
+    setIsPaymentModalOpen(false);
+    setTempAppointmentData(null);
+    setIsCreatingAppointment(false);
+  };
+
+  // Format time for display
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   return (
@@ -49,8 +225,48 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
             Book an Appointment
           </h2>
 
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
+              <p className="text-red-400">{error}</p>
+            </div>
+          )}
+
+
+
           {/* Form Grid */}
           <div className="grid grid-cols-2 gap-8">
+            {/* Doctor Dropdown */}
+            <div>
+              <label className="block text-white text-lg font-medium mb-4">
+                Doctor
+              </label>
+              <div className="relative">
+                <select
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  style={{ backgroundColor: "#333333" }}
+                  value={selectedDoctor?.id || ""}
+                  onChange={(e) => handleDoctorChange(e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="">Choose a Doctor</option>
+                  {doctors && doctors.length > 0 ? (
+                    doctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        {doctor.title} {doctor.firstName} {doctor.lastName} - {doctor.specialization}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>No doctors available</option>
+                  )}
+                </select>
+                <ChevronDown
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
+                  size={20}
+                />
+              </div>
+            </div>
+
             {/* Service Dropdown */}
             <div>
               <label className="block text-white text-lg font-medium mb-4">
@@ -60,37 +276,20 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                 <select
                   className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
                   style={{ backgroundColor: "#333333" }}
-                  value={selectedService}
-                  onChange={(e) => setSelectedService(e.target.value)}
+                  value={selectedService?.id || ""}
+                  onChange={(e) => handleServiceChange(e.target.value)}
+                  disabled={!selectedDoctor || loading}
                 >
                   <option value="">Select a Service</option>
-                  <option value="general">General Consultation</option>
-                  <option value="checkup">Health Checkup</option>
-                  <option value="specialist">Specialist Visit</option>
-                </select>
-                <ChevronDown
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
-                  size={20}
-                />
-              </div>
-            </div>
-
-            {/* Provider Dropdown */}
-            <div>
-              <label className="block text-white text-lg font-medium mb-4">
-                Provider
-              </label>
-              <div className="relative">
-                <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
-                  style={{ backgroundColor: "#333333" }}
-                  value={selectedProvider}
-                  onChange={(e) => setSelectedProvider(e.target.value)}
-                >
-                  <option value="">Choose a Provider</option>
-                  <option value="dr-smith">Dr. Smith</option>
-                  <option value="dr-johnson">Dr. Johnson</option>
-                  <option value="dr-williams">Dr. Williams</option>
+                  {services && services.length > 0 ? (
+                    services.map((service) => (
+                      <option key={service.id} value={service.id}>
+                        {service.name} - ${service.basePrice}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>No services available</option>
+                  )}
                 </select>
                 <ChevronDown
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
@@ -110,7 +309,9 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  disabled={!selectedService}
                 />
                 <Calendar
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500 pointer-events-none"
@@ -128,16 +329,22 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                 <select
                   className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
                   style={{ backgroundColor: "#333333" }}
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
+                  value={selectedSlot?.id || ""}
+                  onChange={(e) => handleSlotChange(e.target.value)}
+                  disabled={!selectedDate || !availableSlots || availableSlots.length === 0 || loading}
                 >
                   <option value="">Select a Time Slot</option>
-                  <option value="9:00">9:00 AM</option>
-                  <option value="10:00">10:00 AM</option>
-                  <option value="11:00">11:00 AM</option>
-                  <option value="14:00">2:00 PM</option>
-                  <option value="15:00">3:00 PM</option>
-                  <option value="16:00">4:00 PM</option>
+                  {availableSlots && availableSlots.length > 0 ? (
+                    availableSlots.map((slot) => (
+                      <option key={slot.id} value={slot.id}>
+                        {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                      </option>
+                    ))
+                  ) : selectedDate && selectedService && selectedDoctor ? (
+                    <option value="" disabled>No available slots for this date</option>
+                  ) : (
+                    <option value="" disabled>Select date and service first</option>
+                  )}
                 </select>
                 <ChevronDown
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
@@ -147,23 +354,71 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="mt-6 flex items-center justify-center">
+              <Loader2 className="animate-spin text-red-500" size={24} />
+              <span className="ml-2 text-gray-400">Loading...</span>
+            </div>
+          )}
+
+          {/* No Slots Available Message */}
+          {selectedDate && selectedService && selectedDoctor && !loading && availableSlots && availableSlots.length === 0 && (
+            <div className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+              <p className="text-yellow-400">
+                No available time slots for the selected date. Please try a different date or contact the doctor's office.
+              </p>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-4 mt-12">
             <button
-              onClick={handleReschedule}
-              className="px-8 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors"
+              onClick={handleBookAppointment}
+              disabled={!selectedDoctor || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
+              className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Book Appointment
+              {isCreatingAppointment ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Creating Appointment...
+                </>
+              ) : (
+                'Book Appointment'
+              )}
             </button>
             <button
               onClick={handleCancel}
-              className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors"
+              disabled={bookingLoading}
+              className="px-8 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:bg-gray-700 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
           </div>
+
+          {/* Success Message */}
+          {bookingSuccess && (
+            <div className="mt-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg">
+              <p className="text-green-400">Appointment booked successfully!</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {tempAppointmentData && (
+        <PaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={handlePaymentModalClose}
+          appointmentId={tempAppointmentData.id} // Use the actual appointment ID
+          amount={tempAppointmentData.amount}
+          doctorName={`Dr. ${selectedDoctor?.lastName}`}
+          serviceName={selectedService?.name || ''}
+          appointmentDate={tempAppointmentData.appointmentDate}
+          appointmentTime={tempAppointmentData.appointmentTime}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 };

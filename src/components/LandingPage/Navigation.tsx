@@ -1,19 +1,25 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     "How it Works",
     "About Us",
     "Our Services",
+    "Book Appointment",
     "Our Blog",
     "Contact Us",
     "FAQs",
   ];
+
+  const handleStartJourney = () => {
+    navigate("/login");
+  };
 
   return (
     <nav className="relative z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -58,6 +64,14 @@ const Navigation = () => {
                 >
                   {item}
                 </Link>
+              ) : item === "Book Appointment" ? (
+                <Link
+                  key={item}
+                  to="/book-appointment"
+                  className="text-foreground hover:text-primary transition-colors duration-200"
+                >
+                  {item}
+                </Link>
               ) : (
                 <a
                   key={item}
@@ -72,7 +86,7 @@ const Navigation = () => {
 
           {/* CTA Button */}
           <div className="hidden lg:block">
-            <Button className="btn-hero">Start your journey</Button>
+            <Button className="btn-hero" onClick={handleStartJourney}>Start your journey</Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -107,6 +121,24 @@ const Navigation = () => {
                   >
                     {item}
                   </Link>
+                ) : item === "Our Services" ? (
+                  <Link
+                    key={item}
+                    to="/our-services"
+                    className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item}
+                  </Link>
+                ) : item === "Book Appointment" ? (
+                  <Link
+                    key={item}
+                    to="/book-appointment"
+                    className="block text-foreground hover:text-primary transition-colors duration-200 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item}
+                  </Link>
                 ) : (
                   <a
                     key={item}
@@ -118,7 +150,7 @@ const Navigation = () => {
                   </a>
                 )
               )}
-              <Button className="btn-hero w-full mt-4">
+              <Button className="btn-hero w-full mt-4" onClick={handleStartJourney}>
                 Start your journey
               </Button>
             </div>

@@ -1,9 +1,11 @@
-import { Check, Phone, Shield, Truck, Users } from "lucide-react";
-import phoneImage from "../../assets/phone-consultation.jpg";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Check, Shield, Clock, Star, Award, Users, Zap } from "lucide-react";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import phoneImage from "../../assets/phone-consultation.jpg";
 
 const InvestmentSection = () => {
+  const navigate = useNavigate();
   const benefits = [
     {
       title: "Personalized Assessment",
@@ -35,12 +37,16 @@ const InvestmentSection = () => {
   const trustBadges = [
     { icon: Shield, text: "Partnered with licensed Medical Providers" },
     { icon: Users, text: "Insurance not required" },
-    { icon: Truck, text: "Treatments delivered" },
+    { icon: Clock, text: "Treatments delivered" },
     { icon: Users, text: "Partnered with licensed Medical Providers" },
   ];
 
-  const cardRef = useRef(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const [cardVisible, setCardVisible] = useState(false);
+
+  const handleStartTreatment = () => {
+    navigate("/login");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -116,7 +122,7 @@ const InvestmentSection = () => {
 
               {/* Pricing */}
               <div className="flex items-center space-x-4 pt-4">
-                <Button className="btn-hero">Start treatment online</Button>
+                <Button className="btn-hero" onClick={handleStartTreatment}>Start treatment online</Button>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-black">$250</div>
                   <div className="line-through text-black/50">$500</div>

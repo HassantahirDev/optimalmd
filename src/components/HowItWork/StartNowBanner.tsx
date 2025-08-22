@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import leftImage from '@/assets/phone-consultation.jpg';
 import rightImage from '@/assets/hero-collage.jpg';
 
@@ -21,8 +22,13 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
   imageLeftSrc,
   imageRightSrc,
 }) => {
+  const navigate = useNavigate();
   const leftSrc = imageLeftSrc || leftImage;
   const rightSrc = imageRightSrc || rightImage;
+
+  const handleStartNow = () => {
+    navigate("/login");
+  };
 
   return (
     <section className="py-10 sm:py-12 md:py-16">
@@ -38,11 +44,12 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
                 {description}
               </p>
               <div className="mt-8">
-                <a href={ctaHref}>
-                  <Button className="h-10 px-6 rounded-full bg-black text-white hover:bg-black/90">
-                    {ctaLabel}
-                  </Button>
-                </a>
+                <Button 
+                  className="h-10 px-6 rounded-full bg-black text-white hover:bg-black/90"
+                  onClick={handleStartNow}
+                >
+                  {ctaLabel}
+                </Button>
               </div>
             </div>
 

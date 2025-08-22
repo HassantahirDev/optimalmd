@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FoundersPage from "./pages/Leadership";
@@ -15,6 +16,8 @@ import RegisterPage from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import VerifyEmailPendingPage from "./pages/VerifyEmailPending";
 import PatientDashboard from "./pages/Dashboard/Patient";
+import BookAppointment from "./pages/BookAppointment";
+import MyAppointments from "./components/MyAppointments";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +48,32 @@ const App = () => (
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/verify-email-pending" element={<VerifyEmailPendingPage />} />
-          <Route path="/dashboard" element={<PatientDashboard />} />
+          
+          {/* Protected Routes */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute requiredUserType="user">
+                <PatientDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/book-appointment" 
+            element={
+              <ProtectedRoute requiredUserType="user">
+                <BookAppointment />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/my-appointments" 
+            element={
+              <ProtectedRoute requiredUserType="user">
+                <MyAppointments />
+              </ProtectedRoute>
+            } 
+          />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
