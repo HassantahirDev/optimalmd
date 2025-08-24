@@ -4,7 +4,6 @@ import phoneConsultation from "@/assets/phone-consultation.jpg";
 import StepProcess from "@/components/HowItWork/StepProcess";
 import FAQSection from "@/components/LandingPage/FAQSection";
 import StartNowBanner from "@/components/HowItWork/StartNowBanner";
-import ProcessSection from "@/components/ProcessSection";
 import Footer from "@/components/LandingPage/Footer";
 
 const HowItWorks = () => {
@@ -15,8 +14,8 @@ const HowItWorks = () => {
       <PageBanner
         title="How It Works"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "How It Works" }]}
-        backgroundImage={phoneConsultation}
-        className="h-[320px] sm:h-[380px] md:h-[440px]"
+        backgroundImage="/bg.png"
+        className="h-[320px]"
       />
 
       <StepProcess />

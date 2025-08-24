@@ -1,12 +1,12 @@
 import Footer from "@/components/LandingPage/Footer";
 import Navigation from "@/components/LandingPage/Navigation";
-import PrivacyPolicy from "@/components/PrivacyPolicy/PrivacyPolicy";
+import TermsOfService from "@/components/Terms&Service/Terms&Service";
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   return (
     <div>
       <Navigation />
-      <PrivacyPolicy />
+      <TermsOfService />
       <Footer />
     </div>
   );

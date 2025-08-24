@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import leftImage from '@/assets/phone-consultation.jpg';
-import rightImage from '@/assets/hero-collage.jpg';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import leftImage from "@/assets/phone-consultation.jpg";
+import rightImage from "@/assets/hero-collage.jpg";
 
 type StartNowBannerProps = {
   title?: string;
@@ -13,11 +13,10 @@ type StartNowBannerProps = {
 };
 
 const StartNowBanner: React.FC<StartNowBannerProps> = ({
-  title = 'Start now',
-  description =
-    'The first step towards optimizing your health online is to book your intake assessment, which includes:',
-  ctaLabel = 'Register Today',
-  ctaHref = '#',
+  title = "Start now",
+  description = "The first step towards optimizing your health online is to book your intake assessment, which includes:",
+  ctaLabel = "Register Today",
+  ctaHref = "/register",
   imageLeftSrc,
   imageRightSrc,
 }) => {
@@ -73,4 +72,3 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
 };
 
 export default StartNowBanner;
-

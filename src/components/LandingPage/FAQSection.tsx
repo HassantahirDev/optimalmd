@@ -3,31 +3,34 @@ import { useState } from "react";
 
 const FAQSection = () => {
   const [openItems, setOpenItems] = useState<number[]>([]);
-  
+
   const faqs = [
     {
-      question: "I am NOT a United States Resident, can I still work with OptimaleMD?",
-      answer: "Currently, OptimaleMD services are only available to residents of the United States due to regulatory requirements."
+      question:
+        "I am NOT a United States Resident, can I still work with OptimaleMD?",
+      answer:
+        "Currently, OptimaleMD services are only available to residents of the United States due to regulatory requirements.",
     },
     {
       question: "What qualifies for Hormone Replacement Therapy?",
-      answer: "Hormone Replacement Therapy qualification is determined through comprehensive lab testing and medical consultation to assess your individual hormone levels and health profile."
+      answer:
+        "Hormone Replacement Therapy qualification is determined through comprehensive lab testing and medical consultation to assess your individual hormone levels and health profile.",
     },
     {
       question: "Do you accept health insurance?",
-      answer: "OptimaleMD operates as a direct-pay service and does not accept traditional health insurance. This allows us to provide personalized care without insurance limitations."
+      answer:
+        "OptimaleMD operates as a direct-pay service and does not accept traditional health insurance. This allows us to provide personalized care without insurance limitations.",
     },
     {
       question: "What is OptimaleMD?",
-      answer: "OptimaleMD is a personalized health optimization platform that combines advanced lab testing, expert coaching, and medical oversight to help you achieve optimal health and performance."
-    }
+      answer:
+        "OptimaleMD is a personalized health optimization platform that combines advanced lab testing, expert coaching, and medical oversight to help you achieve optimal health and performance.",
+    },
   ];
 
   const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
+    setOpenItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
 
@@ -53,18 +56,22 @@ const FAQSection = () => {
                   onClick={() => toggleItem(index)}
                   className="w-full py-6 flex items-center justify-between text-left hover:text-primary transition-colors group"
                 >
-                  <span className="text-xl font-medium pr-4">{faq.question}</span>
-                  <div className={`w-6 h-6 text-primary transition-transform duration-200 ${
-                    openItems.includes(index) ? 'rotate-45' : ''
-                  }`}>
+                  <span className="text-xl font-medium pr-4">
+                    {faq.question}
+                  </span>
+                  <div
+                    className={`w-6 h-6 text-primary transition-transform duration-200 ${
+                      openItems.includes(index) ? "rotate-45" : ""
+                    }`}
+                  >
                     <Plus size={24} />
                   </div>
                 </button>
-                
+
                 {openItems.includes(index) && (
                   <div className="pb-6 animate-fade-in">
                     <p className="text-lg text-muted-foreground">
-                      {faq.answer.split('.').slice(0,1).join('. ')}
+                      {faq.answer.split(".").slice(0, 1).join(". ")}
                     </p>
                   </div>
                 )}
@@ -74,8 +81,8 @@ const FAQSection = () => {
 
           {/* Link to more FAQs */}
           <div className="text-center">
-            <a 
-              href="#faqs" 
+            <a
+              href="faqs"
               className="text-primary hover:text-primary/80 transition-colors font-medium"
             >
               See more FAQs

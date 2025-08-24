@@ -8,7 +8,6 @@ import Footer from "@/components/LandingPage/Footer";
 const OurServicesPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-black">
-      {/* Navigation */}
       <Navigation />
       <PageBanner
         title="Our Services"
@@ -17,14 +16,14 @@ const OurServicesPage: React.FC = () => {
           { label: "Services", href: "/services" },
         ]}
         backgroundImage="bg.png"
-        className="h-[371px] w-[1440px] mx-auto"
+        className="h-[320px]"
       />
       {/* Page Content */}
       <main className="flex-grow py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold text-white text-center mb-12">
-            Our Services
-          </h1>
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-center">
+            Services We Provide{" "}
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ServiceCard
@@ -33,54 +32,68 @@ const OurServicesPage: React.FC = () => {
               whatsIncluded="Comprehensive lab work, physician evaluation, personalized treatment."
               eligibility="Based on lab results, symptoms, and medical history."
               pricing="Transparent monthly plans available."
+              link=""
+              imageUrl="/imageforservice/trt.png"
             />
 
             <ServiceCard
-              title="Weight Management Program"
-              description="Comprehensive weight loss program combining medical supervision with lifestyle coaching."
+              title="Hair Loss Treatment"
+              description="Thinning hair? We offer proven treatments like oral medications, topical solutions, and regenerative therapies to slow hair loss."
+              whatsIncluded="Consultation, treatment recommendations, optional prescription."
+              eligibility="Men and women with genetic or hormonal hair loss."
+              pricing="Varies by treatment type."
+              link=""
+              imageUrl="/ImageforBlog/Hairloss.png"
+            />
+
+            <ServiceCard
+              title="Weight Loss & Obesity Medicine"
+              description="Our weight management program goes beyond generic diets. We combine metabolic testing and prescription support."
               whatsIncluded="Medical consultation, custom meal plans, progress tracking, supplements."
               eligibility="Adults with BMI over 25 or metabolic concerns."
               pricing="Starting at $199/month with flexible payment options."
+              link=""
+              imageUrl="/imageforservice/loss.png"
             />
 
             <ServiceCard
-              title="Peptide Therapy"
-              description="Advanced peptide treatments to enhance recovery, anti-aging, and overall wellness."
-              whatsIncluded="Consultation, peptide selection, injection training, ongoing monitoring."
-              eligibility="Health assessment required, age 21+."
-              pricing="Custom pricing based on selected peptides and duration."
+              title="Sexual Health"
+              description="We help address sexual performance concerns such as erectile dysfunction, low libido, and performance anxiety."
+              whatsIncluded="Confidential consultation, treatment options including medications."
+              eligibility="Men over 18, based on symptoms and evaluation."
+              pricing="$600/month."
+              link=""
+              imageUrl="/imageforservice/sexual.png"
             />
 
             <ServiceCard
-              title="IV Nutrient Therapy"
-              description="Intravenous vitamin and mineral infusions for optimal health and energy boost."
-              whatsIncluded="Pre-treatment assessment, IV infusion, post-treatment monitoring."
-              eligibility="General health screening, no severe medical conditions."
-              pricing="$150-400 per session, packages available."
+              title="Peptides & Longevity Medicine"
+              description="Peptide therapy is a cutting-edge approach to improving cellular health, recovery, sleep, and aging."
+              whatsIncluded="Physician-guided peptide protocols, lab testing, & ongoing evaluation."
+              eligibility="Based on specific goals, symptoms, and labs."
+              pricing="$300/month.."
+              link=""
+              imageUrl="/imageforservice/long.png"
             />
 
             <ServiceCard
-              title="Hormone Replacement (Women)"
-              description="Bioidentical hormone replacement therapy for women experiencing hormonal imbalances."
-              whatsIncluded="Comprehensive testing, customized hormone plan, regular follow-ups."
-              eligibility="Women 35+ with hormonal symptoms or menopause."
-              pricing="Monthly plans starting at $250."
-            />
-
-            <ServiceCard
-              title="Sexual Wellness"
-              description="Comprehensive approach to improving sexual health and performance for all genders."
-              whatsIncluded="Medical evaluation, treatment options, ongoing support."
-              eligibility="Adults 18+ with sexual health concerns."
-              pricing="Consultation $150, treatment plans vary."
+              title="lab Testing"
+              description="We offer comprehensive lab panels that help uncover the root causes of fatigue, weight gain, low libido, and more."
+              whatsIncluded="At-home or local lab draw, hormone panels & metabolic markers."
+              eligibility="All patients are required to undergo lab testing for most programs."
+              pricing="$90 for a full panel."
+              link=""
+              imageUrl="/imageforservice/test.png"
             />
 
             <ServiceCard
               title="Anti-Aging Program"
-              description="Complete anti-aging protocol including hormones, peptides, and lifestyle optimization."
-              whatsIncluded="Full biomarker panel, personalized protocol, quarterly reviews."
-              eligibility="Adults 30+ interested in longevity optimization."
-              pricing="Premium packages starting at $500/month."
+              description="Our curated line of medical-grade supplements supports your wellness goals — from immune health to hormonal balance."
+              whatsIncluded="Recommendations based on your labs and symptoms."
+              eligibility="Available to patients and non-patients."
+              pricing="$500/month."
+              link=""
+              imageUrl="/imageforservice/supplement.png"
             />
           </div>
         </div>
