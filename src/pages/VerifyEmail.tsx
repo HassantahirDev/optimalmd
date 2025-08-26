@@ -31,7 +31,7 @@ export default function VerifyEmail() {
         }
 
         // Call the verify email API
-        const response = await api.get(`/api/auth/verify-email?token=${token}`);
+        const response = await api.get(`/auth/verify-email?token=${token}`);
         
         if (response.data.success) {
           setSuccess(true);

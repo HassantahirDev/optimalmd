@@ -2,11 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import leftImage from "@/assets/phone-consultation.jpg";
 import rightImage from "@/assets/hero-collage.jpg";
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import leftImage from '@/assets/phone-consultation.jpg';
-import rightImage from '@/assets/hero-collage.jpg';
+import { useNavigate } from "react-router-dom";
 
 
 type StartNowBannerProps = {
