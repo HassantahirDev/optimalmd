@@ -16,6 +16,12 @@ import RegisterPage from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import VerifyEmailPendingPage from "./pages/VerifyEmailPending";
 import PatientDashboard from "./pages/Dashboard/Patient";
+import PrivacyPage from "./pages/Privacy&Policy";
+import TermsPage from "./pages/Terms&Service";
+import ContactPage from "./pages/ContactUs";
+import FAQsPage from "./pages/FAQs";
+import AboutPage from "./pages/AboutUs";
+import BlogPage from "./pages/OurBlogs";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./components/MyAppointments";
 
@@ -40,6 +46,7 @@ const App = () => (
       />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/leadership" element={<FoundersPage />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
@@ -48,6 +55,14 @@ const App = () => (
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/verify-email-pending" element={<VerifyEmailPendingPage />} />
+          
+          {/* Static Pages */}
+          <Route path="/privacy-policy" element={<PrivacyPage />} />
+          <Route path="/terms&service" element={<TermsPage />} />
+          <Route path="/contact-us" element={<ContactPage />} />
+          <Route path="/faqs" element={<FAQsPage />} />
+          <Route path="/about-us" element={<AboutPage />} />
+          <Route path="/our-blog" element={<BlogPage />} />
           
           {/* Protected Routes */}
           <Route 
@@ -74,7 +89,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,5 +1,3 @@
-import React from 'react';
-
 type Breadcrumb = {
   label: string;
   href?: string;
@@ -16,7 +14,7 @@ export default function PageBanner({
   title,
   breadcrumbs,
   backgroundImage,
-  className = '',
+  className = "",
 }: PageBannerProps) {
   return (
     <section
@@ -33,23 +31,15 @@ export default function PageBanner({
       />
 
       {/* Dark + red gradient overlay to match provided design */}
-      <div
-        className="absolute inset-0"
-        aria-hidden
-      >
-        {/* Global dark scrim */}
+      <div className="absolute inset-0" aria-hidden>
         <div className="absolute inset-0 bg-black/60" />
-        {/* Left red sweep */}
         <div className="absolute left-0 top-0 h-full w-[60%] bg-gradient-to-r from-red-900/70 via-red-700/40 to-transparent" />
-        {/* Subtle right glow to mirror the screenshot's tint */}
         <div className="absolute right-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-red-500/20 blur-3xl" />
-        {/* Additional depth on the far left */}
         <div className="absolute -left-24 -top-24 h-[520px] w-[520px] rounded-full bg-red-700/25 blur-3xl" />
       </div>
 
-      {/* Content */}
       <div className="relative max-w-7xl mx-auto h-full px-6 sm:px-8 flex flex-col items-start justify-center text-left">
-      <h1
+        <h1
           id="page-banner-title"
           className="text-white font-extrabold text-[36px] sm:text-[44px] md:text-[56px] leading-[1.05] drop-shadow"
         >
@@ -62,7 +52,10 @@ export default function PageBanner({
             {breadcrumbs.map((crumb, index) => {
               const isLast = index === breadcrumbs.length - 1;
               return (
-                <li key={`${crumb.label}-${index}`} className="flex items-center">
+                <li
+                  key={`${crumb.label}-${index}`}
+                  className="flex items-center"
+                >
                   {crumb.href && !isLast ? (
                     <a
                       href={crumb.href}
@@ -71,9 +64,7 @@ export default function PageBanner({
                       {crumb.label}
                     </a>
                   ) : (
-                    <span className="text-red-500">
-                      {crumb.label}
-                    </span>
+                    <span className="text-red-500">{crumb.label}</span>
                   )}
                   {!isLast && <span className="mx-2 text-red-500">/</span>}
                 </li>
@@ -85,4 +76,3 @@ export default function PageBanner({
     </section>
   );
 }
-

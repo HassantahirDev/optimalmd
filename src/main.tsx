@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import App from "./App.tsx";
-import { store } from "./redux/store"; // make sure this path is correct
+import { store } from "./redux/store"; 
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
