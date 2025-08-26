@@ -1,243 +1,283 @@
 // components/MyAppointments.tsx
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { getUserId } from "@/lib/utils";
 import { fetchPatientAppointments } from "@/redux/slice/appointmentSlice";
-import { Calendar, Clock, User, Stethoscope, DollarSign, Loader2 } from "lucide-react";
+import { Calendar, Clock, User, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MyAppointmentsProps {
   patientName?: string;
 }
 
 const MyAppointments: React.FC<MyAppointmentsProps> = ({
-  patientName = localStorage.getItem('name') || '',
+  patientName = localStorage.getItem("name") || "",
 }) => {
   const dispatch = useAppDispatch();
-  const {
-    patientAppointments,
-    appointmentsLoading,
-    appointmentsError,
-  } = useAppSelector((state) => state.appointment);
+  const { patientAppointments, appointmentsLoading } = useAppSelector(
+    (state) => state.appointment
+  );
 
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'today'>('upcoming');
-
-  // Get user ID directly from localStorage
   const userId = getUserId();
 
   useEffect(() => {
     if (userId) {
-      // Fetch all appointments for the patient
       dispatch(fetchPatientAppointments({ patientId: userId }));
     }
   }, [userId, dispatch]);
 
-  // Filter appointments based on active tab
-  const getFilteredAppointments = () => {
-    if (!patientAppointments || patientAppointments.length === 0) return [];
+  // Pick the next appointment
+  const nextAppointment = patientAppointments
+    ?.filter((a) => a.status !== "cancelled")
+    ?.sort(
+      (a, b) =>
+        new Date(a.appointmentDate).getTime() -
+        new Date(b.appointmentDate).getTime()
+    )?.[0];
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return patientAppointments.filter(appointment => {
-      const appointmentDate = new Date(appointment.appointmentDate);
-      appointmentDate.setHours(0, 0, 0, 0);
-
-      switch (activeTab) {
-        case 'upcoming':
-          return appointmentDate > today && appointment.status !== 'cancelled';
-        case 'past':
-          return appointmentDate < today && appointment.status !== 'cancelled';
-        case 'today':
-          return appointmentDate.getTime() === today.getTime() && appointment.status !== 'cancelled';
-        default:
-          return false;
-      }
+  // Formatters
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
-  };
 
-  const filteredAppointments = getFilteredAppointments();
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  // Format time for display
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    if (!time) return "";
+    const [hours, minutes] = time.split(":");
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const displayHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-green-500/20 border-green-500/50 text-green-400';
-      case 'pending':
-        return 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400';
-      case 'cancelled':
-        return 'bg-red-500/20 border-red-500/50 text-red-400';
-      case 'completed':
-        return 'bg-blue-500/20 border-blue-500/50 text-blue-400';
-      default:
-        return 'bg-gray-500/20 border-gray-500/50 text-gray-400';
-    }
-  };
+  // helpers
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const tabs = [
-    { id: 'upcoming', label: 'Upcoming', count: getFilteredAppointments().filter(a => new Date(a.appointmentDate) > new Date() && a.status !== 'cancelled').length },
-    { id: 'today', label: 'Today', count: getFilteredAppointments().filter(a => {
-      const today = new Date();
-      const appointmentDate = new Date(a.appointmentDate);
-      return today.toDateString() === appointmentDate.toDateString() && a.status !== 'cancelled';
-    }).length },
-    { id: 'past', label: 'Past', count: getFilteredAppointments().filter(a => new Date(a.appointmentDate) < new Date() && a.status !== 'cancelled').length },
-  ];
+  const todayAppointments = patientAppointments?.filter(
+    (a) =>
+      new Date(a.appointmentDate).setHours(0, 0, 0, 0) === today.getTime() &&
+      a.status !== "cancelled"
+  );
+
+  const upcomingAppointments = patientAppointments?.filter(
+    (a) => new Date(a.appointmentDate) > today && a.status !== "cancelled"
+  );
+
+  const pastAppointments = patientAppointments?.filter(
+    (a) => new Date(a.appointmentDate) < today && a.status !== "cancelled"
+  );
 
   return (
-    <div className="flex-1 text-white">
-      {/* Appointments Card */}
-      <div className="mx-8 mt-8">
-        <div
-          className="bg-gray-800 rounded-3xl p-8"
-          style={{ backgroundColor: "#2a2a2a" }}
-        >
-          <h2 className="text-2xl font-bold text-white mb-8">
-            My Appointments
-          </h2>
+    <div className="flex-1 p-8 text-white">
+      {/* Greeting */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Hello, {patientName}! 👋</h1>
+          <p className="text-gray-400">Here’s what’s next for your health.</p>
+        </div>
+        <Button className="bg-red-500 hover:bg-red-600 rounded-full px-6">
+          + Book a New Appointment
+        </Button>
+      </div>
 
-          {/* Error Display */}
-          {appointmentsError && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
-              <p className="text-red-400">{appointmentsError}</p>
-            </div>
-          )}
+      {/* Tabs */}
+      <Tabs defaultValue="today" className="w-full">
+        <TabsList className="mb-6 grid grid-cols-4 bg-neutral-800 rounded-lg">
+          <TabsTrigger value="current">Current</TabsTrigger>
+          <TabsTrigger value="today">Today</TabsTrigger>
+          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="past">Past</TabsTrigger>
+        </TabsList>
 
-          {/* Tabs */}
-          <div className="flex space-x-1 mb-8 bg-gray-700 p-1 rounded-lg">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'upcoming' | 'past' | 'today')}
-                className={`flex-1 py-3 px-4 rounded-md font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-red-500 text-white'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-600'
-                }`}
-              >
-                {tab.label} ({tab.count})
-              </button>
-            ))}
-          </div>
-
-          {/* Loading State */}
-          {appointmentsLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="animate-spin text-red-500" size={32} />
-              <span className="ml-3 text-gray-400 text-lg">Loading appointments...</span>
-            </div>
-          )}
-
-          {/* Appointments List */}
-          {!appointmentsLoading && (
-            <>
-              {filteredAppointments.length === 0 ? (
-                <div className="text-center py-12">
-                  <Calendar className="mx-auto text-gray-500" size={48} />
-                  <p className="text-gray-400 text-lg mt-4">
-                    No {activeTab} appointments found.
-                  </p>
-                  {activeTab === 'upcoming' && (
-                    <p className="text-gray-500 mt-2">
-                      Book an appointment to get started.
+        {/* Current */}
+        <TabsContent value="current">
+          <div className="bg-neutral-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-6">Current Appointment</h2>
+            {appointmentsLoading ? (
+              <p className="text-gray-400">Loading appointment...</p>
+            ) : !nextAppointment ? (
+              <p className="text-gray-400">No upcoming appointments.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {/* Date */}
+                <div className="bg-black rounded-lg p-4 flex items-center gap-3">
+                  <Calendar className="text-red-500" />
+                  <div>
+                    <p className="text-sm text-gray-400">Date</p>
+                    <p className="font-medium">
+                      {formatDate(nextAppointment.appointmentDate)}
                     </p>
-                  )}
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredAppointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-gray-500 transition-colors"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="flex items-center gap-2">
-                              <User className="text-red-500" size={20} />
-                              <span className="font-medium text-white">
-                                {appointment.doctor?.title} {appointment.doctor?.firstName} {appointment.doctor?.lastName}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Stethoscope className="text-blue-500" size={20} />
-                              <span className="text-gray-300">
-                                {appointment.doctor?.specialization}
-                              </span>
-                            </div>
-                          </div>
 
-                          <div className="grid grid-cols-2 gap-6">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="text-green-500" size={20} />
-                              <span className="text-gray-300">
-                                {formatDate(appointment.appointmentDate)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="text-purple-500" size={20} />
-                              <span className="text-gray-300">
-                                {formatTime(appointment.appointmentTime)} ({appointment.duration} min)
-                              </span>
-                            </div>
-                          </div>
+                {/* Time */}
+                <div className="bg-black rounded-lg p-4 flex items-center gap-3">
+                  <Clock className="text-red-500" />
+                  <div>
+                    <p className="text-sm text-gray-400">Time</p>
+                    <p className="font-medium">
+                      {formatTime(nextAppointment.appointmentTime)} CST
+                    </p>
+                  </div>
+                </div>
 
-                          <div className="flex items-center gap-4 mt-4">
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="text-yellow-500" size={20} />
-                              <span className="text-gray-300">
-                                ${appointment.amount}
-                              </span>
-                            </div>
-                            <div className={`px-3 py-1 rounded-full border text-sm font-medium ${getStatusColor(appointment.status)}`}>
-                              {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                            </div>
-                          </div>
+                {/* Provider */}
+                <div className="bg-black rounded-lg p-4 flex items-center gap-3">
+                  <User className="text-red-500" />
+                  <div>
+                    <p className="text-sm text-gray-400">Provider</p>
+                    <p className="font-medium">
+                      Dr. {nextAppointment.doctor?.firstName}{" "}
+                      {nextAppointment.doctor?.lastName}
+                    </p>
+                  </div>
+                </div>
 
-                          {appointment.patientNotes && (
-                            <div className="mt-4 p-3 bg-gray-600 rounded-lg">
-                              <p className="text-gray-300 text-sm">
-                                <span className="font-medium">Notes:</span> {appointment.patientNotes}
-                              </p>
-                            </div>
-                          )}
+                {/* Location */}
+                {/* {nextAppointment.slot?.location || nextAppointment.slot?.type ? (
+                  <div className="bg-black rounded-lg p-4 flex items-center gap-3">
+                    <MapPin className="text-red-500" />
+                    <div>
+                      <p className="text-sm text-gray-400">Location</p>
+                      <p className="font-medium">
+                        {nextAppointment.slot?.location
+                          ? nextAppointment.slot.location
+                          : nextAppointment.slot?.type?.toLowerCase() ===
+                            "telemedicine"
+                          ? "Online"
+                          : "In-Person"}
+                      </p>
+                    </div>
+                  </div>
+                ) : null} */}
+              </div>
+            )}
 
-                          {appointment.symptoms && (
-                            <div className="mt-3 p-3 bg-gray-600 rounded-lg">
-                              <p className="text-gray-300 text-sm">
-                                <span className="font-medium">Symptoms:</span> {appointment.symptoms}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+            {nextAppointment && (
+              <div className="flex gap-4">
+                <Button className="bg-gray-700 hover:bg-gray-600">
+                  Reschedule
+                </Button>
+                <Button className="bg-red-500 hover:bg-red-600">
+                  Cancel Appointment
+                </Button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Today */}
+        <TabsContent value="today">
+          <div className="bg-neutral-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-6">Today’s Appointments</h2>
+            {todayAppointments?.length ? (
+              <div className="space-y-4">
+                {todayAppointments.map((appointment) => (
+                  <div
+                    key={appointment.id}
+                    className="bg-black rounded-lg p-4 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Calendar className="text-red-500" />
+                      <div>
+                        <p className="font-medium">
+                          {formatTime(appointment.appointmentTime)}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          Dr. {appointment.doctor?.firstName}{" "}
+                          {appointment.doctor?.lastName}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+                    <Button className="bg-gray-700 hover:bg-gray-600">
+                      Join
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No appointments today.</p>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Upcoming */}
+        <TabsContent value="upcoming">
+          <div className="bg-neutral-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-6">
+              Upcoming Appointments
+            </h2>
+            {upcomingAppointments?.length ? (
+              <div className="space-y-4">
+                {upcomingAppointments.map((appointment) => (
+                  <div
+                    key={appointment.id}
+                    className="bg-black rounded-lg p-4 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Calendar className="text-red-500" />
+                      <div>
+                        <p className="font-medium">
+                          {formatDate(appointment.appointmentDate)}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          Dr. {appointment.doctor?.firstName}{" "}
+                          {appointment.doctor?.lastName}
+                        </p>
+                      </div>
+                    </div>
+                    <Button className="bg-gray-700 hover:bg-gray-600">
+                      Details
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No upcoming appointments.</p>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Past */}
+        <TabsContent value="past">
+          <div className="bg-neutral-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-lg font-semibold mb-6">Past Appointments</h2>
+            {pastAppointments?.length ? (
+              <div className="space-y-4">
+                {pastAppointments.map((appointment) => (
+                  <div
+                    key={appointment.id}
+                    className="bg-black rounded-lg p-4 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Calendar className="text-red-500" />
+                      <div>
+                        <p className="font-medium">
+                          {formatDate(appointment.appointmentDate)}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          Dr. {appointment.doctor?.firstName}{" "}
+                          {appointment.doctor?.lastName}
+                        </p>
+                      </div>
+                    </div>
+                    <Button className="bg-gray-700 hover:bg-gray-600">
+                      Rebook
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">No past appointments.</p>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

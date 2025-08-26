@@ -13,14 +13,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Simple check: if no token in localStorage, redirect to login
   const token = getAuthToken();
   if (!token) {
     navigate('/login');
     return null;
   }
 
-  // Check user type if required
   if (requiredUserType) {
     const userType = getUserType();
     if (userType !== requiredUserType) {
@@ -29,7 +27,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }
 
-  // If we get here, user is authenticated and authorized
   return <>{children}</>;
 };
 
