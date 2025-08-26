@@ -1,8 +1,11 @@
 import { Check } from "lucide-react";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "../../assets/hero-collage.jpg";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  
   const features = [
     "Personalized lab testing",
     "1 on 1 expert health coaching", 
@@ -12,6 +15,10 @@ const HeroSection = () => {
   const stats = [
     { number: "50,000+", text: "OptimaleMD clients transformed" }
   ];
+
+  const handleStartJourney = () => {
+    navigate("/login");
+  };
 
   return (
     <section className="section-padding pt-32 lg:pt-40 relative overflow-hidden">
@@ -57,9 +64,16 @@ const HeroSection = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="pt-4">
-              <Button className="btn-hero">
+            <div className="pt-4 flex flex-col sm:flex-row gap-4">
+              <Button className="btn-hero" onClick={handleStartJourney}>
                 Start your journey
+              </Button>
+              <Button 
+                variant="outline" 
+                className="btn-hero border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                onClick={() => navigate("/book-appointment")}
+              >
+                Book Appointment
               </Button>
             </div>
           </div>

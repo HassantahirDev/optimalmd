@@ -1,5 +1,5 @@
 // components/SideBar.tsx
-import { Calendar, FileText, Mail } from "lucide-react";
+import { Calendar, FileText, Mail, Clock } from "lucide-react";
 
 interface SidebarProps {
   activeMenuItem?: string;
@@ -16,6 +16,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: "Book Appointment",
       icon: Calendar,
       bgColor: "bg-red-500",
+    },
+    {
+      id: "my-appointments",
+      label: "My Appointments",
+      icon: Clock,
+      bgColor: "bg-gray-600",
     },
     {
       id: "care-plan",

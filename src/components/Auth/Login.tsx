@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { loginUser } from "@/redux/slice/authSlice";
@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
-  const [primaryEmail, setPrimaryEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export default function LoginComponent() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginUser({ primaryEmail, password }));
+    dispatch(loginUser({ userType: 'user', email, password }));
   };
 
   return (
@@ -54,24 +54,35 @@ export default function LoginComponent() {
       <div className="flex-1 bg-[#0F0F0F] flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8 sm:mb-10">
-            Login
+            Patient Login
           </h1>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            {/* Primary Email */}
+            {/* User Type Display */}
+            <div>
+              <label className="block text-base sm:text-lg font-medium text-white mb-3">
+                Welcome to Patient Portal
+              </label>
+              <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 border-[#ff4757] bg-[#ff4757] text-white">
+                <User size={20} />
+                Patient Portal
+              </div>
+            </div>
+
+            {/* Email */}
             <div>
               <label
-                htmlFor="primaryEmail"
+                htmlFor="email"
                 className="block text-base sm:text-lg font-medium text-white mb-2"
               >
-                Primary Email
+                Email Address
               </label>
               <input
-                id="primaryEmail"
+                id="email"
                 type="email"
-                placeholder="Enter Your Primary Email"
-                value={primaryEmail}
-                onChange={(e) => setPrimaryEmail(e.target.value)}
+                placeholder="Enter Your Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-full bg-[#1E1E1E] text-white placeholder-gray-400 border border-transparent focus:border-[#ff4757] focus:ring-0 outline-none"
               />
             </div>
@@ -162,10 +173,7 @@ export default function LoginComponent() {
             Patient Portal
           </h2>
           <p className="text-base sm:text-lg leading-relaxed mb-6">
-            Welcome to the OptimaleMD Patient Portal — your secure, personalized
-            space to manage your care. Log in to schedule appointments, message
-            your care team, view lab results, and access your treatment plans —
-            all in one place.
+            Welcome to the OptimaleMD Patient Portal — your secure, personalized space to manage your care. Log in to schedule appointments, message your care team, view lab results, and access your treatment plans — all in one place.
           </p>
 
           {/* Register */}

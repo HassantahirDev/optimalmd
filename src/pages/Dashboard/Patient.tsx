@@ -1,4 +1,5 @@
 import BookAppointment from "@/components/BookAppointment";
+import MyAppointments from "@/components/MyAppointments";
 import Sidebar from "@/components/SideBar";
 import Navbar from "@/components/Navbar"; // Add this import
 import { useState } from "react";
@@ -8,7 +9,7 @@ interface PatientDashboardProps {
 }
 
 const PatientDashboard: React.FC<PatientDashboardProps> = ({
-  patientName = "Stephen",
+  patientName = localStorage.getItem('name') || '',
 }) => {
   const [activeMenuItem, setActiveMenuItem] =
     useState<string>("book-appointment");
@@ -21,7 +22,9 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
     switch (activeMenuItem) {
       case "book-appointment":
         return <BookAppointment patientName={patientName} />;
-       case "care-plan":
+      case "my-appointments":
+        return <MyAppointments patientName={patientName} />;
+      case "care-plan":
         return (
           <div className="flex-1 text-white p-8">
             <h1 className="text-3xl font-bold">Care Plan Status</h1>
