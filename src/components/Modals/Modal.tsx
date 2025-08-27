@@ -35,7 +35,7 @@ export function Modal({
         <div className="p-4 flex justify-end gap-3 border-t">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+            className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-black"
           >
             Close
           </button>

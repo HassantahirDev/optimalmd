@@ -23,7 +23,7 @@ import FAQsPage from "./pages/FAQs";
 import AboutPage from "./pages/AboutUs";
 import BlogPage from "./pages/OurBlogs";
 import BookAppointment from "./pages/BookAppointment";
-import MyAppointments from "./components/MyAppointments";
+import MyAppointments from "./components/Appointment/MyAppointments";
 
 const queryClient = new QueryClient();
 
@@ -54,8 +54,11 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
-          <Route path="/verify-email-pending" element={<VerifyEmailPendingPage />} />
-          
+          <Route
+            path="/verify-email-pending"
+            element={<VerifyEmailPendingPage />}
+          />
+
           {/* Static Pages */}
           <Route path="/privacy-policy" element={<PrivacyPage />} />
           <Route path="/terms&service" element={<TermsPage />} />
@@ -63,33 +66,33 @@ const App = () => (
           <Route path="/faqs" element={<FAQsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
           <Route path="/our-blog" element={<BlogPage />} />
-          
+
           {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute requiredUserType="user">
                 <PatientDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/book-appointment" 
+          <Route
+            path="/book-appointment"
             element={
               <ProtectedRoute requiredUserType="user">
                 <BookAppointment />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/my-appointments" 
+          <Route
+            path="/my-appointments"
             element={
               <ProtectedRoute requiredUserType="user">
                 <MyAppointments />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

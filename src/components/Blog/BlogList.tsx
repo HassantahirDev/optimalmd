@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import ServiceCard from "@/components/Service/ServiceCard";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/Generic/Pagination";
 
 const BlogList: React.FC = () => {
   const services = [

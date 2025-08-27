@@ -17,7 +17,7 @@ import {
   clearBookingState,
 } from "@/redux/slice/appointmentSlice";
 import { toast } from "react-toastify";
-import PaymentModal from "./PaymentModal";
+import PaymentModal from "../Modals/PaymentModal";
 
 interface BookAppointmentProps {
   patientName?: string;

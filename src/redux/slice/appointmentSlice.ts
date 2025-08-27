@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchDoctorsApi,
   fetchDoctorServicesApi,
@@ -12,8 +12,10 @@ import {
   AvailableSlot,
   DoctorService,
   CreateAppointmentDto,
-  PatientAppointment
-} from '../api/appointmentApi';
+  PatientAppointment,
+  RescheduleAppointmentDto,
+  rescheduleAppointmentApi,
+} from "../api/appointmentApi";
 
 // Types
 export interface AppointmentState {
@@ -34,6 +36,10 @@ export interface AppointmentState {
   patientAppointments: PatientAppointment[];
   appointmentsLoading: boolean;
   appointmentsError: string | null;
+
+  rescheduleLoading: boolean;
+  rescheduleError: string | null;
+  rescheduleSuccess: boolean;
 }
 
 const initialState: AppointmentState = {
@@ -43,8 +49,8 @@ const initialState: AppointmentState = {
   selectedDoctor: null,
   selectedService: null,
   selectedSlot: null,
-  selectedDate: '',
-  selectedTime: '',
+  selectedDate: "",
+  selectedTime: "",
   loading: false,
   error: null,
   bookingLoading: false,
@@ -54,6 +60,10 @@ const initialState: AppointmentState = {
   patientAppointments: [],
   appointmentsLoading: false,
   appointmentsError: null,
+
+  rescheduleLoading: false,
+  rescheduleError: null,
+  rescheduleSuccess: false,
 };
 
 // Async thunks
@@ -61,7 +71,7 @@ export const fetchDoctors = createAsyncThunk<
   Doctor[],
   void,
   { rejectValue: string }
->('appointment/fetchDoctors', async (_, thunkAPI) => {
+>("appointment/fetchDoctors", async (_, thunkAPI) => {
   try {
     console.log("Fetching doctors...");
     const doctors = await fetchDoctorsApi();
@@ -70,7 +80,7 @@ export const fetchDoctors = createAsyncThunk<
   } catch (err: any) {
     console.error("Error in fetchDoctors thunk:", err);
     return thunkAPI.rejectWithValue(
-      err.response?.data?.message || 'Failed to fetch doctors'
+      err.response?.data?.message || "Failed to fetch doctors"
     );
   }
 });
@@ -79,7 +89,7 @@ export const fetchDoctorServices = createAsyncThunk<
   Service[],
   string,
   { rejectValue: string }
->('appointment/fetchDoctorServices', async (doctorId, thunkAPI) => {
+>("appointment/fetchDoctorServices", async (doctorId, thunkAPI) => {
   try {
     console.log("Fetching services for doctor:", doctorId);
     const services = await fetchDoctorServicesApi(doctorId);
@@ -88,7 +98,7 @@ export const fetchDoctorServices = createAsyncThunk<
   } catch (err: any) {
     console.error("Error in fetchDoctorServices thunk:", err);
     return thunkAPI.rejectWithValue(
-      err.response?.data?.message || 'Failed to fetch doctor services'
+      err.response?.data?.message || "Failed to fetch doctor services"
     );
   }
 });
@@ -97,43 +107,70 @@ export const fetchAvailableSlots = createAsyncThunk<
   AvailableSlot[],
   { doctorId: string; date: string; serviceId?: string },
   { rejectValue: string }
->('appointment/fetchAvailableSlots', async ({ doctorId, date, serviceId }, thunkAPI) => {
-  try {
-    console.log("Fetching available slots for doctor:", doctorId, "date:", date, "service:", serviceId);
-    const slots = await fetchAvailableSlotsApi(doctorId, date, serviceId);
-    console.log("Available slots fetched successfully:", slots);
-    return slots;
-  } catch (err: any) {
-    console.error("Error in fetchAvailableSlots thunk:", err);
-    return thunkAPI.rejectWithValue(
-      err.response?.data?.message || 'Failed to fetch available slots'
-    );
+>(
+  "appointment/fetchAvailableSlots",
+  async ({ doctorId, date, serviceId }, thunkAPI) => {
+    try {
+      console.log(
+        "Fetching available slots for doctor:",
+        doctorId,
+        "date:",
+        date,
+        "service:",
+        serviceId
+      );
+      const slots = await fetchAvailableSlotsApi(doctorId, date, serviceId);
+      console.log("Available slots fetched successfully:", slots);
+      return slots;
+    } catch (err: any) {
+      console.error("Error in fetchAvailableSlots thunk:", err);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch available slots"
+      );
+    }
   }
-});
+);
 
 export const fetchPatientAppointments = createAsyncThunk<
   PatientAppointment[],
-  { patientId: string; query?: { status?: string; startDate?: string; endDate?: string; page?: number; limit?: number } },
+  {
+    patientId: string;
+    query?: {
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+      page?: number;
+      limit?: number;
+    };
+  },
   { rejectValue: string }
->('appointment/fetchPatientAppointments', async ({ patientId, query }, thunkAPI) => {
-  try {
-    console.log("Fetching patient appointments for:", patientId, "query:", query);
-    const response = await fetchPatientAppointmentsApi(patientId, query);
-    console.log("Patient appointments fetched successfully:", response);
-    return response.data || [];
-  } catch (err: any) {
-    console.error("Error in fetchPatientAppointments thunk:", err);
-    return thunkAPI.rejectWithValue(
-      err.response?.data?.message || 'Failed to fetch patient appointments'
-    );
+>(
+  "appointment/fetchPatientAppointments",
+  async ({ patientId, query }, thunkAPI) => {
+    try {
+      console.log(
+        "Fetching patient appointments for:",
+        patientId,
+        "query:",
+        query
+      );
+      const response = await fetchPatientAppointmentsApi(patientId, query);
+      console.log("Patient appointments fetched successfully:", response);
+      return response.data || [];
+    } catch (err: any) {
+      console.error("Error in fetchPatientAppointments thunk:", err);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch patient appointments"
+      );
+    }
   }
-});
+);
 
 export const bookAppointment = createAsyncThunk<
   any,
   CreateAppointmentDto,
   { rejectValue: string }
->('appointment/bookAppointment', async (appointmentData, thunkAPI) => {
+>("appointment/bookAppointment", async (appointmentData, thunkAPI) => {
   try {
     console.log("Booking appointment with data:", appointmentData);
     const result = await bookAppointmentApi(appointmentData);
@@ -142,13 +179,34 @@ export const bookAppointment = createAsyncThunk<
   } catch (err: any) {
     console.error("Error in bookAppointment thunk:", err);
     return thunkAPI.rejectWithValue(
-      err.response?.data?.message || 'Failed to book appointment'
+      err.response?.data?.message || "Failed to book appointment"
     );
   }
 });
 
+export const rescheduleAppointment = createAsyncThunk<
+  PatientAppointment,
+  { appointmentId: string; payload: RescheduleAppointmentDto },
+  { rejectValue: string }
+>(
+  "appointment/rescheduleAppointment",
+  async ({ appointmentId, payload }, thunkAPI) => {
+    try {
+      console.log("Rescheduling appointment:", appointmentId, payload);
+      const result = await rescheduleAppointmentApi(appointmentId, payload);
+      console.log("Appointment rescheduled successfully:", result);
+      return result;
+    } catch (err: any) {
+      console.error("Error in rescheduleAppointment thunk:", err);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to reschedule appointment"
+      );
+    }
+  }
+);
+
 const appointmentSlice = createSlice({
-  name: 'appointment',
+  name: "appointment",
   initialState,
   reducers: {
     setSelectedDoctor: (state, action: PayloadAction<Doctor | null>) => {
@@ -190,8 +248,8 @@ const appointmentSlice = createSlice({
       state.selectedDoctor = null;
       state.selectedService = null;
       state.selectedSlot = null;
-      state.selectedDate = '';
-      state.selectedTime = '';
+      state.selectedDate = "";
+      state.selectedTime = "";
       state.services = [];
       state.availableSlots = [];
       state.bookingSuccess = false;
@@ -213,7 +271,7 @@ const appointmentSlice = createSlice({
       .addCase(fetchDoctors.rejected, (state, action) => {
         console.log("Fetch doctors rejected:", action.payload);
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch doctors';
+        state.error = action.payload || "Failed to fetch doctors";
       })
       // Fetch doctor services
       .addCase(fetchDoctorServices.pending, (state) => {
@@ -229,7 +287,7 @@ const appointmentSlice = createSlice({
       .addCase(fetchDoctorServices.rejected, (state, action) => {
         console.log("Fetch doctor services rejected:", action.payload);
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch doctor services';
+        state.error = action.payload || "Failed to fetch doctor services";
       })
       // Fetch available slots
       .addCase(fetchAvailableSlots.pending, (state) => {
@@ -245,7 +303,7 @@ const appointmentSlice = createSlice({
       .addCase(fetchAvailableSlots.rejected, (state, action) => {
         console.log("Fetch available slots rejected:", action.payload);
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch available slots';
+        state.error = action.payload || "Failed to fetch available slots";
       })
       // Book appointment
       .addCase(bookAppointment.pending, (state) => {
@@ -262,7 +320,7 @@ const appointmentSlice = createSlice({
       .addCase(bookAppointment.rejected, (state, action) => {
         console.log("Book appointment rejected:", action.payload);
         state.bookingLoading = false;
-        state.bookingError = action.payload || 'Failed to book appointment';
+        state.bookingError = action.payload || "Failed to book appointment";
       })
       // Fetch patient appointments
       .addCase(fetchPatientAppointments.pending, (state) => {
@@ -278,7 +336,32 @@ const appointmentSlice = createSlice({
       .addCase(fetchPatientAppointments.rejected, (state, action) => {
         console.log("Fetch patient appointments rejected:", action.payload);
         state.appointmentsLoading = false;
-        state.appointmentsError = action.payload || 'Failed to fetch patient appointments';
+        state.appointmentsError =
+          action.payload || "Failed to fetch patient appointments";
+      })
+
+      // Reschedule appointment
+      .addCase(rescheduleAppointment.pending, (state) => {
+        console.log("Reschedule appointment pending");
+        state.rescheduleLoading = true;
+        state.rescheduleError = null;
+        state.rescheduleSuccess = false;
+      })
+      .addCase(rescheduleAppointment.fulfilled, (state, action) => {
+        console.log("Reschedule appointment fulfilled:", action.payload);
+        state.rescheduleLoading = false;
+        state.rescheduleSuccess = true;
+
+        // Update the specific appointment in patientAppointments
+        state.patientAppointments = state.patientAppointments.map((appt) =>
+          appt.id === action.payload.id ? action.payload : appt
+        );
+      })
+      .addCase(rescheduleAppointment.rejected, (state, action) => {
+        console.log("Reschedule appointment rejected:", action.payload);
+        state.rescheduleLoading = false;
+        state.rescheduleError =
+          action.payload || "Failed to reschedule appointment";
       });
   },
 });

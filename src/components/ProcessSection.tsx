@@ -2,28 +2,32 @@ import { useState } from "react";
 
 const ProcessSection = () => {
   const [activeStep, setActiveStep] = useState(1);
-  
+
   const steps = [
     {
       number: 1,
       title: "Schedule a 1 on 1 intake with an OptimaleMD Coach.",
-      description: "Meet with your health coach via video conference to examine your symptoms and goals so they can get started with your personalized protocol."
+      description:
+        "Meet with your health coach via video conference to examine your symptoms and goals so they can get started with your personalized protocol.",
     },
     {
-      number: 2, 
+      number: 2,
       title: "Complete comprehensive lab testing.",
-      description: "Get detailed lab work to understand your current health markers, hormones, vitamins, and metabolic indicators."
+      description:
+        "Get detailed lab work to understand your current health markers, hormones, vitamins, and metabolic indicators.",
     },
     {
       number: 3,
       title: "Receive your personalized health blueprint.",
-      description: "Get a custom treatment plan based on your lab results, symptoms, and health goals designed specifically for you."
+      description:
+        "Get a custom treatment plan based on your lab results, symptoms, and health goals designed specifically for you.",
     },
     {
       number: 4,
       title: "Begin your optimization journey.",
-      description: "Start your personalized treatment with ongoing support, regular check-ins, and continuous protocol adjustments."
-    }
+      description:
+        "Start your personalized treatment with ongoing support, regular check-ins, and continuous protocol adjustments.",
+    },
   ];
 
   return (
@@ -37,8 +41,9 @@ const ProcessSection = () => {
                 Our expert process.
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Our 4 step process was developed with convenience in mind. We partner with medical 
-                providers to bring high quality treatment straight to your door.
+                Our 4 step process was developed with convenience in mind. We
+                partner with medical providers to bring high quality treatment
+                straight to your door.
               </p>
             </div>
 
@@ -50,25 +55,35 @@ const ProcessSection = () => {
                   key={step.number}
                   onClick={() => setActiveStep(step.number)}
                   className={`w-full text-left p-4 rounded-lg transition-all duration-300 ${
-                    activeStep === step.number 
-                      ? 'bg-primary/10 border border-primary/20' 
-                      : 'hover:bg-muted/50'
+                    activeStep === step.number
+                      ? "bg-primary/10 border border-primary/20"
+                      : "hover:bg-muted/50"
                   }`}
                 >
                   <div className="flex items-center space-x-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                      activeStep === step.number 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                        activeStep === step.number
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
                       {step.number}
                     </div>
-                    <span className={`font-medium ${
-                      activeStep === step.number ? 'text-primary' : 'text-foreground'
-                    }`}>
-                      {step.number === 1 ? 'One' : 
-                       step.number === 2 ? 'Two' :
-                       step.number === 3 ? 'Three' : 'Four'}
+                    <span
+                      className={`font-medium ${
+                        activeStep === step.number
+                          ? "text-primary"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {step.number === 1
+                        ? "One"
+                        : step.number === 2
+                        ? "Two"
+                        : step.number === 3
+                        ? "Three"
+                        : "Four"}
                     </span>
                   </div>
                 </button>
@@ -84,11 +99,11 @@ const ProcessSection = () => {
                   {activeStep}
                 </div>
               </div>
-              
+
               <h3 className="text-2xl lg:text-3xl font-bold leading-tight">
                 {steps[activeStep - 1].title}
               </h3>
-              
+
               <p className="text-muted-foreground text-lg leading-relaxed">
                 {steps[activeStep - 1].description}
               </p>

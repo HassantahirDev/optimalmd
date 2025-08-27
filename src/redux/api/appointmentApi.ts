@@ -106,6 +106,23 @@ export interface PatientAppointment {
     endTime: string;
   };
 }
+export interface RescheduleAppointmentDto {
+  newSlotId: string;
+  newAppointmentDate: string;
+  newAppointmentTime: string;
+  reason?: string; // optional
+}
+
+export const rescheduleAppointmentApi = async (
+  appointmentId: string,
+  payload: RescheduleAppointmentDto
+): Promise<PatientAppointment> => {
+  const response = await api.post(
+    `/appointments/${appointmentId}/reschedule`,
+    payload
+  );
+  return response.data.data;
+};
 
 // Fetch all available doctors
 export const fetchDoctorsApi = async (): Promise<Doctor[]> => {
