@@ -63,6 +63,21 @@
     background: var(--gradient-hero);
   }
   
+  /* Ensure consistent background for dashboard and scrollable areas */
+  html, body {
+    background-color: #151515 !important;
+  }
+  
+  /* Dashboard specific background consistency */
+  .dashboard-container {
+    background-color: #151515 !important;
+  }
+  
+  /* Ensure scrollable areas maintain background color */
+  .overflow-auto, .overflow-y-auto, .overflow-x-auto {
+    background-color: #151515 !important;
+  }
+  
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
@@ -70,6 +85,7 @@
   
   ::-webkit-scrollbar-track {
     @apply bg-muted;
+    background-color: #151515 !important;
   }
   
   ::-webkit-scrollbar-thumb {

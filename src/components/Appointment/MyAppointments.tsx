@@ -5,6 +5,9 @@ import { getUserId } from "@/lib/utils";
 import {
   fetchPatientAppointments,
   rescheduleAppointment,
+  cancelAppointment,
+  clearRescheduleState,
+  clearCancelState,
 } from "@/redux/slice/appointmentSlice";
 import {
   Calendar,
@@ -20,12 +23,15 @@ import {
   Stethoscope,
   MapPin,
   Activity,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { RescheduleAppointmentDto } from "@/redux/api/appointmentApi";
 import RescheduleModal from "../Modals/RescheduleModal";
+import CancelModal from "../CancelModal";
+import { toast } from "react-toastify";
 
 interface MyAppointmentsProps {
   patientName?: string;
@@ -41,12 +47,16 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
     rescheduleLoading,
     rescheduleError,
     rescheduleSuccess,
+    cancelLoading,
+    cancelError,
+    cancelSuccess,
   } = useAppSelector((state) => state.appointment);
 
   const userId = getUserId();
   const [isRescheduleOpen, setRescheduleOpen] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] =
-    useState<string>("");
+  const [isCancelOpen, setCancelOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string>("");
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
   useEffect(() => {
     if (userId) {
@@ -57,19 +67,49 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   // Handle reschedule success
   useEffect(() => {
     if (rescheduleSuccess) {
+      toast.success("Appointment rescheduled successfully!");
       setRescheduleOpen(false);
       setSelectedAppointmentId("");
+      // Clear the success state
+      dispatch(clearRescheduleState());
+      // Refresh appointments
+      if (userId) {
+        dispatch(fetchPatientAppointments({ patientId: userId }));
+      }
     }
-  }, [rescheduleSuccess]);
+  }, [rescheduleSuccess, userId, dispatch]);
 
-  // Pick the next appointment
-  const nextAppointment = patientAppointments
-    ?.filter((a) => a.status !== "cancelled")
-    ?.sort(
-      (a, b) =>
-        new Date(a.appointmentDate).getTime() -
-        new Date(b.appointmentDate).getTime()
-    )?.[0];
+  // Handle cancel success
+  useEffect(() => {
+    if (cancelSuccess) {
+      toast.success("Appointment cancelled successfully!");
+      setCancelOpen(false);
+      setSelectedAppointment(null);
+      // Clear the success state
+      dispatch(clearCancelState());
+      // Refresh appointments
+      if (userId) {
+        dispatch(fetchPatientAppointments({ patientId: userId }));
+      }
+    }
+  }, [cancelSuccess, userId, dispatch]);
+
+  // Handle errors
+  useEffect(() => {
+    if (rescheduleError) {
+      toast.error(`Reschedule failed: ${rescheduleError}`);
+      // Clear the error state after showing toast
+      dispatch(clearRescheduleState());
+    }
+  }, [rescheduleError, dispatch]);
+
+  useEffect(() => {
+    if (cancelError) {
+      toast.error(`Cancellation failed: ${cancelError}`);
+      // Clear the error state after showing toast
+      dispatch(clearCancelState());
+    }
+  }, [cancelError, dispatch]);
 
   // Formatters
   const formatDate = (dateString: string) =>
@@ -133,17 +173,11 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   }) => {
     if (!selectedAppointmentId) return;
 
-    const reschedulePayload: RescheduleAppointmentDto = {
-      newSlotId: payload.slotId,
-      newAppointmentDate: payload.newDate,
-      newAppointmentTime: payload.newTime,
-      reason: "Patient requested reschedule",
-    };
-
     dispatch(
       rescheduleAppointment({
         appointmentId: selectedAppointmentId,
-        payload: reschedulePayload,
+        newSlotId: payload.slotId,
+        reason: "Patient requested reschedule",
       })
     );
   };
@@ -152,6 +186,12 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   const handleRescheduleClick = (appointmentId: string) => {
     setSelectedAppointmentId(appointmentId);
     setRescheduleOpen(true);
+  };
+
+  // Handle cancel button click
+  const handleCancelClick = (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setCancelOpen(true);
   };
 
   // Get current appointment for modal
@@ -178,7 +218,7 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   );
 
   return (
-    <div className="flex-1 text-white" style={{ backgroundColor: "#151515" }}>
+    <div className="flex-1 text-white min-h-full dashboard-container" style={{ backgroundColor: "#151515" }}>
       {/* Header Section */}
       <div className="p-8 pb-6">
         <div className="flex items-center justify-between">
@@ -203,34 +243,10 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
         </div>
       </div>
 
-      {/* Success/Error Messages */}
-      {rescheduleSuccess && (
-        <div className="mx-8 mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-lg flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400" />
-          <p className="text-green-400">
-            Appointment rescheduled successfully!
-          </p>
-        </div>
-      )}
-
-      {rescheduleError && (
-        <div className="mx-8 mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400" />
-          <p className="text-red-400">Error: {rescheduleError}</p>
-        </div>
-      )}
-
       {/* Tabs */}
-      <div className="mx-8">
-        <Tabs defaultValue="today" className="w-full">
+      <div className="mx-8 pb-8">
+        <Tabs defaultValue="upcoming" className="w-full">
           <TabsList className="mb-6 bg-transparent border-0 p-0 gap-4">
-            <TabsTrigger
-              value="current"
-              className="data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gray-700 text-gray-300 px-6 py-2 rounded-full transition-all duration-200"
-              style={{ backgroundColor: "#333333" }}
-            >
-              Current
-            </TabsTrigger>
             <TabsTrigger
               value="today"
               className="data-[state=active]:bg-red-500 data-[state=active]:text-white bg-gray-700 text-gray-300 px-6 py-2 rounded-full transition-all duration-200"
@@ -253,163 +269,6 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
               Past
             </TabsTrigger>
           </TabsList>
-
-          {/* Current */}
-          <TabsContent value="current">
-            <div
-              className="rounded-3xl p-8"
-              style={{ backgroundColor: "#2a2a2a" }}
-            >
-              <h2 className="text-2xl font-bold text-white mb-8">
-                Current Appointment
-              </h2>
-
-              {appointmentsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
-                  <p className="text-gray-400 ml-4">Loading appointment...</p>
-                </div>
-              ) : !nextAppointment ? (
-                <div className="text-center py-12">
-                  <div
-                    className="p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center"
-                    style={{ backgroundColor: "#333333" }}
-                  >
-                    <Calendar className="w-10 h-10 text-gray-400" />
-                  </div>
-                  <p className="text-xl text-gray-300 mb-2">
-                    No upcoming appointments
-                  </p>
-                  <p className="text-gray-500">
-                    Schedule your next appointment to continue your health
-                    journey
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-8">
-                    {/* Date Card */}
-                    <div
-                      className="rounded-2xl p-6"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-red-500 rounded-lg">
-                          <Calendar className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400 mb-1">Date</p>
-                          <p className="font-semibold text-white text-lg">
-                            {formatDate(nextAppointment.appointmentDate)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Time Card */}
-                    <div
-                      className="rounded-2xl p-6"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-red-500 rounded-lg">
-                          <Clock className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400 mb-1">Time</p>
-                          <p className="font-semibold text-white text-lg">
-                            {formatTime(nextAppointment.appointmentTime)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Provider Card */}
-                    <div
-                      className="rounded-2xl p-6"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-red-500 rounded-lg">
-                          <User className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400 mb-1">Provider</p>
-                          <p className="font-semibold text-white text-lg">
-                            Dr. {nextAppointment.doctor?.firstName}{" "}
-                            {nextAppointment.doctor?.lastName}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Type Card */}
-                    <div
-                      className="rounded-2xl p-6"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-red-500 rounded-lg">
-                          <Activity className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400 mb-1">Type</p>
-                          <p className="font-semibold text-white text-lg">
-                            {nextAppointment.service?.name ||
-                              "General Consultation"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Location Card */}
-                    <div
-                      className="rounded-2xl p-6 col-span-2"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-red-500 rounded-lg">
-                          <MapPin className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-400 mb-1">Location</p>
-                          <p className="font-semibold text-white text-lg">
-                            Online
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-4 mt-8">
-                    <button
-                      onClick={() => handleRescheduleClick(nextAppointment.id)}
-                      disabled={rescheduleLoading}
-                      className="px-8 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:cursor-not-allowed"
-                      style={{ backgroundColor: "#333333" }}
-                    >
-                      {rescheduleLoading ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin mr-2 inline" />
-                          Rescheduling...
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw className="w-4 h-4 mr-2 inline" />
-                          Reschedule
-                        </>
-                      )}
-                    </button>
-                    <button className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors">
-                      <X className="w-4 h-4 mr-2 inline" />
-                      Cancel Appointment
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </TabsContent>
 
           {/* Today */}
           <TabsContent value="today">
@@ -452,15 +311,45 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                           <Video className="w-4 h-4 mr-2 inline" />
                           Join
                         </button>
-                        <button
-                          onClick={() => handleRescheduleClick(appointment.id)}
-                          disabled={rescheduleLoading}
-                          className="px-6 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "#444444" }}
-                        >
-                          <RefreshCw className="w-4 h-4 mr-2 inline" />
-                          Reschedule
-                        </button>
+                        {appointment.status.toLowerCase() === "confirmed" && (
+                          <>
+                            <button
+                              onClick={() => handleRescheduleClick(appointment.id)}
+                              disabled={rescheduleLoading}
+                              className="px-6 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:cursor-not-allowed flex items-center"
+                              style={{ backgroundColor: "#444444" }}
+                            >
+                              {rescheduleLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Rescheduling...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="w-4 h-4 mr-2" />
+                                  Reschedule
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleCancelClick(appointment)}
+                              disabled={cancelLoading}
+                              className="px-6 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:cursor-not-allowed flex items-center"
+                            >
+                              {cancelLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Cancelling...
+                                </>
+                              ) : (
+                                <>
+                                  <X className="w-4 h-4 mr-2" />
+                                  Cancel
+                                </>
+                              )}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -519,15 +408,45 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                           <ArrowRight className="w-4 h-4 mr-2 inline" />
                           Details
                         </button>
-                        <button
-                          onClick={() => handleRescheduleClick(appointment.id)}
-                          disabled={rescheduleLoading}
-                          className="px-6 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:cursor-not-allowed"
-                          style={{ backgroundColor: "#444444" }}
-                        >
-                          <RefreshCw className="w-4 h-4 mr-2 inline" />
-                          Reschedule
-                        </button>
+                        {appointment.status.toLowerCase() === "confirmed" && (
+                          <>
+                            <button
+                              onClick={() => handleRescheduleClick(appointment.id)}
+                              disabled={rescheduleLoading}
+                              className="px-6 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:cursor-not-allowed flex items-center"
+                              style={{ backgroundColor: "#444444" }}
+                            >
+                              {rescheduleLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Rescheduling...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="w-4 h-4 mr-2" />
+                                  Reschedule
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleCancelClick(appointment)}
+                              disabled={cancelLoading}
+                              className="px-6 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:cursor-not-allowed flex items-center"
+                            >
+                              {cancelLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Cancelling...
+                                </>
+                              ) : (
+                                <>
+                                  <X className="w-4 h-4 mr-2" />
+                                  Cancel
+                                </>
+                              )}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -606,6 +525,18 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
           }}
           onConfirm={handleRescheduleConfirm}
         />
+
+        {/* Cancel Modal */}
+        {selectedAppointment && (
+          <CancelModal
+            isOpen={isCancelOpen}
+            onClose={() => {
+              setCancelOpen(false);
+              setSelectedAppointment(null);
+            }}
+            appointment={selectedAppointment}
+          />
+        )}
       </div>
     </div>
   );

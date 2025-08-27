@@ -26,7 +26,7 @@ interface BookAppointmentProps {
 }
 
 const BookAppointment: React.FC<BookAppointmentProps> = ({
-  patientName = localStorage.getItem("name") || "",
+  patientName = localStorage.getItem('name') || '',
 }) => {
   const dispatch = useAppDispatch();
   const {
@@ -49,7 +49,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
   // Get user ID directly from localStorage
   const userId = getUserId();
-
+  
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [tempAppointmentData, setTempAppointmentData] = useState<any>(null);
@@ -71,13 +71,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   useEffect(() => {
     // Fetch available slots when doctor, service, and date are selected
     if (selectedDoctor && selectedService && selectedDate) {
-      dispatch(
-        fetchAvailableSlots({
-          doctorId: selectedDoctor.id,
-          date: selectedDate,
-          serviceId: selectedService.id,
-        })
-      );
+      dispatch(fetchAvailableSlots({
+        doctorId: selectedDoctor.id,
+        date: selectedDate,
+        serviceId: selectedService.id,
+      }));
     }
   }, [selectedDoctor, selectedService, selectedDate, dispatch]);
 
@@ -99,12 +97,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   }, [bookingError, dispatch]);
 
   const handleDoctorChange = (doctorId: string) => {
-    const doctor = doctors?.find((d) => d.id === doctorId);
+    const doctor = doctors?.find(d => d.id === doctorId);
     dispatch(setSelectedDoctor(doctor || null));
   };
 
   const handleServiceChange = (serviceId: string) => {
-    const service = services?.find((s) => s.id === serviceId);
+    const service = services?.find(s => s.id === serviceId);
     dispatch(setSelectedService(service || null));
   };
 
@@ -114,7 +112,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   };
 
   const handleSlotChange = (slotId: string) => {
-    const slot = availableSlots?.find((s) => s.id === slotId);
+    const slot = availableSlots?.find(s => s.id === slotId);
     dispatch(setSelectedSlot(slot || null));
   };
 
@@ -177,30 +175,25 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     };
 
     setIsCreatingAppointment(true);
-
+    
     try {
       // Create temporary appointment first
-      const response = await fetch(
-        "http://localhost:3000/api/appointments/temporary",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify(appointmentData),
-        }
-      );
+      const response = await fetch('http://localhost:3000/api/appointments/temporary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+        body: JSON.stringify(appointmentData),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Failed to create temporary appointment"
-        );
+        throw new Error(errorData.message || 'Failed to create temporary appointment');
       }
 
       const result = await response.json();
-
+      
       // Store appointment data with the created appointment ID and show payment modal
       setTempAppointmentData({
         ...appointmentData,
@@ -208,10 +201,8 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       });
       setIsPaymentModalOpen(true);
     } catch (error) {
-      console.error("Error creating temporary appointment:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create appointment"
-      );
+      console.error('Error creating temporary appointment:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create appointment');
     } finally {
       setIsCreatingAppointment(false);
     }
@@ -225,7 +216,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     if (tempAppointmentData) {
       // Payment was successful, appointment is already confirmed on backend
       // Just show success message and reset the form
-      toast.success("Appointment booked successfully!");
+      toast.success('Appointment booked successfully!');
       dispatch(resetForm());
       setTempAppointmentData(null);
       setIsCreatingAppointment(false);
@@ -240,9 +231,9 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
   // Format time for display
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(":");
+    const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
-    const ampm = hour >= 12 ? "PM" : "AM";
+    const ampm = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
     return `${displayHour}:${minutes} ${ampm}`;
   };
@@ -278,6 +269,8 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
               <p className="text-red-400">{error}</p>
             </div>
           )}
+
+
 
           {/* Form Grid */}
           <div className="grid grid-cols-2 gap-8">
@@ -329,18 +322,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   {doctors && doctors.length > 0 ? (
                     doctors.map((doctor) => (
                       <option key={doctor.id} value={doctor.id}>
-<<<<<<< HEAD:src/components/BookAppointment.tsx
                         {doctor.title} {doctor.firstName} {doctor.lastName}
-=======
-                        {doctor.title} {doctor.firstName} {doctor.lastName} -{" "}
-                        {doctor.specialization}
->>>>>>> 0adff0afc831377c1f77b5e6b61bf20eea6b7d43:src/components/Appointment/BookAppointment.tsx
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>
-                      No doctors available
-                    </option>
+                    <option value="" disabled>No doctors available</option>
                   )}
                 </select>
                 <ChevronDown
@@ -371,9 +357,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                       </option>
                     ))
                   ) : (
-                    <option value="" disabled>
-                      No services available
-                    </option>
+                    <option value="" disabled>No services available</option>
                   )}
                 </select>
                 <ChevronDown
@@ -395,7 +379,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   style={{ backgroundColor: "#333333" }}
                   value={selectedDate}
                   onChange={(e) => handleDateChange(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
+                  min={new Date().toISOString().split('T')[0]}
                   disabled={!selectedService}
                 />
                 <Calendar
@@ -416,29 +400,19 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   style={{ backgroundColor: "#333333" }}
                   value={selectedSlot?.id || ""}
                   onChange={(e) => handleSlotChange(e.target.value)}
-                  disabled={
-                    !selectedDate ||
-                    !availableSlots ||
-                    availableSlots.length === 0 ||
-                    loading
-                  }
+                  disabled={!selectedDate || !availableSlots || availableSlots.length === 0 || loading}
                 >
                   <option value="">Select a Time Slot</option>
                   {availableSlots && availableSlots.length > 0 ? (
                     availableSlots.map((slot) => (
                       <option key={slot.id} value={slot.id}>
-                        {formatTime(slot.startTime)} -{" "}
-                        {formatTime(slot.endTime)}
+                        {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                       </option>
                     ))
                   ) : selectedDate && selectedService && selectedDoctor ? (
-                    <option value="" disabled>
-                      No available slots for this date
-                    </option>
+                    <option value="" disabled>No available slots for this date</option>
                   ) : (
-                    <option value="" disabled>
-                      Select date and service first
-                    </option>
+                    <option value="" disabled>Select date and service first</option>
                   )}
                 </select>
                 <ChevronDown
@@ -458,37 +432,20 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           )}
 
           {/* No Slots Available Message */}
-          {selectedDate &&
-            selectedService &&
-            selectedDoctor &&
-            !loading &&
-            availableSlots &&
-            availableSlots.length === 0 && (
-              <div className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
-                <p className="text-yellow-400">
-                  No available time slots for the selected date. Please try a
-                  different date or contact the doctor's office.
-                </p>
-              </div>
-            )}
+          {selectedDate && selectedService && selectedDoctor && !loading && availableSlots && availableSlots.length === 0 && (
+            <div className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+              <p className="text-yellow-400">
+                No available time slots for the selected date. Please try a different date or contact the doctor's office.
+              </p>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-4 mt-12">
             <button
               onClick={handleBookAppointment}
-<<<<<<< HEAD:src/components/BookAppointment.tsx
               disabled={!selectedDoctor || !selectedPrimaryService || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
               className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
-=======
-              disabled={
-                !selectedDoctor ||
-                !selectedService ||
-                !selectedSlot ||
-                !selectedDate ||
-                isCreatingAppointment
-              }
-              className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors flex items-center gap-2"
->>>>>>> 0adff0afc831377c1f77b5e6b61bf20eea6b7d43:src/components/Appointment/BookAppointment.tsx
             >
               {isCreatingAppointment ? (
                 <>
@@ -496,7 +453,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   Creating Appointment...
                 </>
               ) : (
-                "Book Appointment"
+                'Book Appointment'
               )}
             </button>
             <button
@@ -525,7 +482,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           appointmentId={tempAppointmentData.id} // Use the actual appointment ID
           amount={tempAppointmentData.amount}
           doctorName={`Dr. ${selectedDoctor?.lastName}`}
-          serviceName={selectedService?.name || ""}
+          serviceName={selectedService?.name || ''}
           appointmentDate={tempAppointmentData.appointmentDate}
           appointmentTime={tempAppointmentData.appointmentTime}
           onPaymentSuccess={handlePaymentSuccess}

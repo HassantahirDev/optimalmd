@@ -39,16 +39,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div
-      className="w-64 text-white h-screen flex flex-col"
+      className="w-64 text-white h-full flex flex-col overflow-hidden dashboard-container"
       style={{ backgroundColor: "#151515" }}
     >
       {/* Header */}
-      <div className="p-6 border-b border-gray-600">
+      <div className="p-6 border-b border-gray-600 flex-shrink-0">
         <h2 className="text-lg font-medium text-gray-300">Main Menu</h2>
       </div>
 
       {/* Menu Items */}
-      <div className="flex-1 py-4">
+      <div className="flex-1 py-4 overflow-y-auto dashboard-container" style={{ backgroundColor: "#151515" }}>
         {menuItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = activeMenuItem === item.id;

@@ -48,19 +48,21 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
   };
 
   return (
-    <div className="h-screen" style={{ backgroundColor: "#151515" }}>
+    <div className="h-screen overflow-hidden dashboard-container" style={{ backgroundColor: "#151515" }}>
       {/* Add the Navbar at the top */}
       <Navbar />
 
       {/* Main content area with sidebar and content */}
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-[calc(100vh-64px)] overflow-hidden">
         {" "}
         {/* Subtract navbar height */}
         <Sidebar
           activeMenuItem={activeMenuItem}
           onMenuItemClick={handleMenuItemClick}
         />
-        {renderContent()}
+        <div className="flex-1 overflow-auto dashboard-container" style={{ backgroundColor: "#151515" }}>
+          {renderContent()}
+        </div>
       </div>
     </div>
   );

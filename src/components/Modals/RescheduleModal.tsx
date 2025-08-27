@@ -6,7 +6,7 @@ import {
   fetchAvailableSlots,
   setSelectedDate,
 } from "@/redux/slice/appointmentSlice";
-import { Calendar, Clock, ChevronRight, CalendarDays } from "lucide-react";
+import { Calendar, Clock, ChevronRight, CalendarDays, Loader2 } from "lucide-react";
 
 interface RescheduleModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export default function RescheduleModal({
   onConfirm,
 }: RescheduleModalProps) {
   const dispatch = useAppDispatch();
-  const { availableSlots, loading } = useAppSelector(
+  const { availableSlots, loading, rescheduleLoading } = useAppSelector(
     (state) => state.appointment
   );
 
@@ -259,7 +259,7 @@ export default function RescheduleModal({
               ? "bg-red-500 hover:bg-red-600 text-white shadow-lg hover:shadow-xl"
               : "bg-gray-200 text-gray-500 cursor-not-allowed"
           }`}
-          disabled={!selectedSlot}
+          disabled={!selectedSlot || rescheduleLoading}
           onClick={() => {
             if (selectedSlot && selectedDate) {
               onConfirm({
@@ -270,7 +270,16 @@ export default function RescheduleModal({
             }
           }}
         >
-          {selectedSlot ? "Confirm Reschedule" : "Select a Time Slot"}
+          {rescheduleLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Rescheduling...
+            </>
+          ) : selectedSlot ? (
+            "Confirm Reschedule"
+          ) : (
+            "Select a Time Slot"
+          )}
         </Button>
       </div>
     </Modal>

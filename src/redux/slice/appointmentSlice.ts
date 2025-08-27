@@ -9,6 +9,7 @@ import {
   fetchPatientAppointmentsApi,
   cancelAppointmentApi,
   rescheduleAppointmentApi,
+  fetchPrimaryServicesApi,
   Doctor,
   Service,
   PrimaryService,
@@ -17,7 +18,6 @@ import {
   CreateAppointmentDto,
   PatientAppointment,
   RescheduleAppointmentDto,
-  rescheduleAppointmentApi,
 } from "../api/appointmentApi";
 
 // Types
@@ -142,7 +142,7 @@ export const fetchAvailableSlots = createAsyncThunk<
       );
     }
   }
-});
+);
 
 export const fetchPrimaryServices = createAsyncThunk<
   PrimaryService[],
@@ -150,10 +150,12 @@ export const fetchPrimaryServices = createAsyncThunk<
   { rejectValue: string }
 >('appointment/fetchPrimaryServices', async (_, thunkAPI) => {
   try {
-    const { fetchPrimaryServicesApi } = await import('../api/appointmentApi');
+    console.log("Fetching primary services...");
     const services = await fetchPrimaryServicesApi();
+    console.log("Primary services fetched successfully:", services);
     return services;
   } catch (err: any) {
+    console.error("Error in fetchPrimaryServices thunk:", err);
     return thunkAPI.rejectWithValue(
       err.response?.data?.message || 'Failed to fetch primary services'
     );
@@ -248,27 +250,6 @@ export const bookAppointment = createAsyncThunk<
     );
   }
 });
-
-export const rescheduleAppointment = createAsyncThunk<
-  PatientAppointment,
-  { appointmentId: string; payload: RescheduleAppointmentDto },
-  { rejectValue: string }
->(
-  "appointment/rescheduleAppointment",
-  async ({ appointmentId, payload }, thunkAPI) => {
-    try {
-      console.log("Rescheduling appointment:", appointmentId, payload);
-      const result = await rescheduleAppointmentApi(appointmentId, payload);
-      console.log("Appointment rescheduled successfully:", result);
-      return result;
-    } catch (err: any) {
-      console.error("Error in rescheduleAppointment thunk:", err);
-      return thunkAPI.rejectWithValue(
-        err.response?.data?.message || "Failed to reschedule appointment"
-      );
-    }
-  }
-);
 
 const appointmentSlice = createSlice({
   name: "appointment",
