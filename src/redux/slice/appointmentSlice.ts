@@ -7,8 +7,11 @@ import {
   bookAppointmentApi,
   fetchDoctorWithServicesApi,
   fetchPatientAppointmentsApi,
+  cancelAppointmentApi,
+  rescheduleAppointmentApi,
   Doctor,
   Service,
+  PrimaryService,
   AvailableSlot,
   DoctorService,
   CreateAppointmentDto,
@@ -19,9 +22,11 @@ import {
 export interface AppointmentState {
   doctors: Doctor[];
   services: Service[];
+  primaryServices: PrimaryService[];
   availableSlots: AvailableSlot[];
   selectedDoctor: Doctor | null;
   selectedService: Service | null;
+  selectedPrimaryService: PrimaryService | null;
   selectedSlot: AvailableSlot | null;
   selectedDate: string;
   selectedTime: string;
@@ -34,14 +39,23 @@ export interface AppointmentState {
   patientAppointments: PatientAppointment[];
   appointmentsLoading: boolean;
   appointmentsError: string | null;
+  // Cancel and reschedule
+  cancelLoading: boolean;
+  cancelError: string | null;
+  cancelSuccess: boolean;
+  rescheduleLoading: boolean;
+  rescheduleError: string | null;
+  rescheduleSuccess: boolean;
 }
 
 const initialState: AppointmentState = {
   doctors: [],
   services: [],
+  primaryServices: [],
   availableSlots: [],
   selectedDoctor: null,
   selectedService: null,
+  selectedPrimaryService: null,
   selectedSlot: null,
   selectedDate: '',
   selectedTime: '',
@@ -54,6 +68,13 @@ const initialState: AppointmentState = {
   patientAppointments: [],
   appointmentsLoading: false,
   appointmentsError: null,
+  // Cancel and reschedule
+  cancelLoading: false,
+  cancelError: null,
+  cancelSuccess: false,
+  rescheduleLoading: false,
+  rescheduleError: null,
+  rescheduleSuccess: false,
 };
 
 // Async thunks
@@ -107,6 +128,58 @@ export const fetchAvailableSlots = createAsyncThunk<
     console.error("Error in fetchAvailableSlots thunk:", err);
     return thunkAPI.rejectWithValue(
       err.response?.data?.message || 'Failed to fetch available slots'
+    );
+  }
+});
+
+export const fetchPrimaryServices = createAsyncThunk<
+  PrimaryService[],
+  void,
+  { rejectValue: string }
+>('appointment/fetchPrimaryServices', async (_, thunkAPI) => {
+  try {
+    const { fetchPrimaryServicesApi } = await import('../api/appointmentApi');
+    const services = await fetchPrimaryServicesApi();
+    return services;
+  } catch (err: any) {
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || 'Failed to fetch primary services'
+    );
+  }
+});
+
+export const cancelAppointment = createAsyncThunk<
+  any,
+  { appointmentId: string; cancellationReason: string },
+  { rejectValue: string }
+>('appointment/cancelAppointment', async ({ appointmentId, cancellationReason }, thunkAPI) => {
+  try {
+    console.log("Cancelling appointment:", appointmentId);
+    const result = await cancelAppointmentApi(appointmentId, cancellationReason);
+    console.log("Appointment cancelled successfully:", result);
+    return result;
+  } catch (err: any) {
+    console.error("Error in cancelAppointment thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || 'Failed to cancel appointment'
+    );
+  }
+});
+
+export const rescheduleAppointment = createAsyncThunk<
+  any,
+  { appointmentId: string; newSlotId: string; reason?: string },
+  { rejectValue: string }
+>('appointment/rescheduleAppointment', async ({ appointmentId, newSlotId, reason }, thunkAPI) => {
+  try {
+    console.log("Rescheduling appointment:", appointmentId, "to slot:", newSlotId);
+    const result = await rescheduleAppointmentApi(appointmentId, newSlotId, reason);
+    console.log("Appointment rescheduled successfully:", result);
+    return result;
+  } catch (err: any) {
+    console.error("Error in rescheduleAppointment thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || 'Failed to reschedule appointment'
     );
   }
 });
@@ -165,6 +238,10 @@ const appointmentSlice = createSlice({
       state.selectedSlot = null;
       state.availableSlots = [];
     },
+    setSelectedPrimaryService: (state, action: PayloadAction<PrimaryService | null>) => {
+      console.log("Setting selected primary service:", action.payload);
+      state.selectedPrimaryService = action.payload;
+    },
     setSelectedSlot: (state, action: PayloadAction<AvailableSlot | null>) => {
       console.log("Setting selected slot:", action.payload);
       state.selectedSlot = action.payload;
@@ -185,10 +262,23 @@ const appointmentSlice = createSlice({
       state.bookingError = null;
       state.bookingSuccess = false;
     },
+    clearCancelState: (state) => {
+      console.log("Clearing cancel state");
+      state.cancelLoading = false;
+      state.cancelError = null;
+      state.cancelSuccess = false;
+    },
+    clearRescheduleState: (state) => {
+      console.log("Clearing reschedule state");
+      state.rescheduleLoading = false;
+      state.rescheduleError = null;
+      state.rescheduleSuccess = false;
+    },
     resetForm: (state) => {
       console.log("Resetting form");
       state.selectedDoctor = null;
       state.selectedService = null;
+      state.selectedPrimaryService = null;
       state.selectedSlot = null;
       state.selectedDate = '';
       state.selectedTime = '';
@@ -247,6 +337,19 @@ const appointmentSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to fetch available slots';
       })
+      // Fetch primary services
+      .addCase(fetchPrimaryServices.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPrimaryServices.fulfilled, (state, action) => {
+        state.loading = false;
+        state.primaryServices = action.payload;
+      })
+      .addCase(fetchPrimaryServices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch primary services';
+      })
       // Book appointment
       .addCase(bookAppointment.pending, (state) => {
         console.log("Book appointment pending");
@@ -279,6 +382,40 @@ const appointmentSlice = createSlice({
         console.log("Fetch patient appointments rejected:", action.payload);
         state.appointmentsLoading = false;
         state.appointmentsError = action.payload || 'Failed to fetch patient appointments';
+      })
+      // Cancel appointment
+      .addCase(cancelAppointment.pending, (state) => {
+        console.log("Cancel appointment pending");
+        state.cancelLoading = true;
+        state.cancelError = null;
+        state.cancelSuccess = false;
+      })
+      .addCase(cancelAppointment.fulfilled, (state) => {
+        console.log("Cancel appointment fulfilled");
+        state.cancelLoading = false;
+        state.cancelSuccess = true;
+      })
+      .addCase(cancelAppointment.rejected, (state, action) => {
+        console.log("Cancel appointment rejected:", action.payload);
+        state.cancelLoading = false;
+        state.cancelError = action.payload || 'Failed to cancel appointment';
+      })
+      // Reschedule appointment
+      .addCase(rescheduleAppointment.pending, (state) => {
+        console.log("Reschedule appointment pending");
+        state.rescheduleLoading = true;
+        state.rescheduleError = null;
+        state.rescheduleSuccess = false;
+      })
+      .addCase(rescheduleAppointment.fulfilled, (state) => {
+        console.log("Reschedule appointment fulfilled");
+        state.rescheduleLoading = false;
+        state.rescheduleSuccess = true;
+      })
+      .addCase(rescheduleAppointment.rejected, (state, action) => {
+        console.log("Reschedule appointment rejected:", action.payload);
+        state.rescheduleLoading = false;
+        state.rescheduleError = action.payload || 'Failed to reschedule appointment';
       });
   },
 });
@@ -286,10 +423,13 @@ const appointmentSlice = createSlice({
 export const {
   setSelectedDoctor,
   setSelectedService,
+  setSelectedPrimaryService,
   setSelectedSlot,
   setSelectedDate,
   setSelectedTime,
   clearBookingState,
+  clearCancelState,
+  clearRescheduleState,
   resetForm,
 } = appointmentSlice.actions;
 

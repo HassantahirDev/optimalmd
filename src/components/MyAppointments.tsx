@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { getUserId } from "@/lib/utils";
 import { fetchPatientAppointments } from "@/redux/slice/appointmentSlice";
-import { Calendar, Clock, User, Stethoscope, DollarSign, Loader2 } from "lucide-react";
+import { Calendar, Clock, User, Stethoscope, DollarSign, Loader2, Edit, X } from "lucide-react";
+import CancelModal from "./CancelModal";
+import RescheduleModal from "./RescheduleModal";
 
 interface MyAppointmentsProps {
   patientName?: string;
@@ -20,6 +22,9 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   } = useAppSelector((state) => state.appointment);
 
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'today'>('upcoming');
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
 
   // Get user ID directly from localStorage
   const userId = getUserId();
@@ -178,12 +183,12 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                                 {appointment.doctor?.title} {appointment.doctor?.firstName} {appointment.doctor?.lastName}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            {/* <div className="flex items-center gap-2">
                               <Stethoscope className="text-blue-500" size={20} />
                               <span className="text-gray-300">
                                 {appointment.doctor?.specialization}
                               </span>
-                            </div>
+                            </div> */}
                           </div>
 
                           <div className="grid grid-cols-2 gap-6">
@@ -228,6 +233,32 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                               </p>
                             </div>
                           )}
+
+                          {/* Action Buttons - Only show for upcoming appointments */}
+                          {activeTab === 'upcoming' && appointment.status.toLowerCase() === 'confirmed' && (
+                            <div className="flex gap-3 mt-4 pt-4 border-t border-gray-600">
+                              <button
+                                onClick={() => {
+                                  setSelectedAppointment(appointment);
+                                  setRescheduleModalOpen(true);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                              >
+                                <Edit className="w-4 h-4" />
+                                Reschedule
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedAppointment(appointment);
+                                  setCancelModalOpen(true);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                                Cancel
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -238,6 +269,30 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
           )}
         </div>
       </div>
+
+      {/* Cancel Modal */}
+      {selectedAppointment && (
+        <CancelModal
+          isOpen={cancelModalOpen}
+          onClose={() => {
+            setCancelModalOpen(false);
+            setSelectedAppointment(null);
+          }}
+          appointment={selectedAppointment}
+        />
+      )}
+
+      {/* Reschedule Modal */}
+      {selectedAppointment && (
+        <RescheduleModal
+          isOpen={rescheduleModalOpen}
+          onClose={() => {
+            setRescheduleModalOpen(false);
+            setSelectedAppointment(null);
+          }}
+          appointment={selectedAppointment}
+        />
+      )}
     </div>
   );
 };

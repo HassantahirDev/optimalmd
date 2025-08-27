@@ -7,9 +7,11 @@ import {
   fetchDoctors,
   fetchDoctorServices,
   fetchAvailableSlots,
+  fetchPrimaryServices,
   bookAppointment,
   setSelectedDoctor,
   setSelectedService,
+  setSelectedPrimaryService,
   setSelectedSlot,
   setSelectedDate,
   setSelectedTime,
@@ -30,9 +32,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   const {
     doctors,
     services,
+    primaryServices,
     availableSlots,
     selectedDoctor,
     selectedService,
+    selectedPrimaryService,
     selectedSlot,
     selectedDate,
     selectedTime,
@@ -54,6 +58,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   useEffect(() => {
     // Fetch doctors on component mount
     dispatch(fetchDoctors());
+    dispatch(fetchPrimaryServices());
   }, [dispatch]);
 
   useEffect(() => {
@@ -101,6 +106,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     dispatch(setSelectedService(service || null));
   };
 
+  const handlePrimaryServiceChange = (primaryServiceId: string) => {
+    const primary = primaryServices?.find(p => p.id === primaryServiceId) || null;
+    dispatch(setSelectedPrimaryService(primary));
+  };
+
   const handleSlotChange = (slotId: string) => {
     const slot = availableSlots?.find(s => s.id === slotId);
     dispatch(setSelectedSlot(slot || null));
@@ -114,26 +124,54 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     dispatch(setSelectedTime(time));
   };
 
+  // Calculate total amount (adds primary service price if Primary Service = Follow Up)
+  const getTotalAmount = () => {
+    const specialityPrice = selectedService ? parseFloat(String(selectedService.basePrice)) : 0;
+    console.log("specialityPrice", specialityPrice);
+    const primaryName = selectedPrimaryService?.name?.trim().toLowerCase() || '';
+    if (primaryName === 'follow up' || primaryName === 'follow-up' || primaryName === 'followup') {
+      const primaryPrice = selectedPrimaryService ? parseFloat(String(selectedPrimaryService.basePrice)) : 0;
+      const sum = (isNaN(specialityPrice) ? 0 : specialityPrice) + (isNaN(primaryPrice) ? 0 : primaryPrice);
+      return sum;
+    }
+    return isNaN(specialityPrice) ? 0 : specialityPrice;
+  };
+
+  // Calculate display price for a given speciality option
+  const getDisplayPriceForService = (service: { basePrice: string | number }) => {
+    const base = parseFloat(String(service.basePrice));
+    const primaryName = selectedPrimaryService?.name?.trim().toLowerCase() || '';
+    if (primaryName === 'follow up' || primaryName === 'follow-up' || primaryName === 'followup') {
+      const primaryPrice = selectedPrimaryService ? parseFloat(String(selectedPrimaryService.basePrice)) : 0;
+      const sum = (isNaN(base) ? 0 : base) + (isNaN(primaryPrice) ? 0 : primaryPrice);
+      return sum.toFixed(2);
+    }
+    return (isNaN(base) ? 0 : base).toFixed(2);
+  };
+
   const handleBookAppointment = async () => {
     if (!userId) {
       toast.error("Please log in to book an appointment");
       return;
     }
 
-    if (!selectedDoctor || !selectedService || !selectedSlot || !selectedDate) {
+    if (!selectedDoctor || !selectedService || !selectedPrimaryService || !selectedSlot || !selectedDate) {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    const totalAmount = getTotalAmount();
 
     const appointmentData = {
       patientId: userId,
       doctorId: selectedDoctor.id,
       serviceId: selectedService.id,
+      primaryServiceId: selectedPrimaryService.id,
       slotId: selectedSlot.id,
       appointmentDate: selectedDate,
       appointmentTime: selectedSlot.startTime, // Use the slot's start time
       duration: selectedService.duration,
-      amount: selectedService.basePrice,
+      amount: totalAmount.toFixed(2),
     };
 
     setIsCreatingAppointment(true);
@@ -236,6 +274,37 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
           {/* Form Grid */}
           <div className="grid grid-cols-2 gap-8">
+            {/* Primary Service Dropdown */}
+            <div>
+              <label className="block text-white text-lg font-medium mb-4">
+                Service
+              </label>
+              <div className="relative">
+                <select
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  style={{ backgroundColor: "#333333" }}
+                  value={selectedPrimaryService?.id || ""}
+                  onChange={(e) => handlePrimaryServiceChange(e.target.value)}
+                  disabled={loading}
+               >
+                  <option value="">Select a Primary Service</option>
+                  {primaryServices && primaryServices.length > 0 ? (
+                    primaryServices.map((ps) => (
+                      <option key={ps.id} value={ps.id}>
+                        {ps.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>No services available</option>
+                  )}
+                </select>
+                <ChevronDown
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
+                  size={20}
+                />
+              </div>
+            </div>
+
             {/* Doctor Dropdown */}
             <div>
               <label className="block text-white text-lg font-medium mb-4">
@@ -253,7 +322,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   {doctors && doctors.length > 0 ? (
                     doctors.map((doctor) => (
                       <option key={doctor.id} value={doctor.id}>
-                        {doctor.title} {doctor.firstName} {doctor.lastName} - {doctor.specialization}
+                        {doctor.title} {doctor.firstName} {doctor.lastName}
                       </option>
                     ))
                   ) : (
@@ -270,7 +339,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
             {/* Service Dropdown */}
             <div>
               <label className="block text-white text-lg font-medium mb-4">
-                Service
+                Speciality
               </label>
               <div className="relative">
                 <select
@@ -278,13 +347,13 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   style={{ backgroundColor: "#333333" }}
                   value={selectedService?.id || ""}
                   onChange={(e) => handleServiceChange(e.target.value)}
-                  disabled={!selectedDoctor || loading}
+                  disabled={!selectedDoctor || !selectedPrimaryService || loading}
                 >
-                  <option value="">Select a Service</option>
+                  <option value="">Select a Speciality</option>
                   {services && services.length > 0 ? (
                     services.map((service) => (
                       <option key={service.id} value={service.id}>
-                        {service.name} - ${service.basePrice}
+                        {service.name} - ${getDisplayPriceForService(service)}
                       </option>
                     ))
                   ) : (
@@ -375,7 +444,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           <div className="flex gap-4 mt-12">
             <button
               onClick={handleBookAppointment}
-              disabled={!selectedDoctor || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
+              disabled={!selectedDoctor || !selectedPrimaryService || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
               className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isCreatingAppointment ? (

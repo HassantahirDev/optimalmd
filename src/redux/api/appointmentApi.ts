@@ -41,6 +41,18 @@ export interface Service {
   doctorId: string;
 }
 
+export interface PrimaryService {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  duration: number;
+  basePrice: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AvailableSlot {
   id: string;
   startTime: string;
@@ -64,6 +76,7 @@ export interface CreateAppointmentDto {
   patientId: string;
   doctorId: string;
   serviceId: string;
+  primaryServiceId: string;
   slotId: string;
   appointmentDate: string;
   appointmentTime: string;
@@ -262,6 +275,19 @@ export const fetchDoctorWithServicesApi = async (doctorId: string): Promise<{
   }
 };
 
+// Get primary services
+export const fetchPrimaryServicesApi = async (): Promise<PrimaryService[]> => {
+  try {
+    const response = await api.get(`services/primary`);
+    console.log("Primary services API response:", response.data);
+    // Expecting response.data.data to be an array
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching primary services:", error);
+    throw error;
+  }
+};
+
 // Get patient appointments
 export const fetchPatientAppointmentsApi = async (
   patientId: string,
@@ -285,6 +311,42 @@ export const fetchPatientAppointmentsApi = async (
     return response.data;
   } catch (error) {
     console.error("Error fetching patient appointments:", error);
+    throw error;
+  }
+};
+
+// Cancel appointment
+export const cancelAppointmentApi = async (
+  appointmentId: string,
+  cancellationReason: string
+): Promise<any> => {
+  try {
+    const response = await api.patch(`appointments/${appointmentId}/cancel`, {
+      cancellationReason,
+    });
+    console.log("Cancel appointment API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    throw error;
+  }
+};
+
+// Reschedule appointment
+export const rescheduleAppointmentApi = async (
+  appointmentId: string,
+  newSlotId: string,
+  reason?: string
+): Promise<any> => {
+  try {
+    const response = await api.patch(`appointments/${appointmentId}/reschedule`, {
+      newSlotId,
+      reason,
+    });
+    console.log("Reschedule appointment API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error rescheduling appointment:", error);
     throw error;
   }
 };
