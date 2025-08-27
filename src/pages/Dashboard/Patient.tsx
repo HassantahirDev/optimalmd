@@ -1,7 +1,7 @@
-import BookAppointment from "@/components/BookAppointment";
-import MyAppointments from "@/components/MyAppointments";
-import Sidebar from "@/components/SideBar";
-import Navbar from "@/components/Navbar"; // Add this import
+import BookAppointment from "@/components/Appointment/BookAppointment";
+import MyAppointments from "@/components/Appointment/MyAppointments";
+import Sidebar from "@/components/Generic/SideBar";
+import Navbar from "@/components/Generic/Navbar";
 import { useState } from "react";
 
 interface PatientDashboardProps {
@@ -9,7 +9,7 @@ interface PatientDashboardProps {
 }
 
 const PatientDashboard: React.FC<PatientDashboardProps> = ({
-  patientName = localStorage.getItem('name') || '',
+  patientName = localStorage.getItem("name") || "",
 }) => {
   const [activeMenuItem, setActiveMenuItem] =
     useState<string>("book-appointment");
@@ -51,9 +51,11 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
     <div className="h-screen" style={{ backgroundColor: "#151515" }}>
       {/* Add the Navbar at the top */}
       <Navbar />
-      
+
       {/* Main content area with sidebar and content */}
-      <div className="flex h-[calc(100vh-64px)]"> {/* Subtract navbar height */}
+      <div className="flex h-[calc(100vh-64px)]">
+        {" "}
+        {/* Subtract navbar height */}
         <Sidebar
           activeMenuItem={activeMenuItem}
           onMenuItemClick={handleMenuItemClick}

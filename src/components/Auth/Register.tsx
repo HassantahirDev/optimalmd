@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { registerUser } from "@/redux/slice/authSlice";
 import { ThreeDots } from "react-loader-spinner";
 import { patientRegistrationSchema } from "@/validation/validate";
-import { HipaaModal } from "@/components/HipaaModal";
+import { HipaaModal } from "@/components/Modals/HipaaModal";
 
 export default function Register() {
   const dispatch = useAppDispatch();
@@ -71,30 +71,47 @@ export default function Register() {
     onSubmit: async (data) => {
       // Check if all mandatory fields are completed
       const mandatoryFields = [
-        'medicalRecordNo', 'title', 'firstName', 'middleName', 'lastName',
-        'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode',
-        'primaryEmail', 'alternativeEmail', 'primaryPhone', 'alternativePhone',
-        'emergencyContactName', 'emergencyContactRelationship', 'emergencyContactPhone',
-        'referringSource', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment',
-        'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication',
-        'disabilityAccessibilityNeeds'
+        "medicalRecordNo",
+        "title",
+        "firstName",
+        "middleName",
+        "lastName",
+        "dateOfBirth",
+        "gender",
+        "completeAddress",
+        "city",
+        "state",
+        "zipcode",
+        "primaryEmail",
+        "alternativeEmail",
+        "primaryPhone",
+        "alternativePhone",
+        "emergencyContactName",
+        "emergencyContactRelationship",
+        "emergencyContactPhone",
+        "referringSource",
+        "consentForTreatment",
+        "hipaaPrivacyNoticeAcknowledgment",
+        "releaseOfMedicalRecordsConsent",
+        "preferredMethodOfCommunication",
+        "disabilityAccessibilityNeeds",
       ];
 
-      const missingFields = mandatoryFields.filter(field => !data[field]);
-      
+      const missingFields = mandatoryFields.filter((field) => !data[field]);
+
       if (missingFields.length > 0) {
         toast(
-          `Please complete all mandatory fields: ${missingFields.join(', ')}`,
+          `Please complete all mandatory fields: ${missingFields.join(", ")}`,
           { type: "error" }
         );
         return;
       }
 
       setLoading(true);
-      
+
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...registrationData } = data;
-      
+
       // Clean up optional fields - remove empty strings for optional fields
       const cleanedData = {
         ...registrationData,
@@ -102,22 +119,32 @@ export default function Register() {
         lastFourDigitsSSN: registrationData.lastFourDigitsSSN || undefined,
         languagePreference: registrationData.languagePreference || undefined,
         ethnicityRace: registrationData.ethnicityRace || undefined,
-        primaryCarePhysician: registrationData.primaryCarePhysician || undefined,
-        insuranceProviderName: registrationData.insuranceProviderName || undefined,
-        insurancePolicyNumber: registrationData.insurancePolicyNumber || undefined,
-        insuranceGroupNumber: registrationData.insuranceGroupNumber || undefined,
-        insurancePhoneNumber: registrationData.insurancePhoneNumber || undefined,
-        guarantorResponsibleParty: registrationData.guarantorResponsibleParty || undefined,
-        dateOfFirstVisitPlanned: registrationData.dateOfFirstVisitPlanned || undefined,
+        primaryCarePhysician:
+          registrationData.primaryCarePhysician || undefined,
+        insuranceProviderName:
+          registrationData.insuranceProviderName || undefined,
+        insurancePolicyNumber:
+          registrationData.insurancePolicyNumber || undefined,
+        insuranceGroupNumber:
+          registrationData.insuranceGroupNumber || undefined,
+        insurancePhoneNumber:
+          registrationData.insurancePhoneNumber || undefined,
+        guarantorResponsibleParty:
+          registrationData.guarantorResponsibleParty || undefined,
+        dateOfFirstVisitPlanned:
+          registrationData.dateOfFirstVisitPlanned || undefined,
         interpreterRequired: registrationData.interpreterRequired || undefined,
         advanceDirectives: registrationData.advanceDirectives || undefined,
       };
-      
+
       dispatch(registerUser(cleanedData))
         .unwrap()
         .then(() => {
           setLoading(false);
-          toast("Registration successful! Please check your email to verify your account.", { type: "success" });
+          toast(
+            "Registration successful! Please check your email to verify your account.",
+            { type: "success" }
+          );
           // Redirect to verification pending page instead of login
           navigate("/verify-email-pending");
         })
@@ -157,7 +184,7 @@ export default function Register() {
     if (!dateString) return "";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "";
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
   // Navigation functions
@@ -341,14 +368,17 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Date of Birth (YYYY-MM-DD) <span className="text-red-500">*</span>
+                    Date of Birth (YYYY-MM-DD){" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
                     name="dateOfBirth"
                     value={formik.values.dateOfBirth}
                     onChange={(e) => {
-                      const formattedDate = formatDateForBackend(e.target.value);
+                      const formattedDate = formatDateForBackend(
+                        e.target.value
+                      );
                       formik.setFieldValue("dateOfBirth", formattedDate);
                     }}
                     onBlur={formik.handleBlur}
@@ -388,7 +418,8 @@ export default function Register() {
               {/* Complete Address */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Complete Address (House/Apt, Street) <span className="text-red-500">*</span>
+                  Complete Address (House/Apt, Street){" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -398,11 +429,12 @@ export default function Register() {
                   onBlur={formik.handleBlur}
                   className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                 />
-                {formik.touched.completeAddress && formik.errors.completeAddress && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.completeAddress}
-                  </p>
-                )}
+                {formik.touched.completeAddress &&
+                  formik.errors.completeAddress && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.completeAddress}
+                    </p>
+                  )}
               </div>
 
               {/* City, State, Zipcode */}
@@ -469,7 +501,8 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Primary Email Address <span className="text-red-500">*</span>
+                    Primary Email Address{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -479,16 +512,18 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.primaryEmail && formik.errors.primaryEmail && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.primaryEmail}
-                    </p>
-                  )}
+                  {formik.touched.primaryEmail &&
+                    formik.errors.primaryEmail && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.primaryEmail}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Alternative Email Address <span className="text-red-500">*</span>
+                    Alternative Email Address{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -498,11 +533,12 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.alternativeEmail && formik.errors.alternativeEmail && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.alternativeEmail}
-                    </p>
-                  )}
+                  {formik.touched.alternativeEmail &&
+                    formik.errors.alternativeEmail && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.alternativeEmail}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -520,16 +556,18 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.primaryPhone && formik.errors.primaryPhone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.primaryPhone}
-                    </p>
-                  )}
+                  {formik.touched.primaryPhone &&
+                    formik.errors.primaryPhone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.primaryPhone}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Alternative Phone Number <span className="text-red-500">*</span>
+                    Alternative Phone Number{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -539,11 +577,12 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.alternativePhone && formik.errors.alternativePhone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.alternativePhone}
-                    </p>
-                  )}
+                  {formik.touched.alternativePhone &&
+                    formik.errors.alternativePhone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.alternativePhone}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -573,7 +612,8 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Emergency Contact Name <span className="text-red-500">*</span>
+                    Emergency Contact Name{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -583,16 +623,18 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.emergencyContactName && formik.errors.emergencyContactName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.emergencyContactName}
-                    </p>
-                  )}
+                  {formik.touched.emergencyContactName &&
+                    formik.errors.emergencyContactName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.emergencyContactName}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Emergency Contact Relationship <span className="text-red-500">*</span>
+                    Emergency Contact Relationship{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -602,16 +644,18 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.emergencyContactRelationship && formik.errors.emergencyContactRelationship && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.emergencyContactRelationship}
-                    </p>
-                  )}
+                  {formik.touched.emergencyContactRelationship &&
+                    formik.errors.emergencyContactRelationship && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.emergencyContactRelationship}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Emergency Contact Phone <span className="text-red-500">*</span>
+                    Emergency Contact Phone{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -621,11 +665,12 @@ export default function Register() {
                     onBlur={formik.handleBlur}
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
-                  {formik.touched.emergencyContactPhone && formik.errors.emergencyContactPhone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.emergencyContactPhone}
-                    </p>
-                  )}
+                  {formik.touched.emergencyContactPhone &&
+                    formik.errors.emergencyContactPhone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.emergencyContactPhone}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -648,11 +693,12 @@ export default function Register() {
                       onBlur={formik.handleBlur}
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.careProviderPhone && formik.errors.careProviderPhone && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.careProviderPhone}
-                      </p>
-                    )}
+                    {formik.touched.careProviderPhone &&
+                      formik.errors.careProviderPhone && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.careProviderPhone}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -672,11 +718,12 @@ export default function Register() {
                       placeholder="1234"
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.lastFourDigitsSSN && formik.errors.lastFourDigitsSSN && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.lastFourDigitsSSN}
-                      </p>
-                    )}
+                    {formik.touched.lastFourDigitsSSN &&
+                      formik.errors.lastFourDigitsSSN && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.lastFourDigitsSSN}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -691,11 +738,12 @@ export default function Register() {
                       onBlur={formik.handleBlur}
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.languagePreference && formik.errors.languagePreference && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.languagePreference}
-                      </p>
-                    )}
+                    {formik.touched.languagePreference &&
+                      formik.errors.languagePreference && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.languagePreference}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -710,11 +758,12 @@ export default function Register() {
                       onBlur={formik.handleBlur}
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.ethnicityRace && formik.errors.ethnicityRace && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.ethnicityRace}
-                      </p>
-                    )}
+                    {formik.touched.ethnicityRace &&
+                      formik.errors.ethnicityRace && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.ethnicityRace}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -729,11 +778,12 @@ export default function Register() {
                       onBlur={formik.handleBlur}
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.primaryCarePhysician && formik.errors.primaryCarePhysician && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.primaryCarePhysician}
-                      </p>
-                    )}
+                    {formik.touched.primaryCarePhysician &&
+                      formik.errors.primaryCarePhysician && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.primaryCarePhysician}
+                        </p>
+                      )}
                   </div>
 
                   <div>
@@ -745,17 +795,23 @@ export default function Register() {
                       name="dateOfFirstVisitPlanned"
                       value={formik.values.dateOfFirstVisitPlanned}
                       onChange={(e) => {
-                        const formattedDate = formatDateForBackend(e.target.value);
-                        formik.setFieldValue("dateOfFirstVisitPlanned", formattedDate);
+                        const formattedDate = formatDateForBackend(
+                          e.target.value
+                        );
+                        formik.setFieldValue(
+                          "dateOfFirstVisitPlanned",
+                          formattedDate
+                        );
                       }}
                       onBlur={formik.handleBlur}
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                     />
-                    {formik.touched.dateOfFirstVisitPlanned && formik.errors.dateOfFirstVisitPlanned && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.dateOfFirstVisitPlanned}
-                      </p>
-                    )}
+                    {formik.touched.dateOfFirstVisitPlanned &&
+                      formik.errors.dateOfFirstVisitPlanned && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {formik.errors.dateOfFirstVisitPlanned}
+                        </p>
+                      )}
                   </div>
                 </div>
 
@@ -783,11 +839,12 @@ export default function Register() {
                           onBlur={formik.handleBlur}
                           className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                         />
-                        {formik.touched.insuranceProviderName && formik.errors.insuranceProviderName && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {formik.errors.insuranceProviderName}
-                          </p>
-                        )}
+                        {formik.touched.insuranceProviderName &&
+                          formik.errors.insuranceProviderName && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {formik.errors.insuranceProviderName}
+                            </p>
+                          )}
                       </div>
 
                       <div>
@@ -802,11 +859,12 @@ export default function Register() {
                           onBlur={formik.handleBlur}
                           className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                         />
-                        {formik.touched.insurancePolicyNumber && formik.errors.insurancePolicyNumber && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {formik.errors.insurancePolicyNumber}
-                          </p>
-                        )}
+                        {formik.touched.insurancePolicyNumber &&
+                          formik.errors.insurancePolicyNumber && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {formik.errors.insurancePolicyNumber}
+                            </p>
+                          )}
                       </div>
 
                       <div>
@@ -821,11 +879,12 @@ export default function Register() {
                           onBlur={formik.handleBlur}
                           className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                         />
-                        {formik.touched.insuranceGroupNumber && formik.errors.insuranceGroupNumber && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {formik.errors.insuranceGroupNumber}
-                          </p>
-                        )}
+                        {formik.touched.insuranceGroupNumber &&
+                          formik.errors.insuranceGroupNumber && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {formik.errors.insuranceGroupNumber}
+                            </p>
+                          )}
                       </div>
 
                       <div>
@@ -840,11 +899,12 @@ export default function Register() {
                           onBlur={formik.handleBlur}
                           className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                         />
-                        {formik.touched.insurancePhoneNumber && formik.errors.insurancePhoneNumber && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {formik.errors.insurancePhoneNumber}
-                          </p>
-                        )}
+                        {formik.touched.insurancePhoneNumber &&
+                          formik.errors.insurancePhoneNumber && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {formik.errors.insurancePhoneNumber}
+                            </p>
+                          )}
                       </div>
 
                       <div>
@@ -859,11 +919,12 @@ export default function Register() {
                           onBlur={formik.handleBlur}
                           className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                         />
-                        {formik.touched.guarantorResponsibleParty && formik.errors.guarantorResponsibleParty && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {formik.errors.guarantorResponsibleParty}
-                          </p>
-                        )}
+                        {formik.touched.guarantorResponsibleParty &&
+                          formik.errors.guarantorResponsibleParty && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {formik.errors.guarantorResponsibleParty}
+                            </p>
+                          )}
                       </div>
                     </div>
                   )}
@@ -916,18 +977,20 @@ export default function Register() {
                   <option value="Physician">Physician</option>
                   <option value="Other">Other</option>
                 </select>
-                {formik.touched.referringSource && formik.errors.referringSource && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.referringSource}
-                  </p>
-                )}
+                {formik.touched.referringSource &&
+                  formik.errors.referringSource && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.referringSource}
+                    </p>
+                  )}
               </div>
 
               {/* Consent Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Consent for Treatment <span className="text-red-500">*</span>
+                    Consent for Treatment{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="consentForTreatment"
@@ -940,11 +1003,12 @@ export default function Register() {
                     <option value="Y">Yes</option>
                     <option value="N">No</option>
                   </select>
-                  {formik.touched.consentForTreatment && formik.errors.consentForTreatment && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.consentForTreatment}
-                    </p>
-                  )}
+                  {formik.touched.consentForTreatment &&
+                    formik.errors.consentForTreatment && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.consentForTreatment}
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -969,16 +1033,18 @@ export default function Register() {
                     <option value="Y">Yes</option>
                     <option value="N">No</option>
                   </select>
-                  {formik.touched.hipaaPrivacyNoticeAcknowledgment && formik.errors.hipaaPrivacyNoticeAcknowledgment && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.hipaaPrivacyNoticeAcknowledgment}
-                    </p>
-                  )}
+                  {formik.touched.hipaaPrivacyNoticeAcknowledgment &&
+                    formik.errors.hipaaPrivacyNoticeAcknowledgment && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.hipaaPrivacyNoticeAcknowledgment}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Release of Medical Records Consent <span className="text-red-500">*</span>
+                    Release of Medical Records Consent{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="releaseOfMedicalRecordsConsent"
@@ -991,16 +1057,18 @@ export default function Register() {
                     <option value="Y">Yes</option>
                     <option value="N">No</option>
                   </select>
-                  {formik.touched.releaseOfMedicalRecordsConsent && formik.errors.releaseOfMedicalRecordsConsent && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.releaseOfMedicalRecordsConsent}
-                    </p>
-                  )}
+                  {formik.touched.releaseOfMedicalRecordsConsent &&
+                    formik.errors.releaseOfMedicalRecordsConsent && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.releaseOfMedicalRecordsConsent}
+                      </p>
+                    )}
                 </div>
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Preferred Method of Communication <span className="text-red-500">*</span>
+                    Preferred Method of Communication{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="preferredMethodOfCommunication"
@@ -1014,18 +1082,20 @@ export default function Register() {
                     <option value="Email">Email</option>
                     <option value="Mail">Mail</option>
                   </select>
-                  {formik.touched.preferredMethodOfCommunication && formik.errors.preferredMethodOfCommunication && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.preferredMethodOfCommunication}
-                    </p>
-                  )}
+                  {formik.touched.preferredMethodOfCommunication &&
+                    formik.errors.preferredMethodOfCommunication && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.preferredMethodOfCommunication}
+                      </p>
+                    )}
                 </div>
               </div>
 
               {/* Disability Needs */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Disability/Accessibility Needs <span className="text-red-500">*</span>
+                  Disability/Accessibility Needs{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -1036,11 +1106,12 @@ export default function Register() {
                   placeholder="e.g., None, Wheelchair access, etc."
                   className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                 />
-                {formik.touched.disabilityAccessibilityNeeds && formik.errors.disabilityAccessibilityNeeds && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.disabilityAccessibilityNeeds}
-                  </p>
-                )}
+                {formik.touched.disabilityAccessibilityNeeds &&
+                  formik.errors.disabilityAccessibilityNeeds && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.disabilityAccessibilityNeeds}
+                    </p>
+                  )}
               </div>
 
               {/* Additional Optional Fields */}
@@ -1060,11 +1131,12 @@ export default function Register() {
                     <option value="Y">Yes</option>
                     <option value="N">No</option>
                   </select>
-                  {formik.touched.interpreterRequired && formik.errors.interpreterRequired && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.interpreterRequired}
-                    </p>
-                  )}
+                  {formik.touched.interpreterRequired &&
+                    formik.errors.interpreterRequired && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.interpreterRequired}
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -1081,11 +1153,12 @@ export default function Register() {
                     <option value="Y">Yes</option>
                     <option value="N">No</option>
                   </select>
-                  {formik.touched.advanceDirectives && formik.errors.advanceDirectives && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.advanceDirectives}
-                    </p>
-                  )}
+                  {formik.touched.advanceDirectives &&
+                    formik.errors.advanceDirectives && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.advanceDirectives}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -1152,17 +1225,24 @@ export default function Register() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                     >
-                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      {showConfirmPassword ? (
+                        <EyeOff size={20} />
+                      ) : (
+                        <Eye size={20} />
+                      )}
                     </button>
                   </div>
-                  {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.confirmPassword}
-                    </p>
-                  )}
+                  {formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.confirmPassword}
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -1215,7 +1295,8 @@ export default function Register() {
         <div className="text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Welcome to OptimalMD</h2>
           <p className="text-lg opacity-90">
-            Complete your patient registration to access our comprehensive healthcare services.
+            Complete your patient registration to access our comprehensive
+            healthcare services.
           </p>
         </div>
       </div>

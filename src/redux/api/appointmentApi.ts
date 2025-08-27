@@ -119,6 +119,23 @@ export interface PatientAppointment {
     endTime: string;
   };
 }
+export interface RescheduleAppointmentDto {
+  newSlotId: string;
+  newAppointmentDate: string;
+  newAppointmentTime: string;
+  reason?: string; // optional
+}
+
+export const rescheduleAppointmentApi = async (
+  appointmentId: string,
+  payload: RescheduleAppointmentDto
+): Promise<PatientAppointment> => {
+  const response = await api.post(
+    `/appointments/${appointmentId}/reschedule`,
+    payload
+  );
+  return response.data.data;
+};
 
 // Fetch all available doctors
 export const fetchDoctorsApi = async (): Promise<Doctor[]> => {
@@ -134,7 +151,9 @@ export const fetchDoctorsApi = async (): Promise<Doctor[]> => {
 };
 
 // Fetch services by doctor
-export const fetchDoctorServicesApi = async (doctorId: string): Promise<Service[]> => {
+export const fetchDoctorServicesApi = async (
+  doctorId: string
+): Promise<Service[]> => {
   try {
     const response = await api.get(`services/doctor/${doctorId}`);
     console.log("Doctor services API response:", response.data);
@@ -155,63 +174,72 @@ export const fetchAvailableSlotsApi = async (
   try {
     // Step 1: Get doctor availability and schedules
     const params = new URLSearchParams({ date });
-    if (serviceId) params.append('serviceId', serviceId);
-    
-    const availabilityResponse = await api.get(`doctors/${doctorId}/availability?${params}`);
+    if (serviceId) params.append("serviceId", serviceId);
+
+    const availabilityResponse = await api.get(
+      `doctors/${doctorId}/availability?${params}`
+    );
     console.log("Doctor availability API response:", availabilityResponse.data);
-    
+
     if (availabilityResponse.data.success && availabilityResponse.data.data) {
       const { availableSlots, schedules } = availabilityResponse.data.data;
-      
+
       // If there are already available slots, return them
-      if (availableSlots && Array.isArray(availableSlots) && availableSlots.length > 0) {
+      if (
+        availableSlots &&
+        Array.isArray(availableSlots) &&
+        availableSlots.length > 0
+      ) {
         return availableSlots.map((slot: any) => ({
           id: slot.id,
           startTime: slot.startTime,
           endTime: slot.endTime,
           isAvailable: slot.isAvailable,
           schedule: {
-            date: slot.schedule?.date || date
-          }
+            date: slot.schedule?.date || date,
+          },
         }));
       }
-      
+
       // If schedules exist but no slots, get slots from the schedule
       if (schedules && Array.isArray(schedules) && schedules.length > 0) {
         const schedule = schedules[0]; // Take the first schedule for the date
         const scheduleId = schedule.id;
-        
+
         console.log("Found schedule ID:", scheduleId, "- Fetching slots...");
-        
+
         // Step 2: Get slots from the schedule
         const slotsResponse = await api.get(`schedules/slots/multiple`, {
-          params: { scheduleId }
+          params: { scheduleId },
         });
-        
+
         console.log("Slots API response:", slotsResponse.data);
-        
+
         if (slotsResponse.data.success && slotsResponse.data.data) {
           const slots = slotsResponse.data.data;
-          
+
           return slots.map((slot: any) => ({
             id: slot.id,
             startTime: slot.startTime,
             endTime: slot.endTime,
             isAvailable: slot.isAvailable,
             schedule: {
-              date: schedule.date
-            }
+              date: schedule.date,
+            },
           }));
         }
       }
-      
+
       // If no slots found, return empty array
       console.log("No schedules or slots found for the selected date");
       return [];
     }
-    
+
     // Fallback to empty array if structure is unexpected
-    console.warn("Unexpected response structure for doctor availability:", availabilityResponse.data);
+    console.warn(
+      "Unexpected response structure for doctor availability:",
+      availabilityResponse.data
+    );
     return [];
   } catch (error) {
     console.error("Error fetching available slots:", error);
@@ -237,9 +265,11 @@ export const fetchDoctorAvailabilityApi = async (
 }> => {
   try {
     const params = new URLSearchParams({ date });
-    if (serviceId) params.append('serviceId', serviceId);
-    
-    const response = await api.get(`doctors/${doctorId}/availability?${params}`);
+    if (serviceId) params.append("serviceId", serviceId);
+
+    const response = await api.get(
+      `doctors/${doctorId}/availability?${params}`
+    );
     console.log("Doctor availability API response:", response.data);
     return response.data.data;
   } catch (error) {
@@ -249,7 +279,9 @@ export const fetchDoctorAvailabilityApi = async (
 };
 
 // Book an appointment
-export const bookAppointmentApi = async (appointmentData: CreateAppointmentDto): Promise<any> => {
+export const bookAppointmentApi = async (
+  appointmentData: CreateAppointmentDto
+): Promise<any> => {
   try {
     const response = await api.post("appointments", appointmentData);
     console.log("Book appointment API response:", response.data);
@@ -261,7 +293,9 @@ export const bookAppointmentApi = async (appointmentData: CreateAppointmentDto):
 };
 
 // Get doctor with services and pricing
-export const fetchDoctorWithServicesApi = async (doctorId: string): Promise<{
+export const fetchDoctorWithServicesApi = async (
+  doctorId: string
+): Promise<{
   doctor: Doctor;
   services: DoctorService[];
 }> => {
@@ -301,13 +335,15 @@ export const fetchPatientAppointmentsApi = async (
 ): Promise<any> => {
   try {
     const params = new URLSearchParams();
-    if (query?.status) params.append('status', query.status);
-    if (query?.startDate) params.append('startDate', query.startDate);
-    if (query?.endDate) params.append('endDate', query.endDate);
-    if (query?.page) params.append('page', query.page.toString());
-    if (query?.limit) params.append('limit', query.limit.toString());
-    
-    const response = await api.get(`appointments/patient/${patientId}?${params}`);
+    if (query?.status) params.append("status", query.status);
+    if (query?.startDate) params.append("startDate", query.startDate);
+    if (query?.endDate) params.append("endDate", query.endDate);
+    if (query?.page) params.append("page", query.page.toString());
+    if (query?.limit) params.append("limit", query.limit.toString());
+
+    const response = await api.get(
+      `appointments/patient/${patientId}?${params}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching patient appointments:", error);

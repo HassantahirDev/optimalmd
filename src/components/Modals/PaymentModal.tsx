@@ -1,14 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Loader2, CreditCard, CheckCircle, XCircle } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Loader2, CreditCard, CheckCircle, XCircle } from "lucide-react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import { toast } from "sonner";
 
 // Load Stripe outside of component to avoid recreating on every render
-const stripePromise = loadStripe('pk_test_51QFBF9Ibcr1VQY2l0rPXH40tJKpXfK3dD9xJszb1VfYEdqsc2Szd31P5P1kAkifsRxHEasTMnc4M92pIcgPHgsH800kj5r83DP');
+const stripePromise = loadStripe(
+  "pk_test_51QFBF9Ibcr1VQY2l0rPXH40tJKpXfK3dD9xJszb1VfYEdqsc2Szd31P5P1kAkifsRxHEasTMnc4M92pIcgPHgsH800kj5r83DP"
+);
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -29,15 +42,22 @@ interface PaymentFormProps {
   onClose: () => void;
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ appointmentId, amount, onPaymentSuccess, onClose }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({
+  appointmentId,
+  amount,
+  onPaymentSuccess,
+  onClose,
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'error'>('pending');
+  const [paymentStatus, setPaymentStatus] = useState<
+    "pending" | "success" | "error"
+  >("pending");
 
   // Helper function to safely convert amount to number
   const getAmount = () => {
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
     return isNaN(numAmount) ? 0 : numAmount;
   };
 
@@ -52,81 +72,90 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ appointmentId, amount, onPaym
 
     try {
       // Create payment intent
-      const createPaymentIntentResponse = await fetch('http://localhost:3000/api/stripe/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify({
-          appointmentId,
-          amount: getAmount(),
-          currency: 'usd',
-        }),
-      });
+      const createPaymentIntentResponse = await fetch(
+        "http://localhost:3000/api/stripe/create-payment-intent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+          body: JSON.stringify({
+            appointmentId,
+            amount: getAmount(),
+            currency: "usd",
+          }),
+        }
+      );
 
       if (!createPaymentIntentResponse.ok) {
-        throw new Error('Failed to create payment intent');
+        throw new Error("Failed to create payment intent");
       }
 
       const responseData = await createPaymentIntentResponse.json();
-      console.log('Payment intent response:', responseData);
-      
+      console.log("Payment intent response:", responseData);
+
       // Extract data from the wrapped response
       const { clientSecret, paymentIntentId } = responseData.data;
-      
+
       if (!clientSecret) {
-        throw new Error('Client secret not received from server');
+        throw new Error("Client secret not received from server");
       }
 
       // Confirm payment
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement)!,
-        },
-      });
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: elements.getElement(CardElement)!,
+          },
+        }
+      );
 
       if (error) {
         throw new Error(error.message);
       }
 
-      if (paymentIntent.status === 'succeeded') {
+      if (paymentIntent.status === "succeeded") {
         // Confirm payment on backend
-        const confirmPaymentResponse = await fetch('http://localhost:3000/api/stripe/confirm-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-          body: JSON.stringify({
-            paymentIntentId,
-            appointmentId,
-          }),
-        });
+        const confirmPaymentResponse = await fetch(
+          "http://localhost:3000/api/stripe/confirm-payment",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            body: JSON.stringify({
+              paymentIntentId,
+              appointmentId,
+            }),
+          }
+        );
 
         if (!confirmPaymentResponse.ok) {
           const errorData = await confirmPaymentResponse.json();
-          throw new Error(errorData.message || 'Failed to confirm payment');
+          throw new Error(errorData.message || "Failed to confirm payment");
         }
 
         const confirmData = await confirmPaymentResponse.json();
-        console.log('Payment confirmation response:', confirmData);
+        console.log("Payment confirmation response:", confirmData);
 
-        console.log('Setting payment status to success');
-        setPaymentStatus('success');
-        toast.success('Payment successful! Appointment booked.');
-        
+        console.log("Setting payment status to success");
+        setPaymentStatus("success");
+        toast.success("Payment successful! Appointment booked.");
+
         // Wait a moment then close modal and trigger success callback
         setTimeout(() => {
-          console.log('Calling onPaymentSuccess callback');
+          console.log("Calling onPaymentSuccess callback");
           onPaymentSuccess();
           onClose();
         }, 2000);
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      setPaymentStatus('error');
-      toast.error(error instanceof Error ? error.message : 'Payment failed');
+      console.error("Payment error:", error);
+      setPaymentStatus("error");
+      toast.error(error instanceof Error ? error.message : "Payment failed");
     } finally {
       setIsProcessing(false);
     }
@@ -135,36 +164,45 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ appointmentId, amount, onPaym
   const cardElementOptions = {
     style: {
       base: {
-        fontSize: '16px',
-        color: '#ffffff',
-        '::placeholder': {
-          color: '#9ca3af',
+        fontSize: "16px",
+        color: "#ffffff",
+        "::placeholder": {
+          color: "#9ca3af",
         },
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
       },
       invalid: {
-        color: '#ef4444',
+        color: "#ef4444",
       },
     },
   };
 
-  if (paymentStatus === 'success') {
+  if (paymentStatus === "success") {
     return (
       <div className="text-center py-8">
         <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-green-400 mb-2">Payment Successful!</h3>
-        <p className="text-gray-300">Your appointment has been booked successfully.</p>
+        <h3 className="text-xl font-semibold text-green-400 mb-2">
+          Payment Successful!
+        </h3>
+        <p className="text-gray-300">
+          Your appointment has been booked successfully.
+        </p>
       </div>
     );
   }
 
-  if (paymentStatus === 'error') {
+  if (paymentStatus === "error") {
     return (
       <div className="text-center py-8">
         <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-red-400 mb-2">Payment Failed</h3>
+        <h3 className="text-xl font-semibold text-red-400 mb-2">
+          Payment Failed
+        </h3>
         <p className="text-gray-300">Please try again or contact support.</p>
-        <Button onClick={() => setPaymentStatus('pending')} className="mt-4 bg-red-500 text-white hover:bg-red-600">
+        <Button
+          onClick={() => setPaymentStatus("pending")}
+          className="mt-4 bg-red-500 text-white hover:bg-red-600"
+        >
           Try Again
         </Button>
       </div>
@@ -182,11 +220,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ appointmentId, amount, onPaym
             <CardElement options={cardElementOptions} />
           </div>
         </div>
-        
+
         <div className="bg-gray-600 p-4 rounded-md border border-gray-500">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-300">Amount:</span>
-            <span className="font-semibold text-lg text-white">${getAmount().toFixed(2)}</span>
+            <span className="font-semibold text-lg text-white">
+              ${getAmount().toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
@@ -248,8 +288,12 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           {/* Appointment Summary */}
           <Card className="bg-gray-700 border-gray-600">
             <CardHeader>
-              <CardTitle className="text-lg text-white">Appointment Summary</CardTitle>
-              <CardDescription className="text-gray-300">Please review your appointment details</CardDescription>
+              <CardTitle className="text-lg text-white">
+                Appointment Summary
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                Please review your appointment details
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
@@ -262,15 +306,25 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-300">Date:</span>
-                <span className="font-medium text-white">{appointmentDate}</span>
+                <span className="font-medium text-white">
+                  {appointmentDate}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-300">Time:</span>
-                <span className="font-medium text-white">{appointmentTime}</span>
+                <span className="font-medium text-white">
+                  {appointmentTime}
+                </span>
               </div>
               <div className="flex justify-between border-t border-gray-600 pt-2">
                 <span className="text-gray-300 font-medium">Total:</span>
-                <span className="font-bold text-lg text-red-500">${(typeof amount === 'string' ? parseFloat(amount) : amount).toFixed(2)}</span>
+                <span className="font-bold text-lg text-red-500">
+                  $
+                  {(typeof amount === "string"
+                    ? parseFloat(amount)
+                    : amount
+                  ).toFixed(2)}
+                </span>
               </div>
             </CardContent>
           </Card>
