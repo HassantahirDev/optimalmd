@@ -56,6 +56,75 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
   const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [patientNotes, setPatientNotes] = useState<string>("");
   const [symptoms, setSymptoms] = useState<string>("");
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Format date for display (MM-DD-YYYY)
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
+  // Format date for input (YYYY-MM-DD)
+  const formatDateForInput = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
+  // Handle custom date input
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow only numbers and dashes
+    const cleaned = value.replace(/[^0-9-]/g, '');
+    
+    // Format as MM-DD-YYYY
+    let formatted = cleaned;
+    if (cleaned.length >= 2 && !cleaned.includes('-')) {
+      formatted = cleaned.slice(0, 2) + '-' + cleaned.slice(2);
+    }
+    if (cleaned.length >= 5 && cleaned.split('-').length === 2) {
+      formatted = cleaned.slice(0, 5) + '-' + cleaned.slice(5, 9);
+    }
+    
+    e.target.value = formatted;
+    
+    // Convert to YYYY-MM-DD for internal storage
+    if (formatted.length === 10) {
+      const [month, day, year] = formatted.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        setSelectedDate(date.toISOString().split('T')[0]);
+      }
+    }
+  };
+
+  // Handle date picker selection
+  const handleDatePickerSelect = (date: string) => {
+    setSelectedDate(date);
+    setShowDatePicker(false);
+  };
+
+  // Close date picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.date-picker-container')) {
+        setShowDatePicker(false);
+      }
+    };
+
+    if (showDatePicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDatePicker]);
 
   // Fetch doctors
   const { data: doctors, isLoading: doctorsLoading } = useQuery({
@@ -126,6 +195,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
       patientId,
       doctorId: selectedDoctor,
       serviceId: selectedService,
+      primaryServiceId: selectedService, // Using the same serviceId as primaryServiceId
       slotId: selectedSlot,
       appointmentDate: selectedDate,
       appointmentTime: selectedSlotDetails?.startTime || "",
@@ -310,16 +380,63 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="max-w-xs">
+              <div className="max-w-xs relative date-picker-container">
                 <Label htmlFor="appointment-date">Appointment Date</Label>
-                <Input
-                  id="appointment-date"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={today}
-                  className="mt-2"
-                />
+                <div className="relative">
+                  <Input
+                    id="appointment-date"
+                    type="text"
+                    value={formatDateForDisplay(selectedDate)}
+                    onChange={handleDateInputChange}
+                    onClick={() => setShowDatePicker(true)}
+                    placeholder="MM-DD-YYYY"
+                    className="mt-2 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDatePicker(!showDatePicker)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <Calendar className="w-5 h-5" />
+                  </button>
+                </div>
+                {showDatePicker && (
+                  <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-md shadow-lg p-4">
+                    <div className="grid grid-cols-7 gap-1 text-sm">
+                      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                        <div key={day} className="p-2 text-center font-medium text-gray-500">
+                          {day}
+                        </div>
+                      ))}
+                      {/* Generate calendar days */}
+                      {Array.from({ length: 35 }, (_, i) => {
+                        const date = new Date();
+                        date.setDate(date.getDate() + i);
+                        const isToday = date.toDateString() === new Date().toDateString();
+                        const isSelected = selectedDate === date.toISOString().split('T')[0];
+                        
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => handleDatePickerSelect(date.toISOString().split('T')[0])}
+                            className={`p-2 text-center rounded hover:bg-gray-100 ${
+                              isToday ? 'bg-blue-100 text-blue-600' : ''
+                            } ${
+                              isSelected ? 'bg-blue-500 text-white' : ''
+                            }`}
+                          >
+                            {date.getDate()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {selectedDate && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Selected: {formatDateForDisplay(selectedDate)}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -420,7 +537,7 @@ const AppointmentBooking: React.FC<AppointmentBookingProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">{selectedDate}</span>
+                  <span className="font-medium">{formatDateForDisplay(selectedDate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Time:</span>

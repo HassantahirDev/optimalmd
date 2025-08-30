@@ -57,6 +57,7 @@ export interface UserResponseDto {
   firstName: string;
   middleName: string;
   lastName: string;
+  profilePicture: string | null;
   dateOfBirth: string;
   gender: string;
   completeAddress: string;
@@ -104,6 +105,7 @@ export interface DoctorResponseDto {
   lastName: string;
   dateOfBirth: string;
   gender: string;
+  profilePicture: string | null;
   completeAddress: string;
   city: string;
   state: string;
@@ -221,6 +223,7 @@ const authSlice = createSlice({
           localStorage.setItem("userType", action.payload.userType);
           localStorage.setItem("userId", action.payload.user.id);
           localStorage.setItem("name", action.payload.user.firstName);
+          localStorage.setItem("profilePicture", (action.payload.user as any).profilePicture || null);
         }
       )
       .addCase(registerUser.rejected, (state, action) => {
@@ -243,6 +246,7 @@ const authSlice = createSlice({
           localStorage.setItem("userType", action.payload.userType);
           localStorage.setItem("userId", action.payload.user.id);
           localStorage.setItem("name", action.payload.user.firstName);
+          localStorage.setItem("profilePicture", (action.payload.user as any).profilePicture || null);
         }
       )
       .addCase(loginUser.rejected, (state, action) => {

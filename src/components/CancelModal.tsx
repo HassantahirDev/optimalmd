@@ -116,8 +116,8 @@ const CancelModal: React.FC<CancelModalProps> = ({
               <span className="font-semibold">Important Notice</span>
             </div>
             <p className="text-red-300 text-sm">
-              Cancellations must be made at least 1 hour before the appointment. 
-              A refund request will be sent to your doctor who will process it and contact you via email.
+              Cancellations must be made at least 24 hours before the appointment. 
+              You will be charged $25 if you cancel within less than 24 hours, and $50 if you miss your appointment.
             </p>
           </div>
 
@@ -176,7 +176,7 @@ const CancelModal: React.FC<CancelModalProps> = ({
                 className="mt-1 w-4 h-4 text-red-500 bg-gray-700 border-gray-600 rounded focus:ring-red-500 focus:ring-2"
               />
               <label htmlFor="confirm-cancel" className="text-sm text-gray-300">
-                I understand that cancelling this appointment will send a refund request to my doctor. 
+                I understand that I may be charged $25 if I cancel within less than 24 hours, or $50 if I miss my appointment. 
                 I confirm that I want to proceed with the cancellation.
               </label>
             </div>

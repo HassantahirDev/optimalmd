@@ -7,7 +7,7 @@ const Footer = () => (
         {/* Contact Info */}
         <div className="space-y-4 min-w-[220px]">
           <h4 className="font-bold text-white text-lg mb-2">Contact Info</h4>
-          <div className="text-white/80">Info@OptimaleMD</div>
+          <div className="text-white/80">Info@OptimaleMD.com</div>
           <div className="text-white/80">Phone: 1 (877) 572 2582</div>
           <div className="text-white/60 text-sm">
             The fastest and most effective way to reach us is via email

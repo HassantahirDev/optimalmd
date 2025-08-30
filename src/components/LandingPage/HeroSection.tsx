@@ -71,7 +71,7 @@ const HeroSection = () => {
               <Button 
                 variant="outline" 
                 className="btn-hero border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                onClick={() => navigate("/book-appointment")}
+                onClick={() => navigate("/login")}
               >
                 Book Appointment
               </Button>

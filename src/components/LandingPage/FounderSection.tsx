@@ -1,4 +1,4 @@
-const founderImage = "https://images.unsplash.com/photo-1698510047345-ff32de8a3b74?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bWVuJTIwcG9ydHJhaXR8ZW58MHx8MHx8fDA%3D";
+const founderImage = "/sam.jpeg";
 
 const FounderSection = () => {
   return (

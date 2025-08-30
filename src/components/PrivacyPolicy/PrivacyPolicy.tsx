@@ -142,7 +142,7 @@ const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ className = "" }) => {
           <div className="space-y-4">
             <div className="flex items-center text-gray-300 text-lg">
               <Mail className="w-5 h-5 mr-3 text-blue-400" />
-              <span>privacy@optimalemd.com</span>
+              <span>privacy@OptimaleMD.com</span>
             </div>
             <div className="flex items-center text-gray-300 text-lg">
               <Phone className="w-5 h-5 mr-3 text-blue-400" />

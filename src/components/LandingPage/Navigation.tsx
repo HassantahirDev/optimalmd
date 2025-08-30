@@ -43,15 +43,33 @@ const Navigation = () => {
     setDropdownOpen(false);
   }, [location]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (dropdownOpen && !target.closest('.dropdown-container')) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
   const mainNavItems = [
     { label: "How it Works", path: "/how-it-works" },
     { label: "About Us", path: "/about-us" },
     { label: "Our Services", path: "/our-services" },
     {
       label: "Book Appointment",
-      path: "/book-appointment",
+      path: "/login",
       icon: Calendar,
-      highlight: true,
+      highlight: false,
     },
     { label: "Our Blog", path: "/our-blog" },
   ];
@@ -85,18 +103,17 @@ const Navigation = () => {
           {/* Enhanced Logo */}
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-primary-foreground font-bold text-xl">
-                  O
-                </span>
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background"></div>
+              <img 
+                src="/logo.png" 
+                alt="OptimaleMD Logo" 
+                className="w-10 h-10 object-contain"
+              />
             </div>
             <Link
               to="/"
-              className="text-2xl font-bold focus:outline-none hover:scale-105 transition-transform duration-200"
+              className="text-2xl font-bold focus:outline-none hover:scale-105 transition-transform duration-200 text-white"
             >
-              OPTIMALE<span className="text-primary">MD</span>
+              Optimale<span className="text-white">MD</span>
             </Link>
           </div>
 
@@ -126,7 +143,7 @@ const Navigation = () => {
             ))}
 
             {/* Enhanced Dropdown */}
-            <div className="relative">
+            <div className="relative dropdown-container">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className={cn(

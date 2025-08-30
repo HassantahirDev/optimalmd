@@ -90,12 +90,15 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({ className = "" }) => {
 
         {/* Section 5 */}
         <section className="mb-10">
-          <h2 className="text-3xl font-bold mb-6">5. Payment & Refunds</h2>
-          <p className="text-gray-300 text-lg leading-relaxed">
+          <h2 className="text-3xl font-bold mb-6">5. Payment & Cancellation Policy</h2>
+          <p className="text-gray-300 text-lg leading-relaxed mb-4">
             Fees for services will be clearly disclosed prior to billing. By
             booking a consultation or subscribing, you authorize OptimaleMD to
-            charge your payment method. Refunds are evaluated on a case-by-case
-            basis.
+            charge your payment method.
+          </p>
+          <p className="text-gray-300 text-lg leading-relaxed">
+            <strong>Cancellation Policy:</strong> Cancellations must be made at least 24 hours before the appointment. 
+            You will be charged $25 if you cancel within less than 24 hours, and $50 if you miss your appointment.
           </p>
         </section>
 
@@ -117,7 +120,7 @@ const TermsOfService: React.FC<TermsOfServiceProps> = ({ className = "" }) => {
           <div className="space-y-4">
             <div className="flex items-center text-gray-300 text-lg">
               <Mail className="w-5 h-5 mr-3 text-blue-400" />
-              <span>support@optimalemd.com</span>
+              <span>support@OptimaleMD.com</span>
             </div>
             <div className="flex items-center text-gray-300 text-lg">
               <Phone className="w-5 h-5 mr-3 text-blue-400" />

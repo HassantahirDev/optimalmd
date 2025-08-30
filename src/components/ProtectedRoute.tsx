@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuthToken, getUserType } from '@/lib/utils';
+import { getAuthToken, getUserType, isAuthenticatedAndValid } from '@/lib/utils';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,8 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const token = getAuthToken();
-  if (!token) {
+  if (!isAuthenticatedAndValid()) {
     navigate('/login');
     return null;
   }
