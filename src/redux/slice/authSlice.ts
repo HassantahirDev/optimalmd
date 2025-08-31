@@ -215,15 +215,15 @@ const authSlice = createSlice({
       .addCase(
         registerUser.fulfilled,
         (state, action: PayloadAction<AuthResponseDataDto>) => {
-          state.loading = false;
-          state.user = action.payload.user;
-          state.token = action.payload.accessToken;
-          state.userType = action.payload.userType;
-          localStorage.setItem("authToken", action.payload.accessToken);
-          localStorage.setItem("userType", action.payload.userType);
-          localStorage.setItem("userId", action.payload.user.id);
-          localStorage.setItem("name", action.payload.user.firstName);
-          localStorage.setItem("profilePicture", (action.payload.user as any).profilePicture || null);
+          state.user = null;
+          state.token = null;
+          state.userType = null;
+          // Clear any existing auth data
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userType");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("name");
+          localStorage.removeItem("profilePicture");
         }
       )
       .addCase(registerUser.rejected, (state, action) => {
