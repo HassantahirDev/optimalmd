@@ -82,12 +82,18 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       formatted = cleaned.slice(0, 5) + '-' + cleaned.slice(5, 9);
     }
     
-    // Convert to YYYY-MM-DD for internal storage
+    // Convert to YYYY-MM-DD for internal storage (handle timezone properly)
     if (formatted.length === 10) {
       const [month, day, year] = formatted.split('-');
+      // Create date in local timezone to avoid UTC conversion issues
       const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       if (!isNaN(date.getTime())) {
-        dispatch(setSelectedDate(date.toISOString().split('T')[0]));
+        // Format as YYYY-MM-DD in local timezone
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const localDateString = `${year}-${month}-${day}`;
+        dispatch(setSelectedDate(localDateString));
       }
     }
   };
@@ -470,7 +476,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                           <button
                             key={i}
                             onClick={() => {
-                              dispatch(setSelectedDate(date.toISOString().split('T')[0]));
+                              // Format date in local timezone to avoid UTC conversion
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const localDateString = `${year}-${month}-${day}`;
+                              dispatch(setSelectedDate(localDateString));
                               setShowCalendar(false);
                             }}
                             className={`p-2 text-center rounded hover:bg-gray-700 ${
