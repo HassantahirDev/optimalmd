@@ -239,7 +239,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     
     try {
       // Create temporary appointment first
-      const response = await fetch('http://localhost:3000/api/appointments/temporary', {
+      const response = await fetch('https://optimalemd-fdfkghdzemf0aady.canadacentral-01.azurewebsites.net/api/appointments/temporary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
