@@ -174,6 +174,47 @@ export default function Register() {
     return date.toISOString().split("T")[0];
   };
 
+  // Format date for display (MM-DD-YYYY)
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
+  // Handle custom date input
+  const handleDateInputChange = (e) => {
+    const value = e.target.value;
+    
+    // Allow only numbers and dashes
+    const cleaned = value.replace(/[^0-9-]/g, '');
+    
+    // Format as MM-DD-YYYY
+    let formatted = cleaned;
+    if (cleaned.length >= 2 && !cleaned.includes('-')) {
+      formatted = cleaned.slice(0, 2) + '-' + cleaned.slice(2);
+    }
+    if (cleaned.length >= 5 && cleaned.split('-').length === 2) {
+      formatted = cleaned.slice(0, 5) + '-' + cleaned.slice(5, 9);
+    }
+    
+    // Convert to YYYY-MM-DD for internal storage
+    if (formatted.length === 10) {
+      const [month, day, year] = formatted.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const localDateString = `${year}-${month}-${day}`;
+        formik.setFieldValue("dateOfBirth", localDateString);
+      }
+    }
+  };
+
   // Navigation functions with validation
   const nextSection = () => {
     if (activeSection < 3) {
@@ -379,16 +420,12 @@ export default function Register() {
                     <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="date"
+                    type="text"
                     name="dateOfBirth"
-                    value={formik.values.dateOfBirth}
-                    onChange={(e) => {
-                      const formattedDate = formatDateForBackend(
-                        e.target.value
-                      );
-                      formik.setFieldValue("dateOfBirth", formattedDate);
-                    }}
+                    value={formatDateForDisplay(formik.values.dateOfBirth)}
+                    onChange={handleDateInputChange}
                     onBlur={formik.handleBlur}
+                    placeholder="MM-DD-YYYY"
                     className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                   />
                   {formik.touched.dateOfBirth && formik.errors.dateOfBirth && (
