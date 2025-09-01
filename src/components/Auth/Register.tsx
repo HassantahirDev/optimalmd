@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, Upload, Camera, Calendar } from "lucide-react";
+import { Eye, EyeOff, Upload, Camera } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/reduxHooks";
 import { useFormik } from "formik";
@@ -20,6 +20,7 @@ export default function Register() {
   const [activeSection, setActiveSection] = useState(1); // Track active section
   const [showHipaaModal, setShowHipaaModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -317,6 +318,20 @@ export default function Register() {
     return true;
   };
 
+  const getCalendarDays = (date) => {
+    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).getDay(); // 0 for Sunday, 6 for Saturday
+
+    const days = [];
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(null); // Empty cells for days before the 1st
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(date.getFullYear(), date.getMonth(), i));
+    }
+    return days;
+  };
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row rounded-lg">
       {/* Left Side - Form */}
@@ -447,40 +462,115 @@ export default function Register() {
                       onBlur={formik.handleBlur}
                       placeholder="MM-DD-YYYY"
                       className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600 pr-12"
+                      readOnly
+                      onClick={() => setShowCalendar(!showCalendar)}
                     />
                     <button
                       type="button"
                       onClick={() => setShowCalendar(!showCalendar)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
                     >
-                      <Calendar size={20} />
+                      📅
                     </button>
                     {showCalendar && (
-                      <div className="absolute z-10 mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-4 w-64">
-                        {/* Month and Year Header */}
-                        <div className="text-center mb-4">
+                      <div className="absolute z-10 mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-4 w-80">
+                        {/* Month and Year Header with Navigation */}
+                        <div className="flex items-center justify-between mb-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newDate = new Date(currentCalendarDate);
+                              newDate.setFullYear(newDate.getFullYear() - 1);
+                              setCurrentCalendarDate(newDate);
+                            }}
+                            className="text-gray-400 hover:text-white p-1"
+                          >
+                            ◀◀
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newDate = new Date(currentCalendarDate);
+                              newDate.setMonth(newDate.getMonth() - 1);
+                              setCurrentCalendarDate(newDate);
+                            }}
+                            className="text-gray-400 hover:text-white p-1"
+                          >
+                            ◀
+                          </button>
                           <h3 className="text-white font-semibold text-lg">
-                            {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            {currentCalendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                           </h3>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newDate = new Date(currentCalendarDate);
+                              newDate.setMonth(newDate.getMonth() + 1);
+                              setCurrentCalendarDate(newDate);
+                            }}
+                            className="text-gray-400 hover:text-white p-1"
+                          >
+                            ▶
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newDate = new Date(currentCalendarDate);
+                              newDate.setFullYear(newDate.getFullYear() + 1);
+                              setCurrentCalendarDate(newDate);
+                            }}
+                            className="text-gray-400 hover:text-white p-1"
+                          >
+                            ▶▶
+                          </button>
                         </div>
                         
-                        <div className="grid grid-cols-7 gap-1 text-sm">
+                        {/* Quick Year Selection */}
+                        <div className="mb-4">
+                          <select
+                            value={currentCalendarDate.getFullYear()}
+                            onChange={(e) => {
+                              const newDate = new Date(currentCalendarDate);
+                              newDate.setFullYear(parseInt(e.target.value));
+                              setCurrentCalendarDate(newDate);
+                            }}
+                            className="w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded"
+                          >
+                            {Array.from({ length: 100 }, (_, i) => {
+                              const year = new Date().getFullYear() - 100 + i;
+                              return (
+                                <option key={year} value={year}>
+                                  {year}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                        
+                        {/* Day Labels */}
+                        <div className="grid grid-cols-7 gap-1 text-sm mb-2">
                           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                             <div key={day} className="p-2 text-center font-medium text-gray-400">
                               {day}
                             </div>
                           ))}
-                          {Array.from({ length: 35 }, (_, i) => {
-                            const date = new Date();
-                            date.setDate(date.getDate() + i);
+                        </div>
+                        
+                        {/* Calendar Grid */}
+                        <div className="grid grid-cols-7 gap-1 text-sm">
+                          {getCalendarDays(currentCalendarDate).map((date, index) => {
+                            if (!date) {
+                              return <div key={index} className="p-2"></div>;
+                            }
+                            
                             const isToday = date.toDateString() === new Date().toDateString();
                             const isSelected = formik.values.dateOfBirth === date.toISOString().split('T')[0];
+                            const isCurrentMonth = date.getMonth() === currentCalendarDate.getMonth();
                             
                             return (
                               <button
-                                key={i}
+                                key={index}
                                 onClick={() => {
-                                  // Format date in local timezone to avoid UTC conversion
                                   const year = date.getFullYear();
                                   const month = String(date.getMonth() + 1).padStart(2, '0');
                                   const day = String(date.getDate()).padStart(2, '0');
@@ -488,10 +578,12 @@ export default function Register() {
                                   formik.setFieldValue("dateOfBirth", localDateString);
                                   setShowCalendar(false);
                                 }}
-                                className={`p-2 text-center rounded hover:bg-gray-700 ${
+                                className={`p-2 text-center rounded hover:bg-gray-700 transition-colors ${
                                   isToday ? 'bg-red-500 text-white' : ''
                                 } ${
-                                  isSelected ? 'bg-red-600 text-white' : 'text-gray-300'
+                                  isSelected ? 'bg-red-600 text-white' : ''
+                                } ${
+                                  !isCurrentMonth ? 'text-gray-600' : 'text-gray-300'
                                 }`}
                               >
                                 {date.getDate()}
@@ -536,7 +628,7 @@ export default function Register() {
               {/* Complete Address */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Complete Address (House/Apt, Street){" "}
+                  Address{" "}
                   <span className="text-red-500">*</span>
                 </label>
                 <input
