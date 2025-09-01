@@ -875,7 +875,7 @@ export default function Register() {
               </div>
 
               {/* Disability Needs */}
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="block text-base text-white mb-2">
                   Disability/Accessibility Needs
                 </label>
@@ -894,10 +894,10 @@ export default function Register() {
                       {formik.errors.disabilityAccessibilityNeeds}
                     </p>
                   )}
-              </div>
+              </div> */}
 
               {/* Additional Optional Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-base text-gray-300 mb-2">
                     Interpreter Required
@@ -942,7 +942,7 @@ export default function Register() {
                       </p>
                     )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Navigation Buttons */}
               <div className="flex justify-between space-x-4 mt-6">
