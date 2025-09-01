@@ -6,10 +6,9 @@ import { registerUserApi, loginUserApi, resendVerificationApi } from "../api/aut
 // DTOs
 export interface RegisterDto {
   // Mandatory Fields (Green in image)
-  medicalRecordNo: string;
-  title: string;
+  title?: string;
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   dateOfBirth: string;
   gender: string;
@@ -18,18 +17,18 @@ export interface RegisterDto {
   state: string;
   zipcode: string;
   primaryEmail: string;
-  alternativeEmail: string;
+  alternativeEmail?: string;
   primaryPhone: string;
-  alternativePhone: string;
+  alternativePhone?: string;
   emergencyContactName: string;
-  emergencyContactRelationship: string;
+  emergencyContactRelationship?: string;
   emergencyContactPhone: string;
   referringSource: string;
   consentForTreatment: string;
   hipaaPrivacyNoticeAcknowledgment: string;
   releaseOfMedicalRecordsConsent: string;
   preferredMethodOfCommunication: string;
-  disabilityAccessibilityNeeds: string;
+  disabilityAccessibilityNeeds?: string;
   
   // Optional Fields (Yellow in image)
   careProviderPhone?: string;
@@ -52,10 +51,9 @@ export interface RegisterDto {
 
 export interface UserResponseDto {
   id: string;
-  medicalRecordNo: string;
-  title: string;
+  title?: string | null;
   firstName: string;
-  middleName: string;
+  middleName?: string | null;
   lastName: string;
   profilePicture: string | null;
   dateOfBirth: string;
@@ -65,18 +63,18 @@ export interface UserResponseDto {
   state: string;
   zipcode: string;
   primaryEmail: string;
-  alternativeEmail: string;
+  alternativeEmail?: string | null;
   primaryPhone: string;
-  alternativePhone: string;
+  alternativePhone?: string | null;
   emergencyContactName: string;
-  emergencyContactRelationship: string;
+  emergencyContactRelationship?: string | null;
   emergencyContactPhone: string;
   referringSource: string;
   consentForTreatment: string;
   hipaaPrivacyNoticeAcknowledgment: string;
   releaseOfMedicalRecordsConsent: string;
   preferredMethodOfCommunication: string;
-  disabilityAccessibilityNeeds: string;
+  disabilityAccessibilityNeeds?: string;
   careProviderPhone?: string | null;
   lastFourDigitsSSN?: string | null;
   languagePreference?: string | null;

@@ -2,20 +2,15 @@ import * as Yup from "yup";
 
 export const patientRegistrationSchema = Yup.object({
   // Mandatory Fields (Green in image)
-  medicalRecordNo: Yup.string()
-    .length(10, "Medical Record No must be exactly 10 digits")
-    .matches(/^\d{10}$/, "Medical Record No must contain only digits")
-    .required("Medical Record No is required"),
-  
   title: Yup.string()
     .oneOf(['Mr', 'Mrs', 'Ms', 'Dr', 'Other'], "Please select a valid title")
-    .required("Title is required"),
+    .optional(),
   
   firstName: Yup.string()
     .required("First name is required"),
   
   middleName: Yup.string()
-    .required("Middle name is required"),
+    .optional(),
   
   lastName: Yup.string()
     .required("Last name is required"),
@@ -46,25 +41,25 @@ export const patientRegistrationSchema = Yup.object({
   
   alternativeEmail: Yup.string()
     .email("Invalid email format")
-    .required("Alternative Email Address is required"),
+    .optional(),
   
   primaryPhone: Yup.string()
     .required("Primary Phone Number is required"),
   
   alternativePhone: Yup.string()
-    .required("Alternative Phone Number is required"),
+    .optional(),
   
   emergencyContactName: Yup.string()
     .required("Emergency Contact Name is required"),
   
   emergencyContactRelationship: Yup.string()
-    .required("Emergency Contact Relationship is required"),
+    .optional(),
   
   emergencyContactPhone: Yup.string()
     .required("Emergency Contact Phone Number is required"),
   
   referringSource: Yup.string()
-    .oneOf(['Self', 'Physician', 'Other'], "Please select a valid referring source")
+    .oneOf(['Online', 'Friend', 'Employee'], "Please select a valid referring source")
     .required("Referring Source is required"),
   
   consentForTreatment: Yup.string()
@@ -84,7 +79,7 @@ export const patientRegistrationSchema = Yup.object({
     .required("Preferred Method of Communication is required"),
   
   disabilityAccessibilityNeeds: Yup.string()
-    .required("Disability/Accessibility Needs is required"),
+    .optional(),
   
   // Optional Fields (Yellow in image)
   careProviderPhone: Yup.string().optional(),

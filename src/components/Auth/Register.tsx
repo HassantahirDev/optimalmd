@@ -23,8 +23,6 @@ export default function Register() {
   const formik = useFormik({
     initialValues: {
       // Mandatory Fields (Green in image)
-      medicalRecordNo: "",
-      title: "",
       firstName: "",
       middleName: "",
       lastName: "",
@@ -71,10 +69,7 @@ export default function Register() {
     onSubmit: async (data) => {
       // Check if all mandatory fields are completed
       const mandatoryFields = [
-        "medicalRecordNo",
-        "title",
         "firstName",
-        "middleName",
         "lastName",
         "dateOfBirth",
         "gender",
@@ -83,18 +78,14 @@ export default function Register() {
         "state",
         "zipcode",
         "primaryEmail",
-        "alternativeEmail",
         "primaryPhone",
-        "alternativePhone",
         "emergencyContactName",
-        "emergencyContactRelationship",
         "emergencyContactPhone",
         "referringSource",
         "consentForTreatment",
         "hipaaPrivacyNoticeAcknowledgment",
         "releaseOfMedicalRecordsConsent",
         "preferredMethodOfCommunication",
-        "disabilityAccessibilityNeeds",
       ];
 
       const missingFields = mandatoryFields.filter((field) => !data[field]);
@@ -167,11 +158,7 @@ export default function Register() {
     }
   };
 
-  const formatMedicalRecordNo = (value) => {
-    // Only allow numbers and limit to 10 digits
-    const numbers = value.replace(/\D/g, "");
-    return numbers.slice(0, 10);
-  };
+
 
   const formatSSN = (value) => {
     // Only allow numbers and limit to 4 digits
@@ -210,9 +197,8 @@ export default function Register() {
     if (activeSection === 1) {
       // Validate Patient Information section
       const requiredFields = [
-        'medicalRecordNo', 'title', 'firstName', 'middleName', 'lastName',
-        'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode',
-        'primaryEmail', 'alternativeEmail', 'primaryPhone', 'alternativePhone'
+        'firstName', 'lastName', 'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode',
+        'primaryEmail', 'primaryPhone'
       ];
       
       requiredFields.forEach(field => {
@@ -231,9 +217,9 @@ export default function Register() {
       }
       
     } else if (activeSection === 2) {
-      // Validate Emergency & Insurance section
+      // Validate Emergency Contact section
       const requiredFields = [
-        'emergencyContactName', 'emergencyContactRelationship', 'emergencyContactPhone'
+        'emergencyContactName', 'emergencyContactPhone'
       ];
       
       requiredFields.forEach(field => {
@@ -241,12 +227,11 @@ export default function Register() {
           currentErrors[field] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
         }
       });
-      
     } else if (activeSection === 3) {
       // Validate Consent & Legal section
       const requiredFields = [
         'referringSource', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment',
-        'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication', 'disabilityAccessibilityNeeds'
+        'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication'
       ];
       
       requiredFields.forEach(field => {
@@ -301,7 +286,7 @@ export default function Register() {
               }`}
               onClick={() => setActiveSection(2)}
             >
-              Emergency & Insurance
+              Emergency Contact
             </button>
             <button
               className={`px-6 py-3 font-medium text-lg ${
@@ -326,58 +311,8 @@ export default function Register() {
                 Section 1: Patient Information
               </h2>
 
-              {/* Medical Record No */}
-              <div className="mb-4">
-                <label className="block text-base text-white mb-2">
-                  Medical Record No <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="medicalRecordNo"
-                  value={formik.values.medicalRecordNo}
-                  onChange={(e) => {
-                    const formatted = formatMedicalRecordNo(e.target.value);
-                    formik.setFieldValue("medicalRecordNo", formatted);
-                  }}
-                  onBlur={formik.handleBlur}
-                  placeholder="10 digit record no"
-                  className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                />
-                {formik.touched.medicalRecordNo &&
-                  formik.errors.medicalRecordNo && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.medicalRecordNo}
-                    </p>
-                  )}
-              </div>
-
               {/* Title and Name Row */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="block text-base text-white mb-2">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="title"
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                  >
-                    <option value="">Select...</option>
-                    <option value="Mr">Mr</option>
-                    <option value="Mrs">Mrs</option>
-                    <option value="Ms">Ms</option>
-                    <option value="Dr">Dr</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  {formik.touched.title && formik.errors.title && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formik.errors.title}
-                    </p>
-                  )}
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-base text-white mb-2">
                     First Name <span className="text-red-500">*</span>
@@ -399,7 +334,7 @@ export default function Register() {
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Middle Name <span className="text-red-500">*</span>
+                    Middle Name
                   </label>
                   <input
                     type="text"
@@ -440,7 +375,7 @@ export default function Register() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Date of Birth (YYYY-MM-DD){" "}
+                    Date of Birth (MM/DD/YYYY){" "}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -594,8 +529,7 @@ export default function Register() {
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Alternative Email Address{" "}
-                    <span className="text-red-500">*</span>
+                    Alternative Email Address
                   </label>
                   <input
                     type="email"
@@ -638,8 +572,7 @@ export default function Register() {
 
                 <div>
                   <label className="block text-base text-white mb-2">
-                    Alternative Phone Number{" "}
-                    <span className="text-red-500">*</span>
+                    Alternative Phone Number
                   </label>
                   <input
                     type="tel"
@@ -670,337 +603,78 @@ export default function Register() {
               </div>
             </div>
 
-            {/* SECTION 2: EMERGENCY CONTACT & INSURANCE */}
+            {/* SECTION 2: EMERGENCY CONTACT */}
             <div
               className={`bg-[#1A1A1A] p-6 rounded-lg ${
                 activeSection !== 2 ? "hidden" : ""
               }`}
             >
               <h2 className="text-xl font-semibold text-white mb-6 border-b border-gray-600 pb-2">
-                Section 2: Emergency Contact & Insurance
+                Section 2: Emergency Contact
               </h2>
 
-              {/* Emergency Contact Information */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div>
-                  <label className="block text-base text-white mb-2">
-                    Emergency Contact Name{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="emergencyContactName"
-                    value={formik.values.emergencyContactName}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                  />
-                  {formik.touched.emergencyContactName &&
-                    formik.errors.emergencyContactName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.emergencyContactName}
-                      </p>
-                    )}
-                </div>
-
-                <div>
-                  <label className="block text-base text-white mb-2">
-                    Emergency Contact Relationship{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="emergencyContactRelationship"
-                    value={formik.values.emergencyContactRelationship}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                  />
-                  {formik.touched.emergencyContactRelationship &&
-                    formik.errors.emergencyContactRelationship && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.emergencyContactRelationship}
-                      </p>
-                    )}
-                </div>
-
-                <div>
-                  <label className="block text-base text-white mb-2">
-                    Emergency Contact Phone{" "}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="emergencyContactPhone"
-                    value={formik.values.emergencyContactPhone}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                  />
-                  {formik.touched.emergencyContactPhone &&
-                    formik.errors.emergencyContactPhone && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {formik.errors.emergencyContactPhone}
-                      </p>
-                    )}
-                </div>
+              {/* Emergency Contact Name */}
+              <div className="mb-4">
+                <label className="block text-base text-white mb-2">
+                  Emergency Contact Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="emergencyContactName"
+                  value={formik.values.emergencyContactName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
+                />
+                {formik.touched.emergencyContactName &&
+                  formik.errors.emergencyContactName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.emergencyContactName}
+                    </p>
+                  )}
               </div>
 
-              {/* Future Required Fields */}
-              <div className="bg-[#2A2A2A] p-4 rounded border-l-4 border-yellow-500 mb-6">
-                <h3 className="text-yellow-400 font-semibold mb-3">
-                  Future Required Fields (Optional for now)
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Care Provider Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="careProviderPhone"
-                      value={formik.values.careProviderPhone}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.careProviderPhone &&
-                      formik.errors.careProviderPhone && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.careProviderPhone}
-                        </p>
-                      )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Last 4 Digits of SSN
-                    </label>
-                    <input
-                      type="text"
-                      name="lastFourDigitsSSN"
-                      value={formik.values.lastFourDigitsSSN}
-                      onChange={(e) => {
-                        const formatted = formatSSN(e.target.value);
-                        formik.setFieldValue("lastFourDigitsSSN", formatted);
-                      }}
-                      onBlur={formik.handleBlur}
-                      maxLength={4}
-                      placeholder="1234"
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.lastFourDigitsSSN &&
-                      formik.errors.lastFourDigitsSSN && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.lastFourDigitsSSN}
-                        </p>
-                      )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Language Preference
-                    </label>
-                    <input
-                      type="text"
-                      name="languagePreference"
-                      value={formik.values.languagePreference}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.languagePreference &&
-                      formik.errors.languagePreference && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.languagePreference}
-                        </p>
-                      )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Ethnicity/Race
-                    </label>
-                    <input
-                      type="text"
-                      name="ethnicityRace"
-                      value={formik.values.ethnicityRace}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.ethnicityRace &&
-                      formik.errors.ethnicityRace && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.ethnicityRace}
-                        </p>
-                      )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Primary Care Physician
-                    </label>
-                    <input
-                      type="text"
-                      name="primaryCarePhysician"
-                      value={formik.values.primaryCarePhysician}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.primaryCarePhysician &&
-                      formik.errors.primaryCarePhysician && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.primaryCarePhysician}
-                        </p>
-                      )}
-                  </div>
-
-                  <div>
-                    <label className="block text-base text-gray-300 mb-2">
-                      Date of First Visit Planned
-                    </label>
-                    <input
-                      type="date"
-                      name="dateOfFirstVisitPlanned"
-                      value={formik.values.dateOfFirstVisitPlanned}
-                      onChange={(e) => {
-                        const formattedDate = formatDateForBackend(
-                          e.target.value
-                        );
-                        formik.setFieldValue(
-                          "dateOfFirstVisitPlanned",
-                          formattedDate
-                        );
-                      }}
-                      onBlur={formik.handleBlur}
-                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                    />
-                    {formik.touched.dateOfFirstVisitPlanned &&
-                      formik.errors.dateOfFirstVisitPlanned && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {formik.errors.dateOfFirstVisitPlanned}
-                        </p>
-                      )}
-                  </div>
-                </div>
-
-                {/* Insurance Information */}
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowInsurance(!showInsurance)}
-                    className="text-blue-400 hover:text-blue-300 text-sm font-medium"
-                  >
-                    {showInsurance ? "Hide" : "Show"} Insurance Information
-                  </button>
-
-                  {showInsurance && (
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-base text-gray-300 mb-2">
-                          Insurance Provider Name
-                        </label>
-                        <input
-                          type="text"
-                          name="insuranceProviderName"
-                          value={formik.values.insuranceProviderName}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                        />
-                        {formik.touched.insuranceProviderName &&
-                          formik.errors.insuranceProviderName && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {formik.errors.insuranceProviderName}
-                            </p>
-                          )}
-                      </div>
-
-                      <div>
-                        <label className="block text-base text-gray-300 mb-2">
-                          Insurance Policy Number
-                        </label>
-                        <input
-                          type="text"
-                          name="insurancePolicyNumber"
-                          value={formik.values.insurancePolicyNumber}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                        />
-                        {formik.touched.insurancePolicyNumber &&
-                          formik.errors.insurancePolicyNumber && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {formik.errors.insurancePolicyNumber}
-                            </p>
-                          )}
-                      </div>
-
-                      <div>
-                        <label className="block text-base text-gray-300 mb-2">
-                          Insurance Group Number
-                        </label>
-                        <input
-                          type="text"
-                          name="insuranceGroupNumber"
-                          value={formik.values.insuranceGroupNumber}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                        />
-                        {formik.touched.insuranceGroupNumber &&
-                          formik.errors.insuranceGroupNumber && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {formik.errors.insuranceGroupNumber}
-                            </p>
-                          )}
-                      </div>
-
-                      <div>
-                        <label className="block text-base text-gray-300 mb-2">
-                          Insurance Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          name="insurancePhoneNumber"
-                          value={formik.values.insurancePhoneNumber}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                        />
-                        {formik.touched.insurancePhoneNumber &&
-                          formik.errors.insurancePhoneNumber && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {formik.errors.insurancePhoneNumber}
-                            </p>
-                          )}
-                      </div>
-
-                      <div>
-                        <label className="block text-base text-gray-300 mb-2">
-                          Guarantor/Responsible Party
-                        </label>
-                        <input
-                          type="text"
-                          name="guarantorResponsibleParty"
-                          value={formik.values.guarantorResponsibleParty}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                        />
-                        {formik.touched.guarantorResponsibleParty &&
-                          formik.errors.guarantorResponsibleParty && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {formik.errors.guarantorResponsibleParty}
-                            </p>
-                          )}
-                      </div>
-                    </div>
+              {/* Emergency Contact Relationship */}
+              <div className="mb-4">
+                <label className="block text-base text-white mb-2">
+                  Emergency Contact Relationship
+                </label>
+                <input
+                  type="text"
+                  name="emergencyContactRelationship"
+                  value={formik.values.emergencyContactRelationship}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="e.g., Spouse, Parent, Friend, etc."
+                  className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
+                />
+                {formik.touched.emergencyContactRelationship &&
+                  formik.errors.emergencyContactRelationship && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.emergencyContactRelationship}
+                    </p>
                   )}
-                </div>
+              </div>
+
+              {/* Emergency Contact Phone Number */}
+              <div className="mb-4">
+                <label className="block text-base text-white mb-2">
+                  Emergency Contact Phone Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="emergencyContactPhone"
+                  value={formik.values.emergencyContactPhone}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
+                />
+                {formik.touched.emergencyContactPhone &&
+                  formik.errors.emergencyContactPhone && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.emergencyContactPhone}
+                    </p>
+                  )}
               </div>
 
               {/* Navigation Buttons */}
@@ -1045,9 +719,9 @@ export default function Register() {
                   className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
                 >
                   <option value="">Select...</option>
-                  <option value="Self">Self</option>
-                  <option value="Physician">Physician</option>
-                  <option value="Other">Other</option>
+                  <option value="Online">Online</option>
+                  <option value="Friend">Friend</option>
+                  <option value="Employee">Employee</option>
                 </select>
                 {formik.touched.referringSource &&
                   formik.errors.referringSource && (
@@ -1166,8 +840,7 @@ export default function Register() {
               {/* Disability Needs */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Disability/Accessibility Needs{" "}
-                  <span className="text-red-500">*</span>
+                  Disability/Accessibility Needs
                 </label>
                 <input
                   type="text"

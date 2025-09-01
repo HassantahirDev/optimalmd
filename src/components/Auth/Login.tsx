@@ -177,13 +177,13 @@ export default function LoginComponent() {
           </p>
 
           {/* Register */}
-          <p>
+          <p className="text-lg font-medium">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-semibold underline hover:no-underline"
+              className="inline-block bg-white text-[#ff4757] font-bold text-lg px-6 py-3 rounded-full hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              Register
+              Register Now
             </Link>
           </p>
         </div>
