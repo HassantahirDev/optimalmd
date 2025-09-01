@@ -187,10 +187,13 @@ export default function Register() {
     return date.toISOString().split("T")[0];
   };
 
-  // Navigation functions
+  // Navigation functions with validation
   const nextSection = () => {
     if (activeSection < 3) {
-      setActiveSection(activeSection + 1);
+      // Validate current section before allowing to proceed
+      if (validateCurrentSection()) {
+        setActiveSection(activeSection + 1);
+      }
     }
   };
 
@@ -198,6 +201,75 @@ export default function Register() {
     if (activeSection > 1) {
       setActiveSection(activeSection - 1);
     }
+  };
+
+  // Validate current section before allowing navigation
+  const validateCurrentSection = () => {
+    const currentErrors: Record<string, string> = {};
+    
+    if (activeSection === 1) {
+      // Validate Patient Information section
+      const requiredFields = [
+        'medicalRecordNo', 'title', 'firstName', 'middleName', 'lastName',
+        'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode',
+        'primaryEmail', 'alternativeEmail', 'primaryPhone', 'alternativePhone'
+      ];
+      
+      requiredFields.forEach(field => {
+        if (!formik.values[field] || formik.values[field].trim() === '') {
+          currentErrors[field] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
+        }
+      });
+      
+      // Validate email format
+      if (formik.values.primaryEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formik.values.primaryEmail)) {
+        currentErrors.primaryEmail = 'Please enter a valid email address';
+      }
+      
+      if (formik.values.alternativeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formik.values.alternativeEmail)) {
+        currentErrors.alternativeEmail = 'Please enter a valid email address';
+      }
+      
+    } else if (activeSection === 2) {
+      // Validate Emergency & Insurance section
+      const requiredFields = [
+        'emergencyContactName', 'emergencyContactRelationship', 'emergencyContactPhone'
+      ];
+      
+      requiredFields.forEach(field => {
+        if (!formik.values[field] || formik.values[field].trim() === '') {
+          currentErrors[field] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
+        }
+      });
+      
+    } else if (activeSection === 3) {
+      // Validate Consent & Legal section
+      const requiredFields = [
+        'referringSource', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment',
+        'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication', 'disabilityAccessibilityNeeds'
+      ];
+      
+      requiredFields.forEach(field => {
+        if (!formik.values[field] || formik.values[field].trim() === '') {
+          currentErrors[field] = `${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} is required`;
+        }
+      });
+    }
+    
+    // If there are errors, show them and prevent navigation
+    if (Object.keys(currentErrors).length > 0) {
+      // Set errors in formik
+      Object.keys(currentErrors).forEach(field => {
+        formik.setFieldError(field, currentErrors[field]);
+        formik.setFieldTouched(field, true);
+      });
+      
+      // Show error message
+      toast.error('Please fill in all required fields before proceeding');
+      return false;
+    }
+    
+    return true;
   };
 
   return (
@@ -1251,6 +1323,12 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading}
+                  onClick={() => {
+                    // Validate all sections before submission
+                    if (!validateCurrentSection()) {
+                      return;
+                    }
+                  }}
                   className="bg-[#ff4757] hover:bg-[#ff3742] disabled:bg-gray-600 text-white px-12 py-4 rounded-lg font-medium text-lg transition-colors flex items-center space-x-2"
                 >
                   {loading ? (
