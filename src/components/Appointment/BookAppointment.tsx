@@ -190,24 +190,43 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     const specialityPrice = selectedService ? parseFloat(String(selectedService.basePrice)) : 0;
     console.log("specialityPrice", specialityPrice);
     const primaryName = selectedPrimaryService?.name?.trim().toLowerCase() || '';
+    
+    // Base price is $75
+    let totalPrice = 75;
+    
+    // Add $50 for in-person consultation or telehealth
+    if (primaryName === 'in-person consultation' || primaryName === 'telehealth') {
+      totalPrice += 50;
+    }
+    
+    // Add primary service price if it's Follow Up
     if (primaryName === 'follow up' || primaryName === 'follow-up' || primaryName === 'followup') {
       const primaryPrice = selectedPrimaryService ? parseFloat(String(selectedPrimaryService.basePrice)) : 0;
-      const sum = (isNaN(specialityPrice) ? 0 : specialityPrice) + (isNaN(primaryPrice) ? 0 : primaryPrice);
-      return sum;
+      totalPrice += (isNaN(primaryPrice) ? 0 : primaryPrice);
     }
-    return isNaN(specialityPrice) ? 0 : specialityPrice;
+    
+    return totalPrice;
   };
 
   // Calculate display price for a given speciality option
   const getDisplayPriceForService = (service: { basePrice: string | number }) => {
-    const base = parseFloat(String(service.basePrice));
+    // Base price is $75
+    let totalPrice = 75;
+    
     const primaryName = selectedPrimaryService?.name?.trim().toLowerCase() || '';
+    
+    // Add $50 for in-person consultation or telehealth
+    if (primaryName === 'in-person consultation' || primaryName === 'telehealth') {
+      totalPrice += 50;
+    }
+    
+    // Add primary service price if it's Follow Up
     if (primaryName === 'follow up' || primaryName === 'follow-up' || primaryName === 'followup') {
       const primaryPrice = selectedPrimaryService ? parseFloat(String(selectedPrimaryService.basePrice)) : 0;
-      const sum = (isNaN(base) ? 0 : base) + (isNaN(primaryPrice) ? 0 : primaryPrice);
-      return sum.toFixed(2);
+      totalPrice += (isNaN(primaryPrice) ? 0 : primaryPrice);
     }
-    return (isNaN(base) ? 0 : base).toFixed(2);
+    
+    return totalPrice.toFixed(2);
   };
 
   const handleBookAppointment = async () => {
