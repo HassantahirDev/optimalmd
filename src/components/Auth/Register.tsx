@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Eye, EyeOff, Upload, Camera } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Upload, Camera, Calendar } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/reduxHooks";
 import { useFormik } from "formik";
@@ -19,6 +19,25 @@ export default function Register() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [activeSection, setActiveSection] = useState(1); // Track active section
   const [showHipaaModal, setShowHipaaModal] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.calendar-container')) {
+        setShowCalendar(false);
+      }
+    };
+
+    if (showCalendar) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCalendar]);
 
   const formik = useFormik({
     initialValues: {
@@ -419,15 +438,70 @@ export default function Register() {
                     Date of Birth (MM/DD/YYYY){" "}
                     <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="dateOfBirth"
-                    value={formatDateForDisplay(formik.values.dateOfBirth)}
-                    onChange={handleDateInputChange}
-                    onBlur={formik.handleBlur}
-                    placeholder="MM-DD-YYYY"
-                    className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600"
-                  />
+                  <div className="relative calendar-container">
+                    <input
+                      type="text"
+                      name="dateOfBirth"
+                      value={formatDateForDisplay(formik.values.dateOfBirth)}
+                      onChange={handleDateInputChange}
+                      onBlur={formik.handleBlur}
+                      placeholder="MM-DD-YYYY"
+                      className="w-full px-4 py-3 rounded bg-[#1E1E1E] text-white border border-gray-600 pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCalendar(!showCalendar)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      <Calendar size={20} />
+                    </button>
+                    {showCalendar && (
+                      <div className="absolute z-10 mt-2 bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-4 w-64">
+                        {/* Month and Year Header */}
+                        <div className="text-center mb-4">
+                          <h3 className="text-white font-semibold text-lg">
+                            {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                          </h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-7 gap-1 text-sm">
+                          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                            <div key={day} className="p-2 text-center font-medium text-gray-400">
+                              {day}
+                            </div>
+                          ))}
+                          {Array.from({ length: 35 }, (_, i) => {
+                            const date = new Date();
+                            date.setDate(date.getDate() + i);
+                            const isToday = date.toDateString() === new Date().toDateString();
+                            const isSelected = formik.values.dateOfBirth === date.toISOString().split('T')[0];
+                            
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => {
+                                  // Format date in local timezone to avoid UTC conversion
+                                  const year = date.getFullYear();
+                                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                                  const day = String(date.getDate()).padStart(2, '0');
+                                  const localDateString = `${year}-${month}-${day}`;
+                                  formik.setFieldValue("dateOfBirth", localDateString);
+                                  setShowCalendar(false);
+                                }}
+                                className={`p-2 text-center rounded hover:bg-gray-700 ${
+                                  isToday ? 'bg-red-500 text-white' : ''
+                                } ${
+                                  isSelected ? 'bg-red-600 text-white' : 'text-gray-300'
+                                }`}
+                              >
+                                {date.getDate()}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   {formik.touched.dateOfBirth && formik.errors.dateOfBirth && (
                     <p className="text-red-500 text-sm mt-1">
                       {formik.errors.dateOfBirth}
