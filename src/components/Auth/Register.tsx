@@ -1285,7 +1285,7 @@ export default function Register() {
       {/* Right Side - Image */}
       <div className="hidden md:flex flex-1 bg-gradient-to-br from-[#ff4757] to-[#ff3742] items-center justify-center p-8">
         <div className="text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Welcome to OptimalMD</h2>
+          <h2 className="text-3xl font-bold mb-4">Welcome to OptimaleMD</h2>
           <p className="text-lg opacity-90">
             Complete your patient registration to access our comprehensive
             healthcare services.
