@@ -161,7 +161,45 @@ export default function Register() {
         })
         .catch((error) => {
           setLoading(false);
-          toast(error?.message || "Failed to register", { type: "error" });
+          // Debug: Log the error structure to see what we're working with
+          console.log('Registration error:', error);
+          
+          // Extract the actual error message from the backend response
+          let errorMessage = "Registration failed";
+          
+          // Try to get the error message from different possible locations
+          if (error?.payload) {
+            // Error from Redux thunk rejectWithValue (this is what we want)
+            errorMessage = error.payload;
+          } else if (error?.response?.data?.message) {
+            // Error from API response message field
+            errorMessage = error.response.data.message;
+          } else if (error?.response?.data?.error) {
+            // Error from API response error field
+            errorMessage = error.response.data.error;
+          } else if (error?.response?.data?.data?.message) {
+            // Error from nested API response
+            errorMessage = error.response.data.data.message;
+          } else if (error?.response?.data?.data?.error) {
+            // Error from nested API response error field
+            errorMessage = error.response.data.data.error;
+          } else if (error?.message) {
+            // Generic error message
+            errorMessage = error.message;
+          } else if (typeof error === 'string') {
+            // Error is already a string
+            errorMessage = error;
+          }
+          
+          // Remove any HTML tags or special characters that might be in the error message
+          errorMessage = errorMessage.replace(/<[^>]*>/g, '').trim();
+          
+          // If we still have a generic message, try to get more specific info
+          if (errorMessage === "Registration failed" && error?.response?.status) {
+            errorMessage = `Registration failed (Status: ${error.response.status})`;
+          }
+          
+          toast(errorMessage, { type: "error" });
         });
     },
   });

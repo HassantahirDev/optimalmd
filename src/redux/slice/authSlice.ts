@@ -156,9 +156,61 @@ export const registerUser = createAsyncThunk<
   try {
     return await registerUserApi(userData);
   } catch (err) {
-    return thunkAPI.rejectWithValue(
-      err.response?.data?.message || "Registration failed"
-    );
+    // Debug: Log the actual error structure from the API
+    console.log('API Error Response:', err);
+    console.log('Error Response Data:', err?.response?.data);
+    
+    // Better error message extraction
+    let errorMessage = "Registration failed";
+    
+    // Handle different error response structures
+    if (err?.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    } else if (err?.response?.data?.error) {
+      errorMessage = err.response.data.error;
+    } else if (err?.response?.data?.data?.message) {
+      errorMessage = err.response.data.data.message;
+    } else if (err?.response?.data?.data?.error) {
+      errorMessage = err.response.data.data.error;
+    } else if (err?.response?.data?.validationErrors) {
+      // Handle validation errors array
+      const validationErrors = err.response.data.validationErrors;
+      if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+        errorMessage = validationErrors.map((err: any) => err.message || err).join(', ');
+      }
+    } else if (err?.response?.data?.errors) {
+      // Handle errors object
+      const errors = err.response.data.errors;
+      if (typeof errors === 'object') {
+        errorMessage = Object.values(errors).join(', ');
+      }
+    } else if (err?.message) {
+      errorMessage = err.message;
+    }
+    
+    // Handle specific HTTP status codes
+    if (err?.response?.status === 400) {
+      if (!errorMessage || errorMessage === "Registration failed") {
+        errorMessage = "Invalid registration data. Please check your information.";
+      }
+    } else if (err?.response?.status === 409) {
+      if (!errorMessage || errorMessage === "Registration failed") {
+        errorMessage = "User already exists with this email.";
+      }
+    } else if (err?.response?.status === 422) {
+      if (!errorMessage || errorMessage === "Registration failed") {
+        errorMessage = "Validation failed. Please check your information.";
+      }
+    } else if (err?.response?.status === 500) {
+      if (!errorMessage || errorMessage === "Registration failed") {
+        errorMessage = "Server error. Please try again later.";
+      }
+    }
+    
+    // Clean up the error message
+    errorMessage = errorMessage.replace(/<[^>]*>/g, '').trim();
+    
+    return thunkAPI.rejectWithValue(errorMessage);
   }
 });
 
