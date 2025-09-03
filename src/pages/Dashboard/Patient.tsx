@@ -48,7 +48,10 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
   };
 
   return (
-    <div className="h-screen overflow-hidden dashboard-container" style={{ backgroundColor: "#151515" }}>
+    <div
+      className="h-screen overflow-hidden dashboard-container"
+      style={{ backgroundColor: "#151515" }}
+    >
       {/* Add the Navbar at the top */}
       <Navbar />
 
@@ -60,7 +63,10 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
           activeMenuItem={activeMenuItem}
           onMenuItemClick={handleMenuItemClick}
         />
-        <div className="flex-1 overflow-auto dashboard-container" style={{ backgroundColor: "#151515" }}>
+        <div
+          className="flex-1 overflow-auto dashboard-container"
+          style={{ backgroundColor: "#151515" }}
+        >
           {renderContent()}
         </div>
       </div>

@@ -321,25 +321,25 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   return (
     <div className="flex-1 text-white">
       {/* Header Section */}
-      <div className="p-8 pb-6">
+      <div className="p-4 sm:p-6 lg:p-8 pb-4 sm:pb-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
             Hello, {patientName}!
           </h1>
-          <span className="text-4xl">👋</span>
+          <span className="text-2xl sm:text-3xl lg:text-4xl">👋</span>
         </div>
-        <p className="text-gray-400 text-lg mt-2">
+        <p className="text-gray-400 text-sm sm:text-base lg:text-lg mt-1 sm:mt-2 leading-relaxed">
           Here's what's next for your health.
         </p>
       </div>
 
       {/* Book Appointment Card */}
-      <div className="mx-8">
+      <div className="mx-4 sm:mx-6 lg:mx-8">
         <div
-          className="bg-gray-800 rounded-3xl p-8"
+          className="bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8"
           style={{ backgroundColor: "#2a2a2a" }}
         >
-          <h2 className="text-2xl font-bold text-white mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 lg:mb-8">
             Book an Appointment
           </h2>
 
@@ -353,15 +353,15 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
 
           {/* Form Grid */}
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {/* Primary Service Dropdown */}
             <div>
-              <label className="block text-white text-lg font-medium mb-4">
+              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
                 Service
               </label>
               <div className="relative">
                 <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedPrimaryService?.id || ""}
                   onChange={(e) => handlePrimaryServiceChange(e.target.value)}
@@ -387,12 +387,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
             {/* Doctor Dropdown */}
             <div>
-              <label className="block text-white text-lg font-medium mb-4">
+              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
                 Doctor
               </label>
               <div className="relative">
                 <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedDoctor?.id || ""}
                   onChange={(e) => handleDoctorChange(e.target.value)}
@@ -418,12 +418,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
             {/* Service Dropdown */}
             <div>
-              <label className="block text-white text-lg font-medium mb-4">
+              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
                 Medical Services
               </label>
               <div className="relative">
                 <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedService?.id || ""}
                   onChange={(e) => handleServiceChange(e.target.value)}
@@ -449,13 +449,13 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
             {/* Date Picker */}
             <div>
-              <label className="block text-white text-lg font-medium mb-4">
+              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
                 Select Date
               </label>
               <div className="relative calendar-container">
                 <input
                   type="text"
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedDate ? formatDateForDisplay(selectedDate) : ""}
                   onChange={(e) => handleDateInputChange(e)}
@@ -521,12 +521,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
             {/* Time Slot Dropdown */}
             <div>
-              <label className="block text-white text-lg font-medium mb-4">
+              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
                 Select Time
               </label>
               <div className="relative">
                 <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
                   style={{ backgroundColor: "#333333" }}
                   value={selectedSlot?.id || ""}
                   onChange={(e) => handleSlotChange(e.target.value)}
@@ -571,11 +571,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-12">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 lg:mt-12">
             <button
               onClick={handleBookAppointment}
               disabled={!selectedDoctor || !selectedPrimaryService || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
-              className="px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[48px]"
             >
               {isCreatingAppointment ? (
                 <>
@@ -589,7 +589,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
             <button
               onClick={handleCancel}
               disabled={bookingLoading}
-              className="px-8 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:bg-gray-700 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors disabled:bg-gray-700 disabled:cursor-not-allowed min-h-[44px] sm:min-h-[48px]"
             >
               Cancel
             </button>

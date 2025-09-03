@@ -1,5 +1,6 @@
-// components/SideBar.tsx
-import { Calendar, FileText, Mail, Clock } from "lucide-react";
+// components/Sidebar.tsx
+import { Calendar, FileText, Mail, Clock, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 interface SidebarProps {
   activeMenuItem?: string;
@@ -10,6 +11,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeMenuItem = "book-appointment",
   onMenuItemClick,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const menuItems = [
     {
       id: "book-appointment",
@@ -38,44 +41,59 @@ const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <div
-      className="w-64 text-white h-full flex flex-col overflow-hidden dashboard-container"
-      style={{ backgroundColor: "#151515" }}
-    >
-      {/* Header */}
-      <div className="p-6 border-b border-gray-600 flex-shrink-0">
-        <h2 className="text-lg font-medium text-gray-300">Main Menu</h2>
-      </div>
+    <>
+      {/* Mobile Toggle Button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 p-2 rounded text-white"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
 
-      {/* Menu Items */}
-      <div className="flex-1 py-4 overflow-y-auto dashboard-container" style={{ backgroundColor: "#151515" }}>
-        {menuItems.map((item) => {
-          const IconComponent = item.icon;
-          const isActive = activeMenuItem === item.id;
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-[#151515] text-white transform transition-transform duration-300 z-40
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0 md:static md:flex-shrink-0`}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-600 flex-shrink-0">
+          <h2 className="text-lg font-medium text-gray-300">Main Menu</h2>
+        </div>
 
-          return (
-            <div
-              key={item.id}
-              onClick={() => onMenuItemClick?.(item.id)}
-              className={`flex items-center px-6 py-4 cursor-pointer transition-colors duration-200 ${
-                isActive
-                  ? `${item.bgColor} text-white`
-                  : "text-gray-300 hover:bg-gray-700"
-              }`}
-            >
+        {/* Menu Items */}
+        <div className="flex-1 py-4 overflow-y-auto">
+          {menuItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = activeMenuItem === item.id;
+
+            return (
               <div
-                className={`p-1 rounded ${
-                  isActive ? "text-white" : "text-gray-400"
+                key={item.id}
+                onClick={() => {
+                  onMenuItemClick?.(item.id);
+                  setIsOpen(false); // auto close on mobile
+                }}
+                className={`flex items-center px-6 py-4 cursor-pointer transition-colors duration-200 ${
+                  isActive
+                    ? `${item.bgColor} text-white`
+                    : "text-gray-300 hover:bg-gray-700"
                 }`}
               >
-                <IconComponent size={20} />
+                <div
+                  className={`p-1 rounded ${
+                    isActive ? "text-white" : "text-gray-400"
+                  }`}
+                >
+                  <IconComponent size={20} />
+                </div>
+                <span className="ml-3 font-medium">{item.label}</span>
               </div>
-              <span className="ml-3 font-medium">{item.label}</span>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

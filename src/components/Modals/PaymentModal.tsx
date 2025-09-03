@@ -179,12 +179,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   if (paymentStatus === "success") {
     return (
-      <div className="text-center py-8">
-        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-green-400 mb-2">
+      <div className="text-center py-6 sm:py-8">
+        <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-3 sm:mb-4" />
+        <h3 className="text-lg sm:text-xl font-semibold text-green-400 mb-2">
           Payment Successful!
         </h3>
-        <p className="text-gray-300">
+        <p className="text-gray-300 text-sm sm:text-base">
           Your appointment has been booked successfully.
         </p>
       </div>
@@ -193,15 +193,15 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
   if (paymentStatus === "error") {
     return (
-      <div className="text-center py-8">
-        <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-red-400 mb-2">
+      <div className="text-center py-6 sm:py-8">
+        <XCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-3 sm:mb-4" />
+        <h3 className="text-lg sm:text-xl font-semibold text-red-400 mb-2">
           Payment Failed
         </h3>
-        <p className="text-gray-300">Please try again or contact support.</p>
+        <p className="text-gray-300 text-sm sm:text-base">Please try again or contact support.</p>
         <Button
           onClick={() => setPaymentStatus("pending")}
-          className="mt-4 bg-red-500 text-white hover:bg-red-600"
+          className="mt-4 bg-red-500 text-white hover:bg-red-600 min-h-[44px] px-5"
         >
           Try Again
         </Button>
@@ -210,33 +210,33 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
             Card Information
           </label>
-          <div className="border border-gray-600 rounded-md p-3 bg-gray-700">
+          <div className="border border-gray-600 rounded-md p-3 sm:p-4 bg-gray-700">
             <CardElement options={cardElementOptions} />
           </div>
         </div>
 
-        <div className="bg-gray-600 p-4 rounded-md border border-gray-500">
+        <div className="bg-gray-600 p-3 sm:p-4 rounded-md border border-gray-500">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-300">Amount:</span>
-            <span className="font-semibold text-lg text-white">
+            <span className="text-sm sm:text-base text-gray-300">Amount:</span>
+            <span className="font-semibold text-base sm:text-lg text-white">
               ${getAmount().toFixed(2)}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           type="button"
           variant="outline"
           onClick={onClose}
-          className="flex-1 bg-gray-600 text-white border-gray-500 hover:bg-gray-500"
+          className="flex-1 bg-gray-600 text-white border-gray-500 hover:bg-gray-500 min-h-[44px]"
           disabled={isProcessing}
         >
           Cancel
@@ -244,7 +244,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         <Button
           type="submit"
           disabled={!stripe || isProcessing}
-          className="flex-1 bg-red-500 text-white hover:bg-red-600"
+          className="flex-1 bg-red-500 text-white hover:bg-red-600 min-h-[44px]"
         >
           {isProcessing ? (
             <>
@@ -276,49 +276,51 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-gray-800 border-gray-700">
+      <DialogContent className="w-[92vw] sm:max-w-md md:max-w-lg lg:max-w-xl bg-gray-800 border-gray-700 px-4 sm:px-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2 text-white text-base sm:text-lg">
             <CreditCard className="w-5 h-5 text-red-500" />
             Complete Payment
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6">
           {/* Appointment Summary */}
           <Card className="bg-gray-700 border-gray-600">
             <CardHeader>
-              <CardTitle className="text-lg text-white">
+              <CardTitle className="text-base sm:text-lg text-white">
                 Appointment Summary
               </CardTitle>
-              <CardDescription className="text-gray-300">
+              <CardDescription className="text-gray-300 text-sm sm:text-base">
                 Please review your appointment details
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-300">Doctor:</span>
-                <span className="font-medium text-white">{doctorName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-300">Service:</span>
-                <span className="font-medium text-white">{serviceName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-300">Date:</span>
-                <span className="font-medium text-white">
-                  {appointmentDate}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-300">Time:</span>
-                <span className="font-medium text-white">
-                  {appointmentTime}
-                </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-300 text-sm sm:text-base">Doctor:</span>
+                  <span className="font-medium text-white text-sm sm:text-base">{doctorName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300 text-sm sm:text-base">Service:</span>
+                  <span className="font-medium text-white text-sm sm:text-base">{serviceName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300 text-sm sm:text-base">Date:</span>
+                  <span className="font-medium text-white text-sm sm:text-base">
+                    {appointmentDate}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300 text-sm sm:text-base">Time:</span>
+                  <span className="font-medium text-white text-sm sm:text-base">
+                    {appointmentTime}
+                  </span>
+                </div>
               </div>
               <div className="flex justify-between border-t border-gray-600 pt-2">
                 <span className="text-gray-300 font-medium">Total:</span>
-                <span className="font-bold text-lg text-red-500">
+                <span className="font-bold text-base sm:text-lg text-red-500">
                   $
                   {(typeof amount === "string"
                     ? parseFloat(amount)
