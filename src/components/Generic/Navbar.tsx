@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/hooks/reduxHooks";
 import { logout } from "@/redux/slice/authSlice";
-import { clearAuthData } from "@/lib/utils";
+import { clearAuthData, getUserType } from "@/lib/utils";
 import { LogOut, User, Settings, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -15,6 +15,7 @@ const Navbar: React.FC = () => {
   // Get profile picture from localStorage
   const profilePicture = localStorage.getItem("profilePicture");
   const userName = localStorage.getItem("name") || "User";
+  const userType = getUserType();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,7 +99,9 @@ const Navbar: React.FC = () => {
           <div className="absolute right-0 mt-2 w-56 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50">
             <div className="px-4 py-3 border-b border-gray-600">
               <p className="text-white font-medium">{userName}</p>
-              <p className="text-gray-400 text-sm">Patient</p>
+              <p className="text-gray-400 text-sm">
+                {userType === 'doctor' ? 'Doctor' : 'Patient'}
+              </p>
             </div>
             <div className="py-2">
               <button className="w-full flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700">

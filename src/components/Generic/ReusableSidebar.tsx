@@ -1,44 +1,27 @@
-// components/Sidebar.tsx
-import { Calendar, FileText, Mail, Clock, Menu, X } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Menu, X } from "lucide-react";
 
-interface SidebarProps {
-  activeMenuItem?: string;
-  onMenuItemClick?: (menuItem: string) => void;
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: React.ComponentType<any>;
+  bgColor: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  activeMenuItem = "book-appointment",
+interface ReusableSidebarProps {
+  activeMenuItem?: string;
+  onMenuItemClick?: (menuItem: string) => void;
+  menuItems: MenuItem[];
+  title?: string;
+}
+
+const ReusableSidebar: React.FC<ReusableSidebarProps> = ({
+  activeMenuItem = "",
   onMenuItemClick,
+  menuItems,
+  title = "Main Menu",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const menuItems = [
-    {
-      id: "book-appointment",
-      label: "Book Appointment",
-      icon: Calendar,
-      bgColor: "bg-red-500",
-    },
-    {
-      id: "my-appointments",
-      label: "My Appointments",
-      icon: Clock,
-      bgColor: "bg-gray-600",
-    },
-    {
-      id: "care-plan",
-      label: "Care Plan Status",
-      icon: FileText,
-      bgColor: "bg-gray-600",
-    },
-    {
-      id: "messages",
-      label: "Messages",
-      icon: Mail,
-      bgColor: "bg-gray-600",
-    },
-  ];
 
   return (
     <>
@@ -58,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Header */}
         <div className="p-6 border-b border-gray-600 flex-shrink-0">
-          <h2 className="text-lg font-medium text-gray-300">Main Menu</h2>
+          <h2 className="text-lg font-medium text-gray-300">{title}</h2>
         </div>
 
         {/* Menu Items */}
@@ -97,4 +80,4 @@ const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-export default Sidebar;
+export default ReusableSidebar;

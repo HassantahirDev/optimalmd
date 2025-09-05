@@ -1,7 +1,8 @@
 import BookAppointment from "@/components/Appointment/BookAppointment";
 import MyAppointments from "@/components/Appointment/MyAppointments";
-import Sidebar from "@/components/Generic/SideBar";
-import Navbar from "@/components/Generic/Navbar";
+import DashboardLayout from "@/components/Generic/DashboardLayout";
+import ReusableSidebar from "@/components/Generic/ReusableSidebar";
+import { Calendar, Clock, FileText, Mail } from "lucide-react";
 import { useState } from "react";
 
 interface PatientDashboardProps {
@@ -17,6 +18,33 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
   const handleMenuItemClick = (menuItem: string) => {
     setActiveMenuItem(menuItem);
   };
+
+  const menuItems = [
+    {
+      id: "book-appointment",
+      label: "Book Appointment",
+      icon: Calendar,
+      bgColor: "bg-red-500",
+    },
+    {
+      id: "my-appointments",
+      label: "My Appointments",
+      icon: Clock,
+      bgColor: "bg-gray-600",
+    },
+    {
+      id: "care-plan",
+      label: "Care Plan Status",
+      icon: FileText,
+      bgColor: "bg-gray-600",
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      icon: Mail,
+      bgColor: "bg-gray-600",
+    },
+  ];
 
   const renderContent = () => {
     switch (activeMenuItem) {
@@ -48,29 +76,17 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
   };
 
   return (
-    <div
-      className="h-screen overflow-hidden dashboard-container"
-      style={{ backgroundColor: "#151515" }}
-    >
-      {/* Add the Navbar at the top */}
-      <Navbar />
-
-      {/* Main content area with sidebar and content */}
-      <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-        {" "}
-        {/* Subtract navbar height */}
-        <Sidebar
+    <DashboardLayout
+      sidebar={
+        <ReusableSidebar
           activeMenuItem={activeMenuItem}
           onMenuItemClick={handleMenuItemClick}
+          menuItems={menuItems}
         />
-        <div
-          className="flex-1 overflow-auto dashboard-container"
-          style={{ backgroundColor: "#151515" }}
-        >
-          {renderContent()}
-        </div>
-      </div>
-    </div>
+      }
+    >
+      {renderContent()}
+    </DashboardLayout>
   );
 };
 

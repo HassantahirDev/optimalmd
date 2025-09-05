@@ -17,6 +17,7 @@ import RegisterPage from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import VerifyEmailPendingPage from "./pages/VerifyEmailPending";
 import PatientDashboard from "./pages/Dashboard/Patient";
+import DoctorPage from "./pages/Dashboard/Doctor";
 import PrivacyPage from "./pages/Privacy&Policy";
 import TermsPage from "./pages/Terms&Service";
 import ContactPage from "./pages/ContactUs";
@@ -77,6 +78,12 @@ const App = () => (
                   <ProtectedRoute requiredUserType="user">
                     <PatientDashboard />
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/doctor"
+                element={
+                    <DoctorPage />
                 }
               />
               <Route
