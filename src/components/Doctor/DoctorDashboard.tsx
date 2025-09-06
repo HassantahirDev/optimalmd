@@ -7,6 +7,10 @@ import {
   Calendar,
   Users,
   UserCheck,
+  Phone,
+  Video,
+  StickyNote,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/Generic/DashboardLayout";
@@ -54,24 +58,31 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
     },
   ];
 
+  // Mock urgent tasks and quick stats
+  const hasUrgentTasks = true; // Set to true if there are urgent items
+  const urgentTasksSummary = "2 overdue labs, 1 no-show, 3 unread messages";
+  const todaysAppointmentsCount = 12;
+  const labsToReviewCount = 2;
+  const messagesAwaitingReplyCount = 3;
+
   const dashboardCards = [
     {
-      title: "Today's Schedule",
-      value: "12 appointments",
+      title: "Today's Appointments",
+      value: todaysAppointmentsCount,
       icon: CalendarIcon,
       color: "text-red-500"
     },
     {
-      title: "Waiting Room",
-      value: "3 patients",
-      icon: Clock,
-      color: "text-red-500"
+      title: "Labs to Review",
+      value: labsToReviewCount,
+      icon: AlertTriangle,
+      color: "text-yellow-500"
     },
     {
-      title: "Action Items",
-      value: "2 flagged",
-      icon: AlertTriangle,
-      color: "text-red-500"
+      title: "Messages Awaiting Reply",
+      value: messagesAwaitingReplyCount,
+      icon: Mail,
+      color: "text-blue-500"
     }
   ];
 
@@ -97,6 +108,14 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       case "dashboard":
         return (
           <div className="flex-1 text-white">
+            {/* Needs Attention Banner */}
+            {hasUrgentTasks && (
+              <div className="bg-yellow-500 text-black rounded-xl px-6 py-3 mb-6 flex items-center gap-3 shadow">
+                <span className="text-2xl">⚠</span>
+                <span className="font-semibold">Needs Attention:</span>
+                <span>{urgentTasksSummary}</span>
+              </div>
+            )}
             {/* Welcome Section */}
             <div className="p-4 sm:p-6 lg:p-8 pb-4 sm:pb-6">
               <div className="flex items-center gap-2">
@@ -138,7 +157,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
               >
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-700">
+                    <thead className="bg-black-700">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
                           Time
@@ -151,6 +170,9 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
                           Status
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
+                          Actions
                         </th>
                       </tr>
                     </thead>
@@ -171,16 +193,26 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                               {appointment.status}
                             </span>
                           </td>
+                          <td className="px-6 py-4 flex gap-2">
+                            <Button size="icon" variant="ghost" title="Call">
+                              <Phone className="w-5 h-5" />
+                            </Button>
+                            <Button size="icon" variant="ghost" title="Start Televisit">
+                              <Video className="w-5 h-5" />
+                            </Button>
+                            <Button size="icon" variant="ghost" title="Add Note">
+                              <StickyNote className="w-5 h-5" />
+                            </Button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                <div className="px-6 py-4 bg-gray-700">
+                <div className="px-6 py-4 bg-black-700">
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="ml-auto"
                   >
                     View Full Schedule
                   </Button>

@@ -1,54 +1,102 @@
 import React, { useState } from "react";
 import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import PatientProfileModal from "./PatientProfileModal";
 
 interface Patient {
   name: string;
   age: number;
   mrn: string;
   lastVisit: string;
+  vitals?: { BP: string; HR: string; Temp: string };
+  activeMeds?: string[];
+  allergies?: string[];
+  lastLogin?: string;
+  dob?: string; // Added dob to interface
 }
 
 const DoctorPatients: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 13;
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
+
+  // Helper to get mock email, dob, alerts
+  const getPatientProfile = (patient: Patient) => ({
+    avatarUrl: undefined,
+    name: patient.name,
+    dob: patient.dob || "01/02/1983",
+    age: patient.age,
+    email: `${patient.name.toLowerCase().replace(/ /g, "")}@example.com`,
+    alerts: patient.allergies && patient.allergies.length > 0 ? patient.allergies.join(', ') : 'None',
+  });
 
   const patientsData: Patient[] = [
     {
       name: "John Doe",
       age: 42,
       mrn: "00123",
-      lastVisit: "Aug 29, 2025"
+      lastVisit: "Aug 29, 2025",
+      vitals: { BP: "120/80", HR: "72", Temp: "98.6" },
+      activeMeds: ["Lisinopril", "Metformin"],
+      allergies: ["Penicillin"],
+      lastLogin: "2024-06-10 09:15",
+      dob: "01/01/1980" // Added dob
     },
     {
       name: "Alex Rice",
       age: 66,
       mrn: "00124",
-      lastVisit: "Aug 22, 2025"
+      lastVisit: "Aug 22, 2025",
+      vitals: { BP: "130/85", HR: "78", Temp: "98.7" },
+      activeMeds: ["Atorvastatin"],
+      allergies: [],
+      lastLogin: "2024-06-09 17:40",
+      dob: "02/03/1957" // Added dob
     },
     {
       name: "Emily Parker",
       age: 33,
       mrn: "00125",
-      lastVisit: "Jul 27, 2025"
+      lastVisit: "Jul 27, 2025",
+      vitals: { BP: "110/70", HR: "68", Temp: "98.4" },
+      activeMeds: ["Levothyroxine"],
+      allergies: ["Latex", "Aspirin"],
+      lastLogin: "2024-06-08 13:22",
+      dob: "04/05/1990" // Added dob
     },
     {
       name: "Michael Brown",
       age: 54,
       mrn: "00126",
-      lastVisit: "Jul 25, 2025"
+      lastVisit: "Jul 25, 2025",
+      vitals: { BP: "125/82", HR: "75", Temp: "98.9" },
+      activeMeds: ["Metoprolol"],
+      allergies: ["Sulfa drugs"],
+      lastLogin: "2024-06-10 08:05",
+      dob: "06/07/1970" // Added dob
     },
     {
       name: "Marc Nieto",
       age: 28,
       mrn: "00127",
-      lastVisit: "Jul 18, 2025"
+      lastVisit: "Jul 18, 2025",
+      vitals: { BP: "118/76", HR: "70", Temp: "98.5" },
+      activeMeds: [],
+      allergies: [],
+      lastLogin: "2024-06-07 19:10",
+      dob: "08/09/1995" // Added dob
     },
     {
       name: "Luis Brandon",
       age: 79,
       mrn: "00128",
-      lastVisit: "Jul 14, 2025"
+      lastVisit: "Jul 14, 2025",
+      vitals: { BP: "140/90", HR: "80", Temp: "99.1" },
+      activeMeds: ["Amlodipine", "Aspirin"],
+      allergies: ["Peanuts"],
+      lastLogin: "2024-06-10 10:30",
+      dob: "10/11/1944" // Added dob
     }
   ];
 
@@ -95,22 +143,18 @@ const DoctorPatients: React.FC = () => {
     <div className="flex-1 text-white">
       {/* Header Section with Search and Export */}
       <div className="p-4 sm:p-6 lg:p-8 pb-4 sm:pb-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Left side - Title and Subtitle */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
-                My Patients
-              </h1>
-            </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+              My Patients
+            </h1>
             <p className="text-gray-400 text-sm sm:text-base lg:text-lg mt-1 sm:mt-2 leading-relaxed">
               Here's your patient's list.
             </p>
           </div>
-
-          {/* Right side - Search Bar and Export Button */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-            {/* Export CSV Button */}
+          {/* Right side - Export CSV and Search Bar */}
+          <div className="flex gap-3 items-center w-full md:w-auto justify-end">
             <button
               onClick={handleExportCSV}
               disabled={filteredPatients.length === 0}
@@ -120,8 +164,6 @@ const DoctorPatients: React.FC = () => {
               <span className="hidden sm:inline">Export CSV</span>
               <span className="sm:hidden">Export</span>
             </button>
-            
-            {/* Search Bar */}
             <div className="relative w-full sm:w-80">
               <input
                 type="text"
@@ -151,7 +193,7 @@ const DoctorPatients: React.FC = () => {
           {/* Patients Table - Desktop */}
           <div className="hidden sm:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-700">
+              <thead className="bg-black-700">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
                     Name
@@ -170,8 +212,15 @@ const DoctorPatients: React.FC = () => {
               <tbody className="divide-y divide-gray-700">
                 {filteredPatients.map((patient, index) => (
                   <tr key={index} className="hover:bg-gray-750">
-                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
-                      <button className="text-white underline hover:text-gray-300 transition-colors">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm relative">
+                      <button
+                        className="text-white underline hover:text-gray-300 transition-colors"
+                        onClick={() => {
+                          setSelectedPatient(getPatientProfile(patient));
+                          setModalOpen(true);
+                        }}
+                        aria-label={`Open profile for ${patient.name}`}
+                      >
                         {patient.name}
                       </button>
                     </td>
@@ -216,7 +265,7 @@ const DoctorPatients: React.FC = () => {
           )}
 
           {/* Pagination */}
-          <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-700 flex items-center justify-end gap-2 sm:gap-4">
+          <div className="px-3 sm:px-6 py-3 sm:py-4 bg-black-700 flex items-center justify-end gap-2 sm:gap-4">
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
@@ -237,6 +286,15 @@ const DoctorPatients: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Patient Profile Modal */}
+      <PatientProfileModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        patient={selectedPatient || { name: '', dob: '', age: 0, email: '', alerts: '' }}
+        onViewHistory={() => { setModalOpen(false); }}
+        onMessagePatient={() => { setModalOpen(false); }}
+      />
     </div>
   );
 };
