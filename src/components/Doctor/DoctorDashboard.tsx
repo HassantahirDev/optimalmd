@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { 
-  Clock, 
+import {
+  Clock,
   AlertTriangle,
   Calendar as CalendarIcon,
   Home,
@@ -10,13 +10,20 @@ import {
   Phone,
   Video,
   StickyNote,
-  Mail
+  Mail,
+  History,
+  LucideChartBarStacked,
+  HelpCircleIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/Generic/DashboardLayout";
 import ReusableSidebar from "@/components/Generic/ReusableSidebar";
 import DoctorSchedule from "./DoctorSchedule";
 import DoctorPatients from "./DoctorPatients";
+import PatientQueue from "./DoctorPatientQue";
+import { PatientHistory } from "./PatientHistory";
+import LabResultsComponent from "./DoctorLabResult";
+import DashboardFAQ from "./DoctorHelpCenter";
 
 interface DoctorDashboardProps {
   doctorName?: string;
@@ -56,6 +63,25 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       icon: UserCheck,
       bgColor: "bg-gray-600",
     },
+    {
+      id: "patient history",
+      label: "Patient History",
+      icon: History,
+      bgColor: "bg-gray-600",
+    },
+    {
+      id: "release lab results",
+      label: "Release Lab Results",
+      icon: LucideChartBarStacked,
+      bgColor: "bg-gray-600",
+    },
+
+    {
+      id: "help center",
+      label: "Help Center",
+      icon: HelpCircleIcon,
+      bgColor: "bg-gray-600",
+    },
   ];
 
   // Mock urgent tasks and quick stats
@@ -70,20 +96,20 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       title: "Today's Appointments",
       value: todaysAppointmentsCount,
       icon: CalendarIcon,
-      color: "text-red-500"
+      color: "text-red-500",
     },
     {
       title: "Labs to Review",
       value: labsToReviewCount,
       icon: AlertTriangle,
-      color: "text-yellow-500"
+      color: "text-yellow-500",
     },
     {
       title: "Messages Awaiting Reply",
       value: messagesAwaitingReplyCount,
       icon: Mail,
-      color: "text-blue-500"
-    }
+      color: "text-blue-500",
+    },
   ];
 
   const upcomingAppointments = [
@@ -92,15 +118,15 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       patient: "John Doe",
       purpose: "Follow-up",
       status: "Confirmed",
-      statusColor: "text-green-500"
+      statusColor: "text-green-500",
     },
     {
       time: "9:30 AM",
       patient: "Alex R.",
       purpose: "Lab Review",
       status: "Checked-in",
-      statusColor: "text-orange-500"
-    }
+      statusColor: "text-orange-500",
+    },
   ];
 
   const renderContent = () => {
@@ -130,7 +156,9 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
 
             {/* Current Appointment Cards */}
             <div className="mx-4 sm:mx-6 lg:mx-8 mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Current Appointment</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
+                Current Appointment
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {dashboardCards.map((card, index) => (
                   <div
@@ -141,7 +169,9 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                     <div className="flex items-center justify-between mb-4">
                       <card.icon className={`w-8 h-8 ${card.color}`} />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 text-white">{card.title}</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-white">
+                      {card.title}
+                    </h3>
                     <p className="text-gray-400">{card.value}</p>
                   </div>
                 ))}
@@ -150,8 +180,10 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
 
             {/* Upcoming Appointments */}
             <div className="mx-4 sm:mx-6 lg:mx-8 mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Upcoming Appointments</h2>
-              <div 
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
+                Upcoming Appointments
+              </h2>
+              <div
                 className="bg-gray-800 border border-gray-700 rounded-2xl sm:rounded-3xl overflow-hidden"
                 style={{ backgroundColor: "#2a2a2a" }}
               >
@@ -197,10 +229,18 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                             <Button size="icon" variant="ghost" title="Call">
                               <Phone className="w-5 h-5" />
                             </Button>
-                            <Button size="icon" variant="ghost" title="Start Televisit">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Start Televisit"
+                            >
                               <Video className="w-5 h-5" />
                             </Button>
-                            <Button size="icon" variant="ghost" title="Add Note">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Add Note"
+                            >
                               <StickyNote className="w-5 h-5" />
                             </Button>
                           </td>
@@ -210,10 +250,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                   </table>
                 </div>
                 <div className="px-6 py-4 bg-black-700">
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                  >
+                  <Button variant="destructive" size="sm">
                     View Full Schedule
                   </Button>
                 </div>
@@ -222,8 +259,10 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
 
             {/* Lab Results */}
             <div className="mx-4 sm:mx-6 lg:mx-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Lab Results</h2>
-              <div 
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
+                Lab Results
+              </h2>
+              <div
                 className="bg-gray-800 border border-gray-700 rounded-2xl sm:rounded-3xl p-6"
                 style={{ backgroundColor: "#2a2a2a" }}
               >
@@ -246,32 +285,18 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       case "patients":
         return <DoctorPatients />;
       case "queue":
-        return (
-          <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
-            <div className="mx-4 sm:mx-6 lg:mx-8">
-              <div
-                className="bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8"
-                style={{ backgroundColor: "#2a2a2a" }}
-              >
-                <h1 className="text-2xl sm:text-3xl font-bold text-white mb-4 sm:mb-6">Patient Queue</h1>
-                <p className="text-gray-400 text-sm sm:text-base lg:text-lg">
-                  Patient queue content will go here...
-                </p>
-              </div>
-            </div>
-          </div>
-        );
+        return <PatientQueue />;
+      case "patient history":
+        return <PatientHistory />;
+      case "release lab results":
+        return <LabResultsComponent />;
+      case "help center":
+        return <DashboardFAQ />;
+
       default:
         return (
-          <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
-            <div className="mx-4 sm:mx-6 lg:mx-8">
-              <div
-                className="bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8"
-                style={{ backgroundColor: "#2a2a2a" }}
-              >
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h1>
-              </div>
-            </div>
+          <div className="flex-1 text-white p-4">
+            <h1>Dashboard</h1>
           </div>
         );
     }
