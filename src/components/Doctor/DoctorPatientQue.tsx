@@ -9,6 +9,7 @@ import {
   XCircle,
   Play,
 } from "lucide-react";
+import api from "@/service/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,12 @@ interface PatientQueueProps {
 const PatientQueue: React.FC<PatientQueueProps> = ({ patients = [] }) => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [now, setNow] = useState(new Date());
+  const [queueData, setQueueData] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get doctor ID from localStorage
+  const doctorId = localStorage.getItem("userId");
 
   // Auto-refresh clock every 30 seconds
   useEffect(() => {
@@ -45,16 +52,92 @@ const PatientQueue: React.FC<PatientQueueProps> = ({ patients = [] }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Default patients (if none passed in)
-  const defaultPatients: Patient[] = [
-    { name: "John Doe", status: "Waiting Room", time: "9:30 AM" },
-    { name: "Alex Rice", status: "Scheduled", time: "10:00 AM" },
-    { name: "Emily Parker", status: "No-show", time: "11:30 AM" },
-    { name: "Maria Clark", status: "In Visit", time: "12:00 PM" },
-    { name: "James Lee", status: "Completed", time: "1:00 PM" },
-  ];
+  // Load queue data from API
+  useEffect(() => {
+    if (!doctorId) {
+      setError("Doctor ID not found. Please log in again.");
+      setLoading(false);
+      return;
+    }
 
-  const patientList = patients.length > 0 ? patients : defaultPatients;
+    loadQueueData();
+  }, [activeFilter, doctorId]);
+
+  const loadQueueData = async () => {
+    if (!doctorId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      if (activeFilter !== "All") {
+        params.append('status', activeFilter);
+      }
+
+      const response = await api.get(`/appointments/doctor/${doctorId}/queue?${params}`);
+      
+      if (response.data.success) {
+        const queuePatients = response.data.data.map((apt: any) => ({
+          name: apt.patient,
+          status: apt.status,
+          time: apt.time,
+          appointmentType: apt.appointmentType,
+          age: apt.age,
+          lastVisit: apt.lastVisit,
+          purpose: apt.purpose,
+          patientId: apt.patientId,
+          patientEmail: apt.patientEmail,
+          patientPhone: apt.patientPhone,
+        }));
+
+        setQueueData(queuePatients);
+      } else {
+        setError('Failed to load queue data');
+      }
+    } catch (err) {
+      console.error('Error loading queue:', err);
+      setError('Failed to load queue data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use API data if available, otherwise use passed patients, otherwise empty array
+  const patientList = queueData.length > 0 ? queueData : (patients.length > 0 ? patients : []);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading patient queue...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={loadQueueData}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Helpers
   const getStatusColor = (status: PatientStatus) => {
@@ -165,6 +248,13 @@ const PatientQueue: React.FC<PatientQueueProps> = ({ patients = [] }) => {
           {/* Patient Rows */}
           {patientList
             .filter((p) => activeFilter === "All" || p.status === activeFilter)
+            .length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-400">
+                No patients found in the queue for the selected filter.
+              </div>
+            ) : (
+              patientList
+            .filter((p) => activeFilter === "All" || p.status === activeFilter)
             .map((p, idx) => (
               <div
                 key={idx}
@@ -221,7 +311,8 @@ const PatientQueue: React.FC<PatientQueueProps> = ({ patients = [] }) => {
                   </DropdownMenu>
                 </div>
               </div>
-            ))}
+                ))
+            )}
         </div>
 
         {/* Pagination */}

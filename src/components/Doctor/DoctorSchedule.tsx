@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import api from "@/service/api";
 
 interface ScheduleItem {
   time: string;
@@ -15,72 +16,138 @@ interface ScheduleItem {
 const DoctorSchedule: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>("Today");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = 13;
-
-  const scheduleData: ScheduleItem[] = [
-    {
-      time: "9:00 AM",
-      patient: "John Doe",
-      purpose: "Follow-up",
-      status: "Confirmed",
-      appointmentType: "Telemedicine",
-      age: 42,
-      lastVisit: "Aug 29, 2025",
-      outstandingLabs: 1
-    },
-    {
-      time: "9:30 AM",
-      patient: "Alex R.",
-      purpose: "Lab Review",
-      status: "Check-in Pending",
-      appointmentType: "In-person",
-      age: 66,
-      lastVisit: "Aug 22, 2025",
-      outstandingLabs: 0
-    },
-    {
-      time: "10:00 AM",
-      patient: "Emily Parker",
-      purpose: "Weight Mgmt",
-      status: "In Session",
-      appointmentType: "Telemedicine",
-      age: 33,
-      lastVisit: "Jul 27, 2025",
-      outstandingLabs: 2
-    },
-    {
-      time: "11:30 AM",
-      patient: "Mike Blue",
-      purpose: "TRT Follow-up",
-      status: "No-show",
-      appointmentType: "In-person",
-      age: 54,
-      lastVisit: "Jul 25, 2025",
-      outstandingLabs: 1
-    },
-    {
-      time: "12:00 PM",
-      patient: "Bella K",
-      purpose: "Lab Review",
-      status: "No-show",
-      appointmentType: "Telemedicine",
-      age: 28,
-      lastVisit: "Jul 18, 2025",
-      outstandingLabs: 1
-    },
-    {
-      time: "2:30 PM",
-      patient: "Marc Nieto",
-      purpose: "Follow-up",
-      status: "Completed",
-      appointmentType: "In-person",
-      age: 79,
-      lastVisit: "Jul 14, 2025",
-      outstandingLabs: 0
-    }
-  ];
-
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [scheduleData, setScheduleData] = useState<ScheduleItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'All' | 'Telemedicine' | 'In-person' | 'No-show'>('All');
+
+  // Get doctor ID from localStorage
+  const doctorId = localStorage.getItem("userId");
+
+  // Load schedule data from API
+  useEffect(() => {
+    if (!doctorId) {
+      setError("Doctor ID not found. Please log in again.");
+      setLoading(false);
+      return;
+    }
+
+    loadScheduleData();
+  }, [activeFilter, currentPage, filter, doctorId]);
+
+  const loadScheduleData = async () => {
+    if (!doctorId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Calculate date range based on filter
+      const { startDate, endDate } = getDateRange(activeFilter);
+      
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '10'
+      });
+
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (filter !== 'All') {
+        if (filter === 'No-show') {
+          params.append('status', 'NO_SHOW');
+        } else {
+          params.append('appointmentType', filter.toUpperCase().replace('-', '_'));
+        }
+      }
+
+      const response = await api.get(`/appointments/doctor/${doctorId}/schedule?${params}`);
+      
+      if (response.data.success) {
+        const appointments = response.data.data.map((apt: any) => ({
+          time: apt.appointmentTime,
+          patient: `${apt.patient.firstName} ${apt.patient.lastName}`,
+          purpose: apt.service?.name || 'General Consultation',
+          status: mapStatusToDisplay(apt.status),
+          appointmentType: apt.appointmentType === 'IN_PERSON' ? 'In-person' : 'Telemedicine',
+          age: calculateAge(apt.patient.dateOfBirth),
+          lastVisit: apt.patient.dateOfBirth ? 'N/A' : 'N/A', // This would need to be calculated from previous appointments
+          outstandingLabs: 0 // This would need to be calculated from lab results
+        }));
+
+        setScheduleData(appointments);
+        setTotalPages(response.data.pagination?.totalPages || 1);
+      } else {
+        setError('Failed to load schedule data');
+      }
+    } catch (err) {
+      console.error('Error loading schedule:', err);
+      setError('Failed to load schedule data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDateRange = (filter: string) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    switch (filter) {
+      case 'Today':
+        return {
+          startDate: today.toISOString().split('T')[0],
+          endDate: today.toISOString().split('T')[0]
+        };
+      case 'Tomorrow':
+        return {
+          startDate: tomorrow.toISOString().split('T')[0],
+          endDate: tomorrow.toISOString().split('T')[0]
+        };
+      case 'Upcoming':
+        return {
+          startDate: tomorrow.toISOString().split('T')[0],
+          endDate: nextWeek.toISOString().split('T')[0]
+        };
+      case 'Recent':
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        return {
+          startDate: lastWeek.toISOString().split('T')[0],
+          endDate: today.toISOString().split('T')[0]
+        };
+      default:
+        return { startDate: null, endDate: null };
+    }
+  };
+
+  const mapStatusToDisplay = (status: string) => {
+    const statusMap = {
+      'PENDING': 'Check-in Pending',
+      'CONFIRMED': 'Confirmed',
+      'IN_PROGRESS': 'In Session',
+      'COMPLETED': 'Completed',
+      'CANCELLED': 'Cancelled',
+      'NO_SHOW': 'No-show',
+      'RESCHEDULED': 'Rescheduled',
+    };
+    return statusMap[status] || status;
+  };
+
+  const calculateAge = (dateOfBirth: string | null) => {
+    if (!dateOfBirth) return 0;
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
   const [selectedAppointments, setSelectedAppointments] = useState<number[]>([]);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showDateDropdown, setShowDateDropdown] = useState(false);
@@ -153,6 +220,39 @@ const DoctorSchedule: React.FC = () => {
       setCurrentPage(currentPage + 1);
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading schedule...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={loadScheduleData}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 text-white">
@@ -265,7 +365,14 @@ const DoctorSchedule: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {filteredAppointments.map((appointment, index) => (
+                {filteredAppointments.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                      No appointments found for the selected criteria.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredAppointments.map((appointment, index) => (
                   <tr key={index} className="hover:bg-gray-750">
                     <td className="px-2"><input type="checkbox" checked={selectedAppointments.includes(index)} onChange={() => handleSelectAppointment(index)} /></td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.time}</td>
@@ -288,7 +395,8 @@ const DoctorSchedule: React.FC = () => {
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.appointmentType}</td>
                     <td className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold ${getStatusColor(appointment.status)}`}>{appointment.status}</td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>

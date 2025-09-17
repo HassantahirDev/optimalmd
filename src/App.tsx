@@ -26,6 +26,7 @@ import AboutPage from "./pages/AboutUs";
 import BlogPage from "./pages/OurBlogs";
 import BookAppointment from "./pages/BookAppointment";
 import MyAppointments from "./components/Appointment/MyAppointments";
+import MedicalFormPage from "./pages/MedicalForm";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/faqs" element={<FAQsPage />} />
               <Route path="/about-us" element={<AboutPage />} />
               <Route path="/our-blog" element={<BlogPage />} />
+              <Route path="/form" element={<MedicalFormPage />} />
 
               {/* Protected Routes */}
               <Route
@@ -77,6 +79,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredUserType="user">
                     <PatientDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/doctor-dashboard"
+                element={
+                  <ProtectedRoute requiredUserType="doctor">
+                    <DoctorPage />
                   </ProtectedRoute>
                 }
               />

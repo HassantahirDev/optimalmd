@@ -296,6 +296,11 @@ const authSlice = createSlice({
           localStorage.setItem("userType", action.payload.userType);
           localStorage.setItem("userId", action.payload.user.id);
           localStorage.setItem("name", action.payload.user.firstName);
+          // Store email based on user type
+          const userEmail = action.payload.userType === 'doctor' 
+            ? (action.payload.user as DoctorResponseDto).email 
+            : (action.payload.user as UserResponseDto).primaryEmail;
+          localStorage.setItem("email", userEmail);
           localStorage.setItem("profilePicture", (action.payload.user as any).profilePicture || null);
         }
       )

@@ -6,7 +6,7 @@ interface DoctorPageProps {
 }
 
 const DoctorPage: React.FC<DoctorPageProps> = ({
-  doctorName = "Dr. Sam",
+  doctorName = localStorage.getItem("name") || "Dr. Sam",
 }) => {
   return <DoctorDashboard doctorName={doctorName} />;
 };

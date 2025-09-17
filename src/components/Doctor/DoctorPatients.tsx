@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import PatientProfileModal from "./PatientProfileModal";
+import api from "@/service/api";
 
 interface Patient {
   name: string;
@@ -12,99 +13,136 @@ interface Patient {
   allergies?: string[];
   lastLogin?: string;
   dob?: string; // Added dob to interface
+  email?: string;
+  phone?: string;
+  id?: string;
+  medicalForm?: {
+    chiefComplaint?: string;
+    historyOfPresentIllness?: string;
+    pastMedicalHistory?: string;
+    pastSurgicalHistory?: string;
+    allergies?: string;
+    tobaccoUse?: string;
+    alcoholUse?: string;
+    recreationalDrugs?: string;
+    familyHistory?: string;
+    workHistory?: string;
+    medications?: string;
+    bloodPressure?: string;
+    heartRate?: string;
+    temperature?: string;
+    weight?: string;
+    height?: string;
+    bmi?: string;
+  };
 }
 
-const DoctorPatients: React.FC = () => {
+interface DoctorPatientsProps {
+  onPatientSelect?: (patient: any) => void;
+}
+
+const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const totalPages = 13;
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
+  const [patientsData, setPatientsData] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Helper to get mock email, dob, alerts
+  // Get doctor ID from localStorage
+  const doctorId = localStorage.getItem("userId");
+
+  // Load patients data from API
+  useEffect(() => {
+    if (!doctorId) {
+      setError("Doctor ID not found. Please log in again.");
+      setLoading(false);
+      return;
+    }
+
+    loadPatientsData();
+  }, [searchTerm, currentPage, doctorId]);
+
+  const loadPatientsData = async () => {
+    if (!doctorId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '10'
+      });
+
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+
+      const response = await api.get(`/doctors/${doctorId}/patients?${params}`);
+      
+      if (response.data.success) {
+        const patients = await Promise.all(
+          response.data.data.patients.map(async (patient: any) => {
+            // Fetch medical form data for each patient
+            let medicalForm = null;
+            try {
+              const medicalFormResponse = await api.get(`/medical-form/patient/${patient.id}`);
+              if (medicalFormResponse.data.success) {
+                medicalForm = medicalFormResponse.data.data;
+              }
+            } catch (error) {
+              // Patient may not have completed medical form yet
+              console.log(`No medical form found for patient ${patient.id}`);
+            }
+
+            return {
+              name: patient.name,
+              age: patient.age,
+              mrn: patient.mrn,
+              lastVisit: patient.lastVisit,
+              vitals: { BP: "N/A", HR: "N/A", Temp: "N/A" }, // These would need to be fetched separately
+              activeMeds: [], // These would need to be fetched separately
+              allergies: [], // These would need to be fetched separately
+              lastLogin: "N/A", // This would need to be tracked separately
+              dob: patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : "N/A",
+              email: patient.email,
+              phone: patient.phone,
+              id: patient.id,
+              medicalForm: medicalForm
+            };
+          })
+        );
+
+        setPatientsData(patients);
+        setTotalPages(response.data.data.totalPages || 1);
+      } else {
+        setError('Failed to load patients data');
+      }
+    } catch (err) {
+      console.error('Error loading patients:', err);
+      setError('Failed to load patients data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper to get patient profile for modal
   const getPatientProfile = (patient: Patient) => ({
+    id: patient.id,
     avatarUrl: undefined,
     name: patient.name,
-    dob: patient.dob || "01/02/1983",
+    dob: patient.dob || "N/A",
     age: patient.age,
-    email: `${patient.name.toLowerCase().replace(/ /g, "")}@example.com`,
+    email: patient.email || `${patient.name.toLowerCase().replace(/ /g, "")}@example.com`,
     alerts: patient.allergies && patient.allergies.length > 0 ? patient.allergies.join(', ') : 'None',
+    medicalForm: patient.medicalForm || undefined,
   });
 
-  const patientsData: Patient[] = [
-    {
-      name: "John Doe",
-      age: 42,
-      mrn: "00123",
-      lastVisit: "Aug 29, 2025",
-      vitals: { BP: "120/80", HR: "72", Temp: "98.6" },
-      activeMeds: ["Lisinopril", "Metformin"],
-      allergies: ["Penicillin"],
-      lastLogin: "2024-06-10 09:15",
-      dob: "01/01/1980" // Added dob
-    },
-    {
-      name: "Alex Rice",
-      age: 66,
-      mrn: "00124",
-      lastVisit: "Aug 22, 2025",
-      vitals: { BP: "130/85", HR: "78", Temp: "98.7" },
-      activeMeds: ["Atorvastatin"],
-      allergies: [],
-      lastLogin: "2024-06-09 17:40",
-      dob: "02/03/1957" // Added dob
-    },
-    {
-      name: "Emily Parker",
-      age: 33,
-      mrn: "00125",
-      lastVisit: "Jul 27, 2025",
-      vitals: { BP: "110/70", HR: "68", Temp: "98.4" },
-      activeMeds: ["Levothyroxine"],
-      allergies: ["Latex", "Aspirin"],
-      lastLogin: "2024-06-08 13:22",
-      dob: "04/05/1990" // Added dob
-    },
-    {
-      name: "Michael Brown",
-      age: 54,
-      mrn: "00126",
-      lastVisit: "Jul 25, 2025",
-      vitals: { BP: "125/82", HR: "75", Temp: "98.9" },
-      activeMeds: ["Metoprolol"],
-      allergies: ["Sulfa drugs"],
-      lastLogin: "2024-06-10 08:05",
-      dob: "06/07/1970" // Added dob
-    },
-    {
-      name: "Marc Nieto",
-      age: 28,
-      mrn: "00127",
-      lastVisit: "Jul 18, 2025",
-      vitals: { BP: "118/76", HR: "70", Temp: "98.5" },
-      activeMeds: [],
-      allergies: [],
-      lastLogin: "2024-06-07 19:10",
-      dob: "08/09/1995" // Added dob
-    },
-    {
-      name: "Luis Brandon",
-      age: 79,
-      mrn: "00128",
-      lastVisit: "Jul 14, 2025",
-      vitals: { BP: "140/90", HR: "80", Temp: "99.1" },
-      activeMeds: ["Amlodipine", "Aspirin"],
-      allergies: ["Peanuts"],
-      lastLogin: "2024-06-10 10:30",
-      dob: "10/11/1944" // Added dob
-    }
-  ];
-
-  // Filter patients based on search term
-  const filteredPatients = patientsData.filter(patient =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.mrn.includes(searchTerm)
-  );
+  // Use patientsData directly since search is handled by the API
+  const filteredPatients = patientsData;
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
@@ -121,7 +159,7 @@ const DoctorPatients: React.FC = () => {
   const handleExportCSV = () => {
     // Create CSV content
     const csvHeaders = "Name,Age,MRN,Last Visit\n";
-    const csvContent = filteredPatients
+    const csvContent = patientsData
       .map(patient => `${patient.name},${patient.age},${patient.mrn},${patient.lastVisit}`)
       .join("\n");
     
@@ -138,6 +176,39 @@ const DoctorPatients: React.FC = () => {
     link.click();
     document.body.removeChild(link);
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Loading patients...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex-1 text-white p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={loadPatientsData}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 text-white">
@@ -210,14 +281,25 @@ const DoctorPatients: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {filteredPatients.map((patient, index) => (
+                {filteredPatients.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                      No patients found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPatients.map((patient, index) => (
                   <tr key={index} className="hover:bg-gray-750">
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm relative">
                       <button
                         className="text-white underline hover:text-gray-300 transition-colors"
                         onClick={() => {
-                          setSelectedPatient(getPatientProfile(patient));
-                          setModalOpen(true);
+                          if (onPatientSelect) {
+                            onPatientSelect(getPatientProfile(patient));
+                          } else {
+                            setSelectedPatient(getPatientProfile(patient));
+                            setModalOpen(true);
+                          }
                         }}
                         aria-label={`Open profile for ${patient.name}`}
                       >
@@ -234,7 +316,8 @@ const DoctorPatients: React.FC = () => {
                       {patient.lastVisit}
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -244,7 +327,17 @@ const DoctorPatients: React.FC = () => {
             {filteredPatients.map((patient, index) => (
               <div key={index} className="px-4 py-4 border-b border-gray-700 last:border-b-0">
                 <div className="flex items-center justify-between mb-2">
-                  <button className="text-white underline hover:text-gray-300 transition-colors text-sm font-medium">
+                  <button 
+                    className="text-white underline hover:text-gray-300 transition-colors text-sm font-medium"
+                    onClick={() => {
+                      if (onPatientSelect) {
+                        onPatientSelect(getPatientProfile(patient));
+                      } else {
+                        setSelectedPatient(getPatientProfile(patient));
+                        setModalOpen(true);
+                      }
+                    }}
+                  >
                     {patient.name}
                   </button>
                   <span className="text-xs text-gray-400">MRN: {patient.mrn}</span>
@@ -292,7 +385,6 @@ const DoctorPatients: React.FC = () => {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         patient={selectedPatient || { name: '', dob: '', age: 0, email: '', alerts: '' }}
-        onViewHistory={() => { setModalOpen(false); }}
         onMessagePatient={() => { setModalOpen(false); }}
       />
     </div>

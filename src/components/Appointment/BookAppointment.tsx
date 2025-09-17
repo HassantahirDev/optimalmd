@@ -20,6 +20,8 @@ import {
 } from "@/redux/slice/appointmentSlice";
 import { toast } from "react-toastify";
 import PaymentModal from "../Modals/PaymentModal";
+import MedicalFormRequiredModal from "../Modals/MedicalFormRequiredModal";
+import api from "@/service/api";
 
 interface BookAppointmentProps {
   patientName?: string;
@@ -55,6 +57,10 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   const [tempAppointmentData, setTempAppointmentData] = useState<any>(null);
   const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  
+  // Medical form state
+  const [showMedicalFormModal, setShowMedicalFormModal] = useState(false);
+  const [hasCompletedMedicalForm, setHasCompletedMedicalForm] = useState<boolean | null>(null);
 
   // Format date for display (MM-DD-YYYY)
   const formatDateForDisplay = (dateString: string): string => {
@@ -157,6 +163,26 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     }
   }, [bookingError, dispatch]);
 
+  // Check medical form completion on component mount
+  useEffect(() => {
+    const checkMedicalFormCompletion = async () => {
+      if (!userId) return;
+      
+      try {
+        const response = await api.get('/medical-form/completion-status');
+        if (response.data.success) {
+          setHasCompletedMedicalForm(response.data.data.hasCompletedForm);
+        }
+      } catch (error) {
+        console.error('Error checking medical form completion:', error);
+        // If error, assume form is not completed
+        setHasCompletedMedicalForm(false);
+      }
+    };
+
+    checkMedicalFormCompletion();
+  }, [userId]);
+
   const handleDoctorChange = (doctorId: string) => {
     const doctor = doctors?.find(d => d.id === doctorId);
     dispatch(setSelectedDoctor(doctor || null));
@@ -235,6 +261,12 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       return;
     }
 
+    // Check if medical form is completed
+    if (hasCompletedMedicalForm === false) {
+      setShowMedicalFormModal(true);
+      return;
+    }
+
     if (!selectedDoctor || !selectedService || !selectedPrimaryService || !selectedSlot || !selectedDate) {
       toast.error("Please fill in all required fields");
       return;
@@ -258,7 +290,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     
     try {
       // Create temporary appointment first
-      const response = await fetch('https://optimalemd-fdfkghdzemf0aady.canadacentral-01.azurewebsites.net/api/appointments/temporary', {
+      const response = await fetch('http://localhost:3000/api/appointments/temporary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -618,6 +650,13 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           onPaymentSuccess={handlePaymentSuccess}
         />
       )}
+
+      {/* Medical Form Required Modal */}
+      <MedicalFormRequiredModal
+        isOpen={showMedicalFormModal}
+        onClose={() => setShowMedicalFormModal(false)}
+        patientName={patientName}
+      />
     </div>
   );
 };

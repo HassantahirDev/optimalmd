@@ -73,7 +73,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     try {
       // Create payment intent
       const createPaymentIntentResponse = await fetch(
-        "https://optimalemd-fdfkghdzemf0aady.canadacentral-01.azurewebsites.net/api/stripe/create-payment-intent",
+        "http://localhost:3000/api/stripe/create-payment-intent",
         {
           method: "POST",
           headers: {
@@ -119,7 +119,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       if (paymentIntent.status === "succeeded") {
         // Confirm payment on backend
         const confirmPaymentResponse = await fetch(
-          "https://optimalemd-fdfkghdzemf0aady.canadacentral-01.azurewebsites.net/api/stripe/confirm-payment",
+          "http://localhost:3000/api/stripe/confirm-payment",
           {
             method: "POST",
             headers: {

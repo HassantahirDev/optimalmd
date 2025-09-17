@@ -2,6 +2,7 @@ import BookAppointment from "@/components/Appointment/BookAppointment";
 import MyAppointments from "@/components/Appointment/MyAppointments";
 import DashboardLayout from "@/components/Generic/DashboardLayout";
 import ReusableSidebar from "@/components/Generic/ReusableSidebar";
+import Messages from "@/components/Patient/Messages";
 import { Calendar, Clock, FileText, Mail } from "lucide-react";
 import { useState } from "react";
 
@@ -62,14 +63,7 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
           </div>
         );
       case "messages":
-        return (
-          <div className="flex-1 text-white p-8">
-            <h1 className="text-3xl font-bold">Messages</h1>
-            <p className="text-gray-400 mt-4">
-              Messages content will go here...
-            </p>
-          </div>
-        );
+        return <Messages patientId={localStorage.getItem("userId") || ""} />;
       default:
         return <BookAppointment patientName={patientName} />;
     }

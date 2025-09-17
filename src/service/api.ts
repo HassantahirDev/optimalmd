@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://optimalemd-fdfkghdzemf0aady.canadacentral-01.azurewebsites.net/api",
+  baseURL: "http://localhost:3000/api",
   headers: { "Content-Type": "application/json" },
 });
 

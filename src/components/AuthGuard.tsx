@@ -39,9 +39,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
         if (userType === 'user') {
           navigate('/dashboard');
         } else if (userType === 'doctor') {
-          // If you have a doctor dashboard, redirect there
-          // For now, redirect to dashboard
-          navigate('/dashboard');
+          navigate('/doctor-dashboard');
         }
       }
     }

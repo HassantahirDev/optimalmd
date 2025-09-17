@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, User } from "lucide-react";
+import { Eye, EyeOff, User, Stethoscope } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { loginUser } from "@/redux/slice/authSlice";
@@ -10,6 +10,7 @@ export default function LoginComponent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [userType, setUserType] = useState<'user' | 'doctor'>('user');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -32,7 +33,13 @@ export default function LoginComponent() {
       if (wasJustLoggedIn) {
         toast.success("Login successful! Redirecting to dashboard...");
       }
-      navigate("/dashboard");
+      // Redirect based on user type
+      const currentUserType = localStorage.getItem("userType");
+      if (currentUserType === 'doctor') {
+        navigate("/doctor-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     }
   }, [user, token, navigate]);
 
@@ -45,7 +52,7 @@ export default function LoginComponent() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginUser({ userType: 'user', email, password }));
+    dispatch(loginUser({ userType, email, password }));
   };
 
   return (
@@ -54,18 +61,40 @@ export default function LoginComponent() {
       <div className="flex-1 bg-[#0F0F0F] flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8 sm:mb-10">
-            Patient Login
+            {userType === 'doctor' ? 'Doctor Login' : 'Patient Login'}
           </h1>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            {/* User Type Display */}
+            {/* User Type Toggle */}
             <div>
               <label className="block text-base sm:text-lg font-medium text-white mb-3">
-                Welcome to Patient Portal
+                Select Login Type
               </label>
-              <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 border-[#ff4757] bg-[#ff4757] text-white">
-                <User size={20} />
-                Patient Portal
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setUserType('user')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 transition-all ${
+                    userType === 'user'
+                      ? 'border-[#ff4757] bg-[#ff4757] text-white'
+                      : 'border-gray-500 bg-transparent text-gray-400 hover:border-gray-400'
+                  }`}
+                >
+                  <User size={20} />
+                  Patient Portal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserType('doctor')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 transition-all ${
+                    userType === 'doctor'
+                      ? 'border-[#ff4757] bg-[#ff4757] text-white'
+                      : 'border-gray-500 bg-transparent text-gray-400 hover:border-gray-400'
+                  }`}
+                >
+                  <Stethoscope size={20} />
+                  Doctor Portal
+                </button>
               </div>
             </div>
 
@@ -170,10 +199,13 @@ export default function LoginComponent() {
           </div>
 
           <h2 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">
-            Patient Portal
+            {userType === 'doctor' ? 'Doctor Portal' : 'Patient Portal'}
           </h2>
           <p className="text-base sm:text-lg leading-relaxed mb-6">
-            Welcome to the OptimaleMD Patient Portal — your secure, personalized space to manage your care. Log in to schedule appointments, message your care team, view lab results, and access your treatment plans — all in one place.
+            {userType === 'doctor' 
+              ? "Welcome to the OptimaleMD Doctor Portal — your comprehensive platform to manage patients, view schedules, review lab results, and provide exceptional care. Access your dashboard to stay connected with your practice."
+              : "Welcome to the OptimaleMD Patient Portal — your secure, personalized space to manage your care. Log in to schedule appointments, message your care team, view lab results, and access your treatment plans — all in one place."
+            }
           </p>
 
           {/* Register */}

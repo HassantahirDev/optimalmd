@@ -15,21 +15,35 @@ interface PatientProfileModalProps {
     activeMeds?: string[];
     allergies?: string[];
     lastLogin?: string;
+    // Medical form fields
+    medicalForm?: {
+      chiefComplaint?: string;
+      historyOfPresentIllness?: string;
+      pastMedicalHistory?: string;
+      pastSurgicalHistory?: string;
+      allergies?: string;
+      tobaccoUse?: string;
+      alcoholUse?: string;
+      recreationalDrugs?: string;
+      familyHistory?: string;
+      workHistory?: string;
+      medications?: string;
+      bloodPressure?: string;
+      heartRate?: string;
+      temperature?: string;
+      weight?: string;
+      height?: string;
+      bmi?: string;
+    };
   };
-  onViewHistory?: () => void;
   onMessagePatient?: () => void;
-  onOrderLab?: () => void;
-  onAddNote?: () => void;
 }
 
 const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
   open,
   onClose,
   patient,
-  onViewHistory,
   onMessagePatient,
-  onOrderLab,
-  onAddNote,
 }) => {
   if (!open) return null;
   return (
@@ -45,7 +59,8 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
         </button>
         {/* Title */}
         <h2 className="text-2xl font-bold text-white mb-6">Patient Profile Card</h2>
-        {/* Info Grid */}
+        
+        {/* Basic Info Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           {/* Name */}
           <div className="bg-black-700 rounded-lg p-4 flex items-center gap-3">
@@ -82,87 +97,130 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {/* Email */}
-          <div className="bg-black-700 rounded-lg p-4 flex items-center gap-3">
-            <div className="bg-red-500 rounded-full p-2 text-white">
-              <Mail size={16} />
+
+        {/* Medical Form Data */}
+        {patient.medicalForm && (
+          <div className="space-y-4 mb-6">
+            {/* Chief Complaint */}
+            <div className="bg-black-700 rounded-lg p-4">
+              <div className="text-xs text-gray-400 mb-2">Chief Complaint</div>
+              <div className="text-white text-sm">{patient.medicalForm.chiefComplaint || 'Not provided'}</div>
             </div>
-            <div>
-              <div className="text-xs text-gray-400">Email</div>
-              <div className="font-bold text-white text-base">{patient.email}</div>
+
+            {/* Medical History Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Past Medical History */}
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Past Medical History</div>
+                <div className="text-white text-sm">{patient.medicalForm.pastMedicalHistory || 'Not provided'}</div>
+              </div>
+              
+              {/* Past Surgical History */}
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Past Surgical History</div>
+                <div className="text-white text-sm">{patient.medicalForm.pastSurgicalHistory || 'Not provided'}</div>
+              </div>
             </div>
+
+            {/* Allergies and Medications */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Allergies */}
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Allergies</div>
+                <div className="text-white text-sm">{patient.medicalForm.allergies || 'None reported'}</div>
+              </div>
+              
+              {/* Current Medications */}
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Current Medications</div>
+                <div className="text-white text-sm">{patient.medicalForm.medications || 'None reported'}</div>
+              </div>
+            </div>
+
+            {/* Social History */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Tobacco Use</div>
+                <div className="text-white text-sm">{patient.medicalForm.tobaccoUse || 'Not specified'}</div>
+              </div>
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Alcohol Use</div>
+                <div className="text-white text-sm">{patient.medicalForm.alcoholUse || 'Not specified'}</div>
+              </div>
+              <div className="bg-black-700 rounded-lg p-4">
+                <div className="text-xs text-gray-400 mb-2">Recreational Drugs</div>
+                <div className="text-white text-sm">{patient.medicalForm.recreationalDrugs || 'Not specified'}</div>
+              </div>
+            </div>
+
+            {/* Family History */}
+            <div className="bg-black-700 rounded-lg p-4">
+              <div className="text-xs text-gray-400 mb-2">Family History</div>
+              <div className="text-white text-sm">{patient.medicalForm.familyHistory || 'Not provided'}</div>
+            </div>
+
+            {/* Vitals */}
+            {(patient.medicalForm.bloodPressure || patient.medicalForm.heartRate || patient.medicalForm.temperature || patient.medicalForm.weight || patient.medicalForm.height || patient.medicalForm.bmi) && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {patient.medicalForm.bloodPressure && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">Blood Pressure</div>
+                    <div className="text-white text-sm">{patient.medicalForm.bloodPressure}</div>
+                  </div>
+                )}
+                {patient.medicalForm.heartRate && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">Heart Rate</div>
+                    <div className="text-white text-sm">{patient.medicalForm.heartRate}</div>
+                  </div>
+                )}
+                {patient.medicalForm.temperature && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">Temperature</div>
+                    <div className="text-white text-sm">{patient.medicalForm.temperature}</div>
+                  </div>
+                )}
+                {patient.medicalForm.weight && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">Weight</div>
+                    <div className="text-white text-sm">{patient.medicalForm.weight}</div>
+                  </div>
+                )}
+                {patient.medicalForm.height && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">Height</div>
+                    <div className="text-white text-sm">{patient.medicalForm.height}</div>
+                  </div>
+                )}
+                {patient.medicalForm.bmi && (
+                  <div className="bg-black-700 rounded-lg p-4">
+                    <div className="text-xs text-gray-400 mb-2">BMI</div>
+                    <div className="text-white text-sm">{patient.medicalForm.bmi}</div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {/* Alerts */}
-          <div className="bg-black-700 rounded-lg p-4 flex items-center gap-3">
-            <div className="bg-red-500 rounded-full p-2 text-white">
+        )}
+
+        {/* Fallback for patients without medical form */}
+        {!patient.medicalForm && (
+          <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 text-yellow-400">
               <AlertCircle size={16} />
+              <span className="text-sm font-medium">Medical form not completed</span>
             </div>
-            <div>
-              <div className="text-xs text-gray-400">Alerts</div>
-              <div className="font-bold text-white text-base">{patient.alerts || 'None'}</div>
-            </div>
+            <p className="text-yellow-300 text-sm mt-1">Patient has not completed their medical consultation form yet.</p>
           </div>
-        </div>
-        {/* Expanded Info Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {/* Vitals */}
-          <div className="bg-black-700 rounded-lg p-4">
-            <div className="text-xs text-gray-400 mb-1">Vitals</div>
-            <div className="text-white text-sm">
-              BP: {patient.vitals?.BP || '--'}<br />
-              HR: {patient.vitals?.HR || '--'}<br />
-              Temp: {patient.vitals?.Temp || '--'}
-            </div>
-          </div>
-          {/* Active Meds */}
-          <div className="bg-black-700 rounded-lg p-4">
-            <div className="text-xs text-gray-400 mb-1">Active Meds</div>
-            <div className="text-white text-sm">
-              {patient.activeMeds && patient.activeMeds.length > 0 ? patient.activeMeds.join(', ') : '--'}
-            </div>
-          </div>
-          {/* Allergies */}
-          <div className="bg-black-700 rounded-lg p-4">
-            <div className="text-xs text-gray-400 mb-1">Allergies</div>
-            <div className="text-white text-sm">
-              {patient.allergies && patient.allergies.length > 0 ? patient.allergies.join(', ') : 'None'}
-            </div>
-          </div>
-          {/* Last Login */}
-          <div className="bg-black-700 rounded-lg p-4">
-            <div className="text-xs text-gray-400 mb-1">Last Login</div>
-            <div className="text-white text-sm">
-              {patient.lastLogin || '--'}
-            </div>
-          </div>
-        </div>
+        )}
         <hr className="border-gray-700 mb-6" />
         {/* Action Buttons */}
-        <div className="flex flex-wrap justify-end gap-4">
-          <button
-            className="px-6 py-2 rounded-full bg-gray-700 text-white font-medium hover:bg-gray-600 transition-colors"
-            onClick={onViewHistory}
-          >
-            View History
-          </button>
+        <div className="flex justify-end">
           <button
             className="px-6 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
             onClick={onMessagePatient}
           >
             Message Patient
-          </button>
-          <button
-            className="px-6 py-2 rounded-full bg-yellow-500 text-black font-medium hover:bg-yellow-600 transition-colors"
-            onClick={onOrderLab}
-          >
-            Order Lab
-          </button>
-          <button
-            className="px-6 py-2 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
-            onClick={onAddNote}
-          >
-            Add Note
           </button>
         </div>
       </div>
