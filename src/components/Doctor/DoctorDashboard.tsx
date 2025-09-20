@@ -44,6 +44,47 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
   // Get doctor ID from localStorage
   const doctorId = localStorage.getItem("userId");
 
+  // Helper function to format date in local timezone (YYYY-MM-DD)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper function to format date for display (US standard: MMM DD, YYYY)
+  const formatDateForDisplay = (dateInput: any): string => {
+    try {
+      let date: Date;
+      
+      // Handle different date input formats
+      if (dateInput instanceof Date) {
+        date = dateInput;
+      } else if (typeof dateInput === 'string') {
+        // If it's already a date string, parse it
+        date = new Date(dateInput);
+      } else {
+        return 'Invalid Date';
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      // Format as US standard: MMM DD, YYYY (e.g., "Oct 01, 2025")
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, 'Input:', dateInput);
+      return 'Invalid Date';
+    }
+  };
+
   // Load dashboard statistics
   useEffect(() => {
     if (!doctorId) {
@@ -91,8 +132,8 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       nextWeek.setDate(nextWeek.getDate() + 7);
 
       const params = new URLSearchParams({
-        startDate: today.toISOString().split('T')[0],
-        endDate: nextWeek.toISOString().split('T')[0],
+        startDate: formatDateLocal(today),
+        endDate: formatDateLocal(nextWeek),
         status: 'CONFIRMED',
         limit: '5' // Show only 5 upcoming appointments
       });
@@ -101,6 +142,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       
       if (response.data.success) {
         const appointments = response.data.data.map((apt: any) => ({
+          date: formatDateForDisplay(apt.appointmentDate),
           time: apt.appointmentTime,
           patient: `${apt.patient.firstName} ${apt.patient.lastName}`,
           purpose: apt.service?.name || 'General Consultation',
@@ -141,32 +183,33 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       bgColor: "bg-red-500",
     },
     {
-      id: "working-hours",
-      label: "Working Hours",
-      icon: Settings,
+      id: "slots",
+      label: "My Schedule",
+      icon: Calendar,
       bgColor: "bg-gray-600",
     },
-    {
-      id: "google-calendar",
-      label: "Google Calendar",
-      icon: Link,
-      bgColor: "bg-blue-600",
-    },
-    {
-      id: "calendar-import",
-      label: "Calendar Import",
-      icon: Calendar,
-      bgColor: "bg-purple-600",
-    },
-    {
-      id: "messages",
-      label: "Messages",
-      icon: MessageCircle,
-      bgColor: "bg-green-600",
-    },
+    // {
+    //   id: "working-hours",
+    //   label: "Working Hours",
+    //   icon: Settings,
+    //   bgColor: "bg-gray-600",
+    // },
+    // {
+    //   id: "google-calendar",
+    //   label: "Google Calendar",
+    //   icon: Link,
+    //   bgColor: "bg-blue-600",
+    // },
+    // {
+    //   id: "calendar-import",
+    //   label: "Calendar Import",
+    //   icon: Calendar,
+    //   bgColor: "bg-purple-600",
+    // },
+    
     {
       id: "schedule",
-      label: "My Schedule",
+      label: "My Appointments",
       icon: Calendar,
       bgColor: "bg-gray-600",
     },
@@ -177,11 +220,12 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       bgColor: "bg-gray-600",
     },
     {
-      id: "slots",
-      label: "Doctor Slots",
-      icon: Calendar,
-      bgColor: "bg-gray-600",
+      id: "messages",
+      label: "Messages",
+      icon: MessageCircle,
+      bgColor: "bg-green-600",
     },
+   
   ];
 
   // Use API data or fallback to defaults
@@ -309,6 +353,9 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                     <thead className="bg-black-700">
                       <tr>
                         <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
+                          Date
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
                           Time
                         </th>
                         <th className="px-6 py-4 text-left text-sm font-medium text-gray-300">
@@ -328,13 +375,16 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
                     <tbody className="divide-y divide-gray-700">
                       {upcomingAppointments.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
+                          <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
                             No upcoming confirmed appointments for the next 7 days.
                           </td>
                         </tr>
                       ) : (
                         upcomingAppointments.map((appointment, index) => (
                           <tr key={index} className="hover:bg-gray-750">
+                            <td className="px-6 py-4 text-sm text-white">
+                              {appointment.date}
+                            </td>
                             <td className="px-6 py-4 text-sm text-white">
                               {appointment.time}
                             </td>

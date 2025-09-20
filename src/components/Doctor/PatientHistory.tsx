@@ -236,7 +236,20 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                     {appointments.map((appointment, i) => (
                       <div key={i} className="grid grid-cols-3 gap-6 py-5 border-b border-gray-800 last:border-0">
                         <div className="text-white text-base">
-                          {new Date(appointment.appointmentDate).toLocaleDateString()}
+                          {(() => {
+                            try {
+                              const date = new Date(appointment.appointmentDate);
+                              if (isNaN(date.getTime())) return 'Invalid Date';
+                              return date.toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: '2-digit',
+                                year: 'numeric',
+                                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                              });
+                            } catch (error) {
+                              return 'Invalid Date';
+                            }
+                          })()}
                           {appointment.appointmentTime && (
                             <span className="text-gray-400 text-sm ml-2">
                               {appointment.appointmentTime}
@@ -265,7 +278,20 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                         <div>
                           <p className="text-gray-400 text-xs mb-1">Date</p>
                           <p className="text-white font-semibold text-lg">
-                            {new Date(appointment.appointmentDate).toLocaleDateString()}
+                            {(() => {
+                              try {
+                                const date = new Date(appointment.appointmentDate);
+                                if (isNaN(date.getTime())) return 'Invalid Date';
+                                return date.toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: '2-digit',
+                                  year: 'numeric',
+                                  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                                });
+                              } catch (error) {
+                                return 'Invalid Date';
+                              }
+                            })()}
                             {appointment.appointmentTime && (
                               <span className="text-gray-400 text-sm ml-2">
                                 {appointment.appointmentTime}
@@ -948,7 +974,20 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Consent Date</h4>
                 <p className="text-white text-base">
-                  {editedFormData?.consentDate ? new Date(editedFormData.consentDate).toLocaleDateString() : 'Not provided'}
+                  {editedFormData?.consentDate ? (() => {
+                    try {
+                      const date = new Date(editedFormData.consentDate);
+                      if (isNaN(date.getTime())) return 'Invalid Date';
+                      return date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric',
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                      });
+                    } catch (error) {
+                      return 'Invalid Date';
+                    }
+                  })() : 'Not provided'}
                 </p>
               </div>
             </div>

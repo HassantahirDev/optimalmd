@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "@/service/api";
 
 interface ScheduleItem {
+  date: string;
   time: string;
   patient: string;
   purpose: string;
@@ -24,6 +25,47 @@ const DoctorSchedule: React.FC = () => {
 
   // Get doctor ID from localStorage
   const doctorId = localStorage.getItem("userId");
+
+  // Helper function to format date in local timezone (YYYY-MM-DD)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper function to format date for display (US standard: MMM DD, YYYY)
+  const formatDateForDisplay = (dateInput: any): string => {
+    try {
+      let date: Date;
+      
+      // Handle different date input formats
+      if (dateInput instanceof Date) {
+        date = dateInput;
+      } else if (typeof dateInput === 'string') {
+        // If it's already a date string, parse it
+        date = new Date(dateInput);
+      } else {
+        return 'Invalid Date';
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      
+      // Format as US standard: MMM DD, YYYY (e.g., "Oct 01, 2025")
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error, 'Input:', dateInput);
+      return 'Invalid Date';
+    }
+  };
 
   // Load schedule data from API
   useEffect(() => {
@@ -65,6 +107,7 @@ const DoctorSchedule: React.FC = () => {
       
       if (response.data.success) {
         const appointments = response.data.data.map((apt: any) => ({
+          date: formatDateForDisplay(apt.appointmentDate),
           time: apt.appointmentTime,
           patient: `${apt.patient.firstName} ${apt.patient.lastName}`,
           purpose: apt.service?.name || 'General Consultation',
@@ -98,25 +141,25 @@ const DoctorSchedule: React.FC = () => {
     switch (filter) {
       case 'Today':
         return {
-          startDate: today.toISOString().split('T')[0],
-          endDate: today.toISOString().split('T')[0]
+          startDate: formatDateLocal(today),
+          endDate: formatDateLocal(today)
         };
       case 'Tomorrow':
         return {
-          startDate: tomorrow.toISOString().split('T')[0],
-          endDate: tomorrow.toISOString().split('T')[0]
+          startDate: formatDateLocal(tomorrow),
+          endDate: formatDateLocal(tomorrow)
         };
       case 'Upcoming':
         return {
-          startDate: tomorrow.toISOString().split('T')[0],
-          endDate: nextWeek.toISOString().split('T')[0]
+          startDate: formatDateLocal(tomorrow),
+          endDate: formatDateLocal(nextWeek)
         };
       case 'Recent':
         const lastWeek = new Date(today);
         lastWeek.setDate(lastWeek.getDate() - 7);
         return {
-          startDate: lastWeek.toISOString().split('T')[0],
-          endDate: today.toISOString().split('T')[0]
+          startDate: formatDateLocal(lastWeek),
+          endDate: formatDateLocal(today)
         };
       default:
         return { startDate: null, endDate: null };
@@ -357,6 +400,7 @@ const DoctorSchedule: React.FC = () => {
               <thead className="bg-black-700">
                 <tr>
                   <th className="px-2"><input type="checkbox" checked={selectedAppointments.length === filteredAppointments.length && filteredAppointments.length > 0} onChange={handleSelectAll} /></th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Date</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Time</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Patient</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300 hidden sm:table-cell">Appointment Purpose</th>
@@ -367,7 +411,7 @@ const DoctorSchedule: React.FC = () => {
               <tbody className="divide-y divide-gray-700">
                 {filteredAppointments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                       No appointments found for the selected criteria.
                     </td>
                   </tr>
@@ -375,6 +419,7 @@ const DoctorSchedule: React.FC = () => {
                   filteredAppointments.map((appointment, index) => (
                   <tr key={index} className="hover:bg-gray-750">
                     <td className="px-2"><input type="checkbox" checked={selectedAppointments.includes(index)} onChange={() => handleSelectAppointment(index)} /></td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.date}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.time}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm relative group">
                       <button className="text-white underline hover:text-gray-300 transition-colors">

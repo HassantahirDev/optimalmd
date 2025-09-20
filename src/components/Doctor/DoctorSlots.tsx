@@ -42,13 +42,21 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
   // Get doctor ID from props or localStorage
   const doctorId = propDoctorId || localStorage.getItem("userId") || localStorage.getItem("doctorId");
 
+  // Helper function to format date in local timezone (YYYY-MM-DD)
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Generate days (today first, then future, then past)
   const generateDays = () => {
     const days = [];
     const today = new Date();
     
     // Generate today first
-    const todayString = today.toISOString().split('T')[0];
+    const todayString = formatDateLocal(today);
     const todayDayName = today.toLocaleDateString('en-US', { weekday: 'short' });
     const todayFullDayName = today.toLocaleDateString('en-US', { weekday: 'long' });
     
@@ -66,7 +74,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      const dateString = date.toISOString().split('T')[0];
+      const dateString = formatDateLocal(date);
       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
       const fullDayName = date.toLocaleDateString('en-US', { weekday: 'long' });
       
@@ -84,7 +92,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
-      const dateString = date.toISOString().split('T')[0];
+      const dateString = formatDateLocal(date);
       const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
       const fullDayName = date.toLocaleDateString('en-US', { weekday: 'long' });
       
