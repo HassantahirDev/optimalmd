@@ -3,8 +3,10 @@ import MyAppointments from "@/components/Appointment/MyAppointments";
 import DashboardLayout from "@/components/Generic/DashboardLayout";
 import ReusableSidebar from "@/components/Generic/ReusableSidebar";
 import Messages from "@/components/Patient/Messages";
+import Screen2FormNew from "@/components/Patient/Screen2FormNew";
 import { Calendar, Clock, FileText, Mail } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useIntakeStatus } from "@/hooks/useIntakeStatus";
 
 interface PatientDashboardProps {
   patientName?: string;
@@ -15,6 +17,20 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
 }) => {
   const [activeMenuItem, setActiveMenuItem] =
     useState<string>("book-appointment");
+  const [showScreen2, setShowScreen2] = useState(false);
+  
+  const { intakeStatus, loading: intakeLoading, refetch } = useIntakeStatus();
+
+  useEffect(() => {
+    if (intakeStatus && !intakeStatus.hasCompletedIntake && intakeStatus.needsScreen2) {
+      setShowScreen2(true);
+    }
+  }, [intakeStatus]);
+
+  const handleScreen2Complete = () => {
+    setShowScreen2(false);
+    refetch(); // Refresh intake status
+  };
 
   const handleMenuItemClick = (menuItem: string) => {
     setActiveMenuItem(menuItem);
@@ -68,6 +84,20 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({
         return <BookAppointment patientName={patientName} />;
     }
   };
+
+  // Show Screen 2 if needed
+  if (showScreen2) {
+    return <Screen2FormNew onComplete={handleScreen2Complete} />;
+  }
+
+  // Show loading while checking intake status
+  if (intakeLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <DashboardLayout

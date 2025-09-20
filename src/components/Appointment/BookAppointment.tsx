@@ -4,12 +4,10 @@ import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { getUserId } from "@/lib/utils";
 import {
-  fetchDoctors,
-  fetchDoctorServices,
-  fetchAvailableSlots,
+  fetchGlobalServices,
+  fetchGlobalSlots,
   fetchPrimaryServices,
   bookAppointment,
-  setSelectedDoctor,
   setSelectedService,
   setSelectedPrimaryService,
   setSelectedSlot,
@@ -21,6 +19,7 @@ import {
 import { toast } from "react-toastify";
 import PaymentModal from "../Modals/PaymentModal";
 import MedicalFormRequiredModal from "../Modals/MedicalFormRequiredModal";
+import IntakeForm from "../Patient/IntakeForm";
 import api from "@/service/api";
 
 interface BookAppointmentProps {
@@ -32,11 +31,9 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const {
-    doctors,
     services,
     primaryServices,
     availableSlots,
-    selectedDoctor,
     selectedService,
     selectedPrimaryService,
     selectedSlot,
@@ -61,6 +58,8 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   // Medical form state
   const [showMedicalFormModal, setShowMedicalFormModal] = useState(false);
   const [hasCompletedMedicalForm, setHasCompletedMedicalForm] = useState<boolean | null>(null);
+  const [showIntakeForm, setShowIntakeForm] = useState(false);
+  const [currentAppointmentId, setCurrentAppointmentId] = useState<string | null>(null);
 
   // Format date for display (MM-DD-YYYY)
   const formatDateForDisplay = (dateString: string): string => {
@@ -105,8 +104,8 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
   };
 
   useEffect(() => {
-    // Fetch doctors on component mount
-    dispatch(fetchDoctors());
+    // Fetch global services and primary services on component mount
+    dispatch(fetchGlobalServices());
     dispatch(fetchPrimaryServices());
   }, [dispatch]);
 
@@ -128,23 +127,14 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     };
   }, [showCalendar]);
 
-  useEffect(() => {
-    // Fetch services when doctor is selected
-    if (selectedDoctor) {
-      dispatch(fetchDoctorServices(selectedDoctor.id));
-    }
-  }, [selectedDoctor, dispatch]);
+  // Services are now fetched globally, no need for doctor-dependent fetching
 
   useEffect(() => {
-    // Fetch available slots when doctor, service, and date are selected
-    if (selectedDoctor && selectedService && selectedDate) {
-      dispatch(fetchAvailableSlots({
-        doctorId: selectedDoctor.id,
-        date: selectedDate,
-        serviceId: selectedService.id,
-      }));
+    // Fetch available slots when service and date are selected
+    if (selectedService && selectedDate) {
+      dispatch(fetchGlobalSlots(selectedDate));
     }
-  }, [selectedDoctor, selectedService, selectedDate, dispatch]);
+  }, [selectedService, selectedDate, dispatch]);
 
   useEffect(() => {
     // Show success message
@@ -163,30 +153,29 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     }
   }, [bookingError, dispatch]);
 
-  // Check medical form completion on component mount
+  // Check if user has any medical forms (indicates they've completed the full intake at least once)
   useEffect(() => {
-    const checkMedicalFormCompletion = async () => {
+    const checkMedicalFormExistence = async () => {
       if (!userId) return;
       
       try {
-        const response = await api.get('/medical-form/completion-status');
+        // Check if user has any medical forms in the database
+        const response = await api.get('/intake/status');
         if (response.data.success) {
-          setHasCompletedMedicalForm(response.data.data.hasCompletedForm);
+          // hasCompletedIntake means they have completed the full tabular form at least once
+          setHasCompletedMedicalForm(response.data.data.hasCompletedIntake);
         }
       } catch (error) {
-        console.error('Error checking medical form completion:', error);
-        // If error, assume form is not completed
+        console.error('Error checking medical form existence:', error);
+        // If error, assume no medical forms exist
         setHasCompletedMedicalForm(false);
       }
     };
 
-    checkMedicalFormCompletion();
+    checkMedicalFormExistence();
   }, [userId]);
 
-  const handleDoctorChange = (doctorId: string) => {
-    const doctor = doctors?.find(d => d.id === doctorId);
-    dispatch(setSelectedDoctor(doctor || null));
-  };
+  // Doctor selection removed - will be assigned by admin later
 
   const handleServiceChange = (serviceId: string) => {
     const service = services?.find(s => s.id === serviceId);
@@ -261,13 +250,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       return;
     }
 
-    // Check if medical form is completed
-    if (hasCompletedMedicalForm === false) {
-      setShowMedicalFormModal(true);
-      return;
-    }
-
-    if (!selectedDoctor || !selectedService || !selectedPrimaryService || !selectedSlot || !selectedDate) {
+    if (!selectedService || !selectedPrimaryService || !selectedSlot || !selectedDate) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -276,12 +259,13 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
 
     const appointmentData = {
       patientId: userId,
-      doctorId: selectedDoctor.id,
+      doctorId: undefined, // No doctor selected initially
       serviceId: selectedService.id,
       primaryServiceId: selectedPrimaryService.id,
-      slotId: selectedSlot.id,
+      slotId: undefined, // No specific slot initially
       appointmentDate: selectedDate,
       appointmentTime: selectedSlot.startTime, // Use the slot's start time
+      selectedSlotTime: selectedSlot.startTime, // Store the selected slot time
       duration: selectedService.duration,
       amount: totalAmount.toFixed(2),
     };
@@ -290,26 +274,14 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     
     try {
       // Create temporary appointment first
-      const response = await fetch('http://localhost:3000/api/appointments/temporary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-        body: JSON.stringify(appointmentData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create temporary appointment');
-      }
-
-      const result = await response.json();
+      const response = await api.post('/appointments/temporary', appointmentData);
+      const result = response.data;
+      const appointmentId = result.data.id;
       
       // Store appointment data with the created appointment ID and show payment modal
       setTempAppointmentData({
         ...appointmentData,
-        id: result.data.id, // Use the actual appointment ID from backend
+        id: appointmentId,
       });
       setIsPaymentModalOpen(true);
     } catch (error) {
@@ -324,10 +296,45 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     dispatch(resetForm());
   };
 
+  const handleIntakeFormComplete = () => {
+    setShowIntakeForm(false);
+    setCurrentAppointmentId(null);
+    setHasCompletedMedicalForm(true); // User now has a medical form
+    
+    // Payment was already completed, so show success message and reset form
+    toast.success('Appointment booked and intake form completed successfully!');
+    dispatch(resetForm());
+    setTempAppointmentData(null);
+    setIsCreatingAppointment(false);
+  };
+
   const handlePaymentSuccess = async () => {
     if (tempAppointmentData) {
       // Payment was successful, appointment is already confirmed on backend
-      // Just show success message and reset the form
+      
+      // Check if user needs to complete the intake form
+      if (hasCompletedMedicalForm === false) {
+        // First-time user - show intake form after payment
+        setCurrentAppointmentId(tempAppointmentData.id);
+        setShowIntakeForm(true);
+        setIsPaymentModalOpen(false);
+        return;
+      } else if (hasCompletedMedicalForm === true) {
+        // Returning user - copy previous medical form
+        try {
+          await api.post(`/intake/copy/${tempAppointmentData.id}`);
+        } catch (error: any) {
+          // If no previous form exists, that's okay - continue with appointment
+          if (error.response?.status === 404 || error.response?.data?.message?.includes('No previous medical form')) {
+            // No previous form to copy, continue with appointment
+          } else {
+            // For other errors, show a warning but continue
+            console.warn('Failed to copy previous medical form, continuing with appointment');
+          }
+        }
+      }
+      
+      // Show success message and reset the form
       toast.success('Appointment booked successfully!');
       dispatch(resetForm());
       setTempAppointmentData(null);
@@ -365,8 +372,11 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
         </p>
       </div>
 
-      {/* Book Appointment Card */}
-      <div className="mx-4 sm:mx-6 lg:mx-8">
+      {/* Show either booking form or intake form */}
+      {!showIntakeForm ? (
+        <>
+          {/* Book Appointment Card */}
+          <div className="mx-4 sm:mx-6 lg:mx-8">
         <div
           className="bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8"
           style={{ backgroundColor: "#2a2a2a" }}
@@ -417,36 +427,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
               </div>
             </div>
 
-            {/* Doctor Dropdown */}
-            <div>
-              <label className="block text-white text-base sm:text-lg font-medium mb-2 sm:mb-4">
-                Doctor
-              </label>
-              <div className="relative">
-                <select
-                  className="w-full bg-gray-700 text-gray-300 px-4 py-3 sm:py-4 rounded-full appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base min-h-[44px]"
-                  style={{ backgroundColor: "#333333" }}
-                  value={selectedDoctor?.id || ""}
-                  onChange={(e) => handleDoctorChange(e.target.value)}
-                  disabled={loading}
-                >
-                  <option value="">Choose a Doctor</option>
-                  {doctors && doctors.length > 0 ? (
-                    doctors.map((doctor) => (
-                      <option key={doctor.id} value={doctor.id}>
-                        {doctor.title} {doctor.firstName} {doctor.lastName}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="" disabled>No doctors available</option>
-                  )}
-                </select>
-                <ChevronDown
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-red-500"
-                  size={20}
-                />
-              </div>
-            </div>
+            {/* Doctor will be assigned by admin later */}
 
             {/* Service Dropdown */}
             <div>
@@ -459,7 +440,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                   style={{ backgroundColor: "#333333" }}
                   value={selectedService?.id || ""}
                   onChange={(e) => handleServiceChange(e.target.value)}
-                  disabled={!selectedDoctor || !selectedPrimaryService || loading}
+                  disabled={!selectedPrimaryService || loading}
                 >
                   <option value="">Select a Medical Service</option>
                   {services && services.length > 0 ? (
@@ -571,7 +552,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
                         {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                       </option>
                     ))
-                  ) : selectedDate && selectedService && selectedDoctor ? (
+                  ) : selectedDate && selectedService ? (
                     <option value="" disabled>No available slots for this date</option>
                   ) : (
                     <option value="" disabled>Select date and service first</option>
@@ -594,10 +575,10 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           )}
 
           {/* No Slots Available Message */}
-          {selectedDate && selectedService && selectedDoctor && !loading && availableSlots && availableSlots.length === 0 && (
+          {selectedDate && selectedService && !loading && availableSlots && availableSlots.length === 0 && (
             <div className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
               <p className="text-yellow-400">
-                No available time slots for the selected date. Please try a different date or contact the doctor's office.
+                No available time slots for the selected date. Please try a different date.
               </p>
             </div>
           )}
@@ -606,7 +587,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-8 sm:mt-10 lg:mt-12">
             <button
               onClick={handleBookAppointment}
-              disabled={!selectedDoctor || !selectedPrimaryService || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
+              disabled={!selectedPrimaryService || !selectedService || !selectedSlot || !selectedDate || isCreatingAppointment}
               className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[44px] sm:min-h-[48px]"
             >
               {isCreatingAppointment ? (
@@ -643,7 +624,7 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
           onClose={handlePaymentModalClose}
           appointmentId={tempAppointmentData.id} // Use the actual appointment ID
           amount={tempAppointmentData.amount}
-          doctorName={`Dr. ${selectedDoctor?.lastName}`}
+          doctorName="To be assigned"
           serviceName={selectedService?.name || ''}
           appointmentDate={tempAppointmentData.appointmentDate}
           appointmentTime={tempAppointmentData.appointmentTime}
@@ -651,12 +632,20 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
         />
       )}
 
-      {/* Medical Form Required Modal */}
-      <MedicalFormRequiredModal
-        isOpen={showMedicalFormModal}
-        onClose={() => setShowMedicalFormModal(false)}
-        patientName={patientName}
-      />
+          {/* Medical Form Required Modal */}
+          <MedicalFormRequiredModal
+            isOpen={showMedicalFormModal}
+            onClose={() => setShowMedicalFormModal(false)}
+            patientName={patientName}
+          />
+        </>
+      ) : (
+        /* Intake Form for First-Time Users */
+        <IntakeForm
+          appointmentId={currentAppointmentId}
+          onComplete={handleIntakeFormComplete}
+        />
+      )}
     </div>
   );
 };

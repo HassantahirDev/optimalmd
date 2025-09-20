@@ -38,7 +38,7 @@ export interface Service {
   category: string;
   duration: number;
   basePrice: string;
-  doctorId: string;
+  doctorId?: string; // Made optional for global services
 }
 
 export interface PrimaryService {
@@ -372,6 +372,30 @@ export const rescheduleAppointmentApi = async (
     return response.data.data;
   } catch (error) {
     console.error("Error rescheduling appointment:", error);
+    throw error;
+  }
+};
+
+// Fetch global services (independent of doctors)
+export const fetchGlobalServicesApi = async (): Promise<Service[]> => {
+  try {
+    const response = await api.get("services");
+    console.log("Global services API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching global services:", error);
+    throw error;
+  }
+};
+
+// Fetch global slots (from all doctors)
+export const fetchGlobalSlotsApi = async (date: string): Promise<AvailableSlot[]> => {
+  try {
+    const response = await api.get(`appointments/slots/global?date=${date}`);
+    console.log("Global slots API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching global slots:", error);
     throw error;
   }
 };

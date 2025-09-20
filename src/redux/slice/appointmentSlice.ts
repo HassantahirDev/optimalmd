@@ -10,6 +10,8 @@ import {
   cancelAppointmentApi,
   rescheduleAppointmentApi,
   fetchPrimaryServicesApi,
+  fetchGlobalServicesApi,
+  fetchGlobalSlotsApi,
   Doctor,
   Service,
   PrimaryService,
@@ -251,6 +253,44 @@ export const bookAppointment = createAsyncThunk<
   }
 });
 
+// Fetch global services (independent of doctors)
+export const fetchGlobalServices = createAsyncThunk<
+  Service[],
+  void,
+  { rejectValue: string }
+>("appointment/fetchGlobalServices", async (_, thunkAPI) => {
+  try {
+    console.log("Fetching global services...");
+    const services = await fetchGlobalServicesApi();
+    console.log("Global services fetched successfully:", services);
+    return services;
+  } catch (err: any) {
+    console.error("Error in fetchGlobalServices thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || "Failed to fetch global services"
+    );
+  }
+});
+
+// Fetch global slots (from all doctors)
+export const fetchGlobalSlots = createAsyncThunk<
+  AvailableSlot[],
+  string,
+  { rejectValue: string }
+>("appointment/fetchGlobalSlots", async (date, thunkAPI) => {
+  try {
+    console.log("Fetching global slots for date:", date);
+    const slots = await fetchGlobalSlotsApi(date);
+    console.log("Global slots fetched successfully:", slots);
+    return slots;
+  } catch (err: any) {
+    console.error("Error in fetchGlobalSlots thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || "Failed to fetch global slots"
+    );
+  }
+});
+
 const appointmentSlice = createSlice({
   name: "appointment",
   initialState,
@@ -447,6 +487,38 @@ const appointmentSlice = createSlice({
         console.log("Reschedule appointment rejected:", action.payload);
         state.rescheduleLoading = false;
         state.rescheduleError = action.payload || 'Failed to reschedule appointment';
+      })
+      // Fetch global services
+      .addCase(fetchGlobalServices.pending, (state) => {
+        console.log("Fetch global services pending");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGlobalServices.fulfilled, (state, action) => {
+        console.log("Fetch global services fulfilled:", action.payload);
+        state.loading = false;
+        state.services = action.payload;
+      })
+      .addCase(fetchGlobalServices.rejected, (state, action) => {
+        console.log("Fetch global services rejected:", action.payload);
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch global services';
+      })
+      // Fetch global slots
+      .addCase(fetchGlobalSlots.pending, (state) => {
+        console.log("Fetch global slots pending");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGlobalSlots.fulfilled, (state, action) => {
+        console.log("Fetch global slots fulfilled:", action.payload);
+        state.loading = false;
+        state.availableSlots = action.payload;
+      })
+      .addCase(fetchGlobalSlots.rejected, (state, action) => {
+        console.log("Fetch global slots rejected:", action.payload);
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch global slots';
       });
   },
 });
@@ -463,5 +535,7 @@ export const {
   clearRescheduleState,
   resetForm,
 } = appointmentSlice.actions;
+
+// New thunks are already exported above
 
 export default appointmentSlice.reducer;

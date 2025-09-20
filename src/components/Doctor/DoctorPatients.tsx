@@ -8,33 +8,22 @@ interface Patient {
   age: number;
   mrn: string;
   lastVisit: string;
+  lastVisitTime?: string;
+  lastVisitStatus?: string;
+  lastVisitPurpose?: string;
   vitals?: { BP: string; HR: string; Temp: string };
   activeMeds?: string[];
   allergies?: string[];
   lastLogin?: string;
-  dob?: string; // Added dob to interface
+  dob?: string;
   email?: string;
   phone?: string;
   id?: string;
-  medicalForm?: {
-    chiefComplaint?: string;
-    historyOfPresentIllness?: string;
-    pastMedicalHistory?: string;
-    pastSurgicalHistory?: string;
-    allergies?: string;
-    tobaccoUse?: string;
-    alcoholUse?: string;
-    recreationalDrugs?: string;
-    familyHistory?: string;
-    workHistory?: string;
-    medications?: string;
-    bloodPressure?: string;
-    heartRate?: string;
-    temperature?: string;
-    weight?: string;
-    height?: string;
-    bmi?: string;
-  };
+  appointmentId?: string; // New field for appointment ID
+  appointmentDate?: string;
+  appointmentTime?: string;
+  appointmentStatus?: string;
+  medicalForm?: any; // Updated to use any for the full medical form structure
 }
 
 interface DoctorPatientsProps {
@@ -84,37 +73,29 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
       const response = await api.get(`/doctors/${doctorId}/patients?${params}`);
       
       if (response.data.success) {
-        const patients = await Promise.all(
-          response.data.data.patients.map(async (patient: any) => {
-            // Fetch medical form data for each patient
-            let medicalForm = null;
-            try {
-              const medicalFormResponse = await api.get(`/medical-form/patient/${patient.id}`);
-              if (medicalFormResponse.data.success) {
-                medicalForm = medicalFormResponse.data.data;
-              }
-            } catch (error) {
-              // Patient may not have completed medical form yet
-              console.log(`No medical form found for patient ${patient.id}`);
-            }
-
-            return {
-              name: patient.name,
-              age: patient.age,
-              mrn: patient.mrn,
-              lastVisit: patient.lastVisit,
-              vitals: { BP: "N/A", HR: "N/A", Temp: "N/A" }, // These would need to be fetched separately
-              activeMeds: [], // These would need to be fetched separately
-              allergies: [], // These would need to be fetched separately
-              lastLogin: "N/A", // This would need to be tracked separately
-              dob: patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : "N/A",
-              email: patient.email,
-              phone: patient.phone,
-              id: patient.id,
-              medicalForm: medicalForm
-            };
-          })
-        );
+        // Medical form data is now included in the API response
+        const patients = response.data.data.patients.map((patient: any) => ({
+          name: patient.name,
+          age: patient.age,
+          mrn: patient.mrn,
+          lastVisit: patient.lastVisit,
+          lastVisitTime: patient.lastVisitTime,
+          lastVisitStatus: patient.lastVisitStatus,
+          lastVisitPurpose: patient.lastVisitPurpose,
+          vitals: { BP: "N/A", HR: "N/A", Temp: "N/A" }, // These would need to be fetched separately
+          activeMeds: [], // These would need to be fetched separately
+          allergies: [], // These would need to be fetched separately
+          lastLogin: "N/A", // This would need to be tracked separately
+          dob: patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : "N/A",
+          email: patient.email,
+          phone: patient.phone,
+          id: patient.id,
+          appointmentId: patient.appointmentId, // Include appointment ID
+          appointmentDate: patient.appointmentDate,
+          appointmentTime: patient.appointmentTime,
+          appointmentStatus: patient.appointmentStatus,
+          medicalForm: patient.medicalForm // Medical form is now included in the response
+        }));
 
         setPatientsData(patients);
         setTotalPages(response.data.data.totalPages || 1);
@@ -132,6 +113,7 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
   // Helper to get patient profile for modal
   const getPatientProfile = (patient: Patient) => ({
     id: patient.id,
+    appointmentId: patient.appointmentId, // Include appointment ID for navigation
     avatarUrl: undefined,
     name: patient.name,
     dob: patient.dob || "N/A",
@@ -267,7 +249,7 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
               <thead className="bg-black-700">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
-                    Name
+                    Patient Name
                   </th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
                     Age
@@ -276,14 +258,23 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
                     MRN
                   </th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
-                    Last Visit
+                    Appointment Date
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
+                    Time
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
+                    Status
+                  </th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">
+                    Purpose
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
                 {filteredPatients.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                       No patients found.
                     </td>
                   </tr>
@@ -313,7 +304,23 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
                       {patient.mrn}
                     </td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">
-                      {patient.lastVisit}
+                      {patient.appointmentDate ? new Date(patient.appointmentDate).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">
+                      {patient.appointmentTime || 'N/A'}
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        patient.appointmentStatus === 'COMPLETED' ? 'bg-green-900 text-green-300' : 
+                        patient.appointmentStatus === 'CONFIRMED' ? 'bg-blue-900 text-blue-300' :
+                        patient.appointmentStatus === 'CANCELLED' ? 'bg-red-900 text-red-300' :
+                        'bg-gray-700 text-gray-300'
+                      }`}>
+                        {patient.appointmentStatus || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">
+                      {patient.lastVisitPurpose || 'N/A'}
                     </td>
                   </tr>
                   ))
@@ -342,9 +349,25 @@ const DoctorPatients: React.FC<DoctorPatientsProps> = ({ onPatientSelect }) => {
                   </button>
                   <span className="text-xs text-gray-400">MRN: {patient.mrn}</span>
                 </div>
-                <div className="flex justify-between text-xs text-gray-300">
-                  <span>Age: {patient.age}</span>
-                  <span>Last Visit: {patient.lastVisit}</span>
+                <div className="space-y-1 text-xs text-gray-300">
+                  <div className="flex justify-between">
+                    <span>Age: {patient.age}</span>
+                    <span>Date: {patient.appointmentDate ? new Date(patient.appointmentDate).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Time: {patient.appointmentTime || 'N/A'}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      patient.appointmentStatus === 'COMPLETED' ? 'bg-green-900 text-green-300' : 
+                      patient.appointmentStatus === 'CONFIRMED' ? 'bg-blue-900 text-blue-300' :
+                      patient.appointmentStatus === 'CANCELLED' ? 'bg-red-900 text-red-300' :
+                      'bg-gray-700 text-gray-300'
+                    }`}>
+                      {patient.appointmentStatus || 'N/A'}
+                    </span>
+                  </div>
+                  <div>
+                    <span>Purpose: {patient.lastVisitPurpose || 'N/A'}</span>
+                  </div>
                 </div>
               </div>
             ))}

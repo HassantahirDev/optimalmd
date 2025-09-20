@@ -21,6 +21,7 @@ import DoctorSchedule from "./DoctorSchedule";
 import DoctorPatients from "./DoctorPatients";
 import { PatientHistory } from "./PatientHistory";
 import WorkingHours from "./WorkingHours";
+import DoctorSlots from "./DoctorSlots";
 import GoogleCalendarConnection from "./GoogleCalendarConnection";
 import GoogleCalendarImport from "./GoogleCalendarImport";
 import Messages from "./Messages";
@@ -173,6 +174,12 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
       id: "patients",
       label: "My Patients",
       icon: Users,
+      bgColor: "bg-gray-600",
+    },
+    {
+      id: "slots",
+      label: "Doctor Slots",
+      icon: Calendar,
       bgColor: "bg-gray-600",
     },
   ];
@@ -407,6 +414,8 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({
         return <DoctorPatients onPatientSelect={handlePatientSelect} />;
       case "patient-history":
         return <PatientHistory patient={selectedPatient} onBack={handleBackToPatients} />;
+      case "slots":
+        return <DoctorSlots doctorId={localStorage.getItem("userId") || ""} />;
 
       default:
         return (

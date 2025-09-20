@@ -16,6 +16,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import api from "@/service/api";
 import { toast } from "sonner";
 
 // Load Stripe outside of component to avoid recreating on every render
@@ -72,27 +73,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
     try {
       // Create payment intent
-      const createPaymentIntentResponse = await fetch(
-        "http://localhost:3000/api/stripe/create-payment-intent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-          body: JSON.stringify({
-            appointmentId,
-            amount: getAmount(),
-            currency: "usd",
-          }),
-        }
-      );
+      const response = await api.post("/stripe/create-payment-intent", {
+        appointmentId,
+        amount: getAmount(),
+        currency: "usd",
+      });
 
-      if (!createPaymentIntentResponse.ok) {
-        throw new Error("Failed to create payment intent");
-      }
-
-      const responseData = await createPaymentIntentResponse.json();
+      const responseData = response.data;
       console.log("Payment intent response:", responseData);
 
       // Extract data from the wrapped response
@@ -118,27 +105,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       if (paymentIntent.status === "succeeded") {
         // Confirm payment on backend
-        const confirmPaymentResponse = await fetch(
-          "http://localhost:3000/api/stripe/confirm-payment",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-            body: JSON.stringify({
-              paymentIntentId,
-              appointmentId,
-            }),
-          }
-        );
+        const confirmResponse = await api.post("/stripe/confirm-payment", {
+          paymentIntentId,
+          appointmentId,
+        });
 
-        if (!confirmPaymentResponse.ok) {
-          const errorData = await confirmPaymentResponse.json();
-          throw new Error(errorData.message || "Failed to confirm payment");
-        }
-
-        const confirmData = await confirmPaymentResponse.json();
+        const confirmData = confirmResponse.data;
         console.log("Payment confirmation response:", confirmData);
 
         console.log("Setting payment status to success");

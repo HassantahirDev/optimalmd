@@ -6,23 +6,27 @@ import api from "@/service/api";
 
 const tabs = [
   { id: "visits", label: "Visits" },
-  { id: "medical-history", label: "Medical History" },
-  { id: "medications", label: "Medications" },
-  { id: "allergies", label: "Allergies" },
-  { id: "social-history", label: "Social History" },
-  { id: "family-history", label: "Family History" },
-  { id: "vitals", label: "Vitals" },
+  { id: "screen2", label: "About You" },
+  { id: "screen3", label: "Goals" },
+  { id: "screen4", label: "Medical Background" },
+  { id: "screen5", label: "Lifestyle & Habits" },
+  { id: "screen6", label: "Symptoms" },
+  { id: "screen7", label: "Safety Check" },
+  { id: "screen8", label: "Labs & Uploads" },
+  { id: "screen9", label: "Consent" },
 ];
 
 interface PatientHistoryProps {
   patient?: {
     id?: string;
+    appointmentId?: string; // Add appointment ID
     name: string;
     dob: string;
     age: number;
     email: string;
     alerts?: string;
     medicalForm?: any;
+    internalNotes?: string; // Add internal notes field
   };
   onBack?: () => void;
 }
@@ -31,6 +35,11 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
   const [activeTab, setActiveTab] = useState("visits");
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedFormData, setEditedFormData] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+  const [internalNotes, setInternalNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
   
   // Use passed patient data or fallback to default
   const currentPatientData = patient || {
@@ -40,6 +49,54 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
     email: "johndoe@example.com",
     alerts: "None",
   };
+
+  // Initialize edited form data when medical form changes
+  useEffect(() => {
+    if (currentPatientData.medicalForm) {
+      setEditedFormData(currentPatientData.medicalForm);
+    }
+  }, [currentPatientData.medicalForm]);
+
+  // Fetch internal notes for the current appointment
+  useEffect(() => {
+    const fetchInternalNotes = async () => {
+      if (!currentPatientData.appointmentId) return;
+      
+      console.log('Fetching internal notes for appointment:', currentPatientData.appointmentId);
+      
+      try {
+        // First try to get from current patient data (if it has appointment info)
+        if (currentPatientData.internalNotes) {
+          console.log('Setting internal notes from patient data:', currentPatientData.internalNotes);
+          setInternalNotes(currentPatientData.internalNotes);
+          return;
+        }
+        
+        // Then try to get from appointments list
+        if (appointments.length > 0) {
+          const currentAppointment = appointments.find(apt => apt.id === currentPatientData.appointmentId);
+          console.log('Found current appointment:', currentAppointment);
+          if (currentAppointment && currentAppointment.internalNotes) {
+            console.log('Setting internal notes from appointment:', currentAppointment.internalNotes);
+            setInternalNotes(currentAppointment.internalNotes);
+            return;
+          }
+        }
+        
+        // If not found in local data, fetch from API
+        console.log('Fetching internal notes from API...');
+        const response = await api.get(`/appointments/${currentPatientData.appointmentId}`);
+        if (response.data.success && response.data.data.internalNotes) {
+          console.log('Setting internal notes from API:', response.data.data.internalNotes);
+          setInternalNotes(response.data.data.internalNotes);
+        }
+      } catch (error) {
+        console.error('Error fetching internal notes:', error);
+      }
+    };
+
+    fetchInternalNotes();
+  }, [currentPatientData.appointmentId, currentPatientData.internalNotes, appointments]);
 
   // Fetch patient appointments
   useEffect(() => {
@@ -86,6 +143,69 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
     fetchAppointments();
   }, [currentPatientData.id]);
 
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (isEditing) {
+      // Reset to original data when canceling
+      setEditedFormData(currentPatientData.medicalForm || {});
+    }
+  };
+
+  const handleFieldChange = (field: string, value: any) => {
+    setEditedFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!currentPatientData.appointmentId) return;
+    
+    setSaving(true);
+    try {
+      await api.put(`/medical-form/${currentPatientData.appointmentId}`, editedFormData);
+      setIsEditing(false);
+      // Optionally refresh the data or show success message
+    } catch (error) {
+      console.error('Error saving medical form:', error);
+      // Handle error (show toast, etc.)
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveInternalNotes = async () => {
+    if (!currentPatientData.appointmentId) return;
+    
+    setSavingNotes(true);
+    try {
+      const response = await api.put(`/appointments/${currentPatientData.appointmentId}/internal-notes`, {
+        internalNotes: internalNotes
+      });
+      
+      if (response.data.success) {
+        // Update the appointments list with the new internal notes
+        setAppointments(prevAppointments => 
+          prevAppointments.map(apt => 
+            apt.id === currentPatientData.appointmentId 
+              ? { ...apt, internalNotes: internalNotes }
+              : apt
+          )
+        );
+        
+        // Also update current patient data if it exists
+        if (currentPatientData.appointmentId) {
+          // You could trigger a parent component refresh here if needed
+        }
+      }
+    } catch (error) {
+      console.error('Error saving internal notes:', error);
+      // Handle error (show toast, etc.)
+    } finally {
+      setSavingNotes(false);
+    }
+  };
+
   const renderTabContent = () => {
     const medicalForm = currentPatientData.medicalForm;
 
@@ -101,7 +221,7 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
               </div>
             ) : appointments.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-400">No past appointments found</p>
+                <p className="text-gray-400">No past visits found</p>
               </div>
             ) : (
               <>
@@ -176,134 +296,662 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
           </>
         );
 
-      case "medical-history":
+      case "screen2":
         return (
           <>
-            <h3 className="text-white font-bold text-xl mb-8">Medical History</h3>
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-gray-400 text-sm mb-2">Chief Complaint</h4>
-                <p className="text-white text-base">{medicalForm?.chiefComplaint || 'Not provided'}</p>
-              </div>
-              <div>
-                <h4 className="text-gray-400 text-sm mb-2">History of Present Illness</h4>
-                <p className="text-white text-base">{medicalForm?.historyOfPresentIllness || 'Not provided'}</p>
-              </div>
-              <div>
-                <h4 className="text-gray-400 text-sm mb-2">Past Medical History</h4>
-                <p className="text-white text-base">{medicalForm?.pastMedicalHistory || 'Not provided'}</p>
-              </div>
-              <div>
-                <h4 className="text-gray-400 text-sm mb-2">Past Surgical History</h4>
-                <p className="text-white text-base">{medicalForm?.pastSurgicalHistory || 'Not provided'}</p>
-              </div>
-            </div>
-          </>
-        );
-
-      case "medications":
-        return (
-          <>
-            <h3 className="text-white font-bold text-xl mb-8">Current Medications</h3>
-            <div>
-              <p className="text-white text-base">{medicalForm?.medications || 'No medications reported'}</p>
-            </div>
-          </>
-        );
-
-      case "allergies":
-        return (
-          <>
-            <h3 className="text-white font-bold text-xl mb-8">Allergies</h3>
-            <div>
-              <p className="text-white text-base">{medicalForm?.allergies || 'No allergies reported'}</p>
-            </div>
-          </>
-        );
-
-      case "social-history":
-        return (
-          <>
-            <h3 className="text-white font-bold text-xl mb-8">Social History</h3>
+            <h3 className="text-white font-bold text-xl mb-8">About You</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <h4 className="text-gray-400 text-sm mb-2">Tobacco Use</h4>
-                <p className="text-white text-base">{medicalForm?.tobaccoUse || 'Not specified'}</p>
+                <h4 className="text-gray-400 text-sm mb-2">Height</h4>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.height || ''}
+                    onChange={(e) => handleFieldChange('height', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="e.g., 5'10&quot; or 178 cm"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.height || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Weight</h4>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.weight || ''}
+                    onChange={(e) => handleFieldChange('weight', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="e.g., 180 lbs or 82 kg"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.weight || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Waist</h4>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.waist || ''}
+                    onChange={(e) => handleFieldChange('waist', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="e.g., 32 inches or 81 cm"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.waist || 'Not provided'}</p>
+                )}
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Emergency Contact Name</h4>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.emergencyContactName || ''}
+                    onChange={(e) => handleFieldChange('emergencyContactName', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Emergency contact name"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.emergencyContactName || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Emergency Contact Phone</h4>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.emergencyContactPhone || ''}
+                    onChange={(e) => handleFieldChange('emergencyContactPhone', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Emergency contact phone"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.emergencyContactPhone || 'Not provided'}</p>
+                )}
+              </div>
+            </div>
+          </>
+        );
+
+      case "screen3":
+        return (
+          <>
+            <h3 className="text-white font-bold text-xl mb-8">Your Goals</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalMoreEnergy || false}
+                      onChange={(e) => handleFieldChange('goalMoreEnergy', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalMoreEnergy 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalMoreEnergy && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">More Energy</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalBetterSexualPerformance || false}
+                      onChange={(e) => handleFieldChange('goalBetterSexualPerformance', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalBetterSexualPerformance 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalBetterSexualPerformance && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">Better Sexual Performance</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalLoseWeight || false}
+                      onChange={(e) => handleFieldChange('goalLoseWeight', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalLoseWeight 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalLoseWeight && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">Lose Weight</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalHairRestoration || false}
+                      onChange={(e) => handleFieldChange('goalHairRestoration', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalHairRestoration 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalHairRestoration && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">Hair Restoration</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalImproveMood || false}
+                      onChange={(e) => handleFieldChange('goalImproveMood', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalImproveMood 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalImproveMood && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">Improve Mood</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={editedFormData?.goalLongevity || false}
+                      onChange={(e) => handleFieldChange('goalLongevity', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                  ) : (
+                    <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                      editedFormData?.goalLongevity 
+                        ? 'bg-green-500 border-green-500' 
+                        : 'border-gray-400 bg-transparent'
+                    }`}>
+                      {editedFormData?.goalLongevity && (
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
+                  <span className="text-white">Longevity</span>
+                </div>
+              </div>
+              {(editedFormData?.goalOther || isEditing) && (
+                <div className="mt-4">
+                  <h4 className="text-gray-400 text-sm mb-2">Other Goals</h4>
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={editedFormData?.goalOther || false}
+                          onChange={(e) => handleFieldChange('goalOther', e.target.checked)}
+                          className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                        />
+                        <span className="text-white">Other</span>
+                      </div>
+                      {editedFormData?.goalOther && (
+                        <textarea
+                          value={editedFormData?.goalOtherDescription || ''}
+                          onChange={(e) => handleFieldChange('goalOtherDescription', e.target.value)}
+                          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                          placeholder="Describe other goals..."
+                          rows={3}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-white text-base">{editedFormData?.goalOtherDescription || 'Not specified'}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        );
+
+      case "screen4":
+        return (
+          <>
+            <h3 className="text-white font-bold text-xl mb-8">Medical Background</h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Chronic Conditions</h4>
+                {isEditing ? (
+                  <textarea
+                    value={editedFormData?.chronicConditions || ''}
+                    onChange={(e) => handleFieldChange('chronicConditions', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="List chronic conditions..."
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.chronicConditions || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Past Surgeries/Hospitalizations</h4>
+                {isEditing ? (
+                  <textarea
+                    value={editedFormData?.pastSurgeriesHospitalizations || ''}
+                    onChange={(e) => handleFieldChange('pastSurgeriesHospitalizations', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="List past surgeries and hospitalizations..."
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.pastSurgeriesHospitalizations || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Current Medications</h4>
+                {isEditing ? (
+                  <textarea
+                    value={editedFormData?.currentMedications || ''}
+                    onChange={(e) => handleFieldChange('currentMedications', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="List current medications..."
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.currentMedications || 'Not provided'}</p>
+                )}
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Allergies</h4>
+                {isEditing ? (
+                  <textarea
+                    value={editedFormData?.allergies || ''}
+                    onChange={(e) => handleFieldChange('allergies', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="List allergies..."
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.allergies || 'Not provided'}</p>
+                )}
+              </div>
+            </div>
+          </>
+        );
+
+      case "screen5":
+        return (
+          <>
+            <h3 className="text-white font-bold text-xl mb-8">Lifestyle & Habits</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Sleep Hours/Night</h4>
+                <p className="text-white text-base">{medicalForm?.sleepHoursPerNight || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Sleep Quality</h4>
+                <p className="text-white text-base">{medicalForm?.sleepQuality || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Exercise Frequency</h4>
+                <p className="text-white text-base">{medicalForm?.exerciseFrequency || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Diet Type</h4>
+                <p className="text-white text-base">{medicalForm?.dietType || 'Not specified'}</p>
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Alcohol Use</h4>
                 <p className="text-white text-base">{medicalForm?.alcoholUse || 'Not specified'}</p>
               </div>
               <div>
-                <h4 className="text-gray-400 text-sm mb-2">Recreational Drugs</h4>
-                <p className="text-white text-base">{medicalForm?.recreationalDrugs || 'Not specified'}</p>
+                <h4 className="text-gray-400 text-sm mb-2">Tobacco Use</h4>
+                <p className="text-white text-base">{medicalForm?.tobaccoUse || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Cannabis/Other Substances</h4>
+                <p className="text-white text-base">{medicalForm?.cannabisOtherSubstances || 'Not specified'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Stress Level</h4>
+                <p className="text-white text-base">{medicalForm?.stressLevel || 'Not specified'}</p>
               </div>
             </div>
-            {medicalForm?.otherSocialHistory && (
+            {medicalForm?.cannabisOtherSubstancesList && (
               <div className="mt-6">
-                <h4 className="text-gray-400 text-sm mb-2">Other Social History</h4>
-                <p className="text-white text-base">{medicalForm.otherSocialHistory}</p>
+                <h4 className="text-gray-400 text-sm mb-2">Substances List</h4>
+                <p className="text-white text-base">{medicalForm.cannabisOtherSubstancesList}</p>
               </div>
             )}
           </>
         );
 
-      case "family-history":
+      case "screen6":
         return (
           <>
-            <h3 className="text-white font-bold text-xl mb-8">Family History</h3>
-            <div>
-              <p className="text-white text-base">{medicalForm?.familyHistory || 'Not provided'}</p>
+            <h3 className="text-white font-bold text-xl mb-8">Symptom Check</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomFatigue 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomFatigue && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Fatigue</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomLowLibido 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomLowLibido && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Low Libido</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomMuscleLoss 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomMuscleLoss && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Muscle Loss</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomWeightGain 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomWeightGain && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Weight Gain</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomGynecomastia 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomGynecomastia && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Gynecomastia</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomBrainFog 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomBrainFog && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Brain Fog</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomMoodSwings 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomMoodSwings && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Mood Swings</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomPoorSleep 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomPoorSleep && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Poor Sleep</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.symptomHairThinning 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.symptomHairThinning && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Hair Thinning</span>
+              </div>
             </div>
           </>
         );
 
-      case "vitals":
+      case "screen7":
         return (
           <>
-            <h3 className="text-white font-bold text-xl mb-8">Vital Signs</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {medicalForm?.bloodPressure && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">Blood Pressure</h4>
-                  <p className="text-white text-base">{medicalForm.bloodPressure}</p>
+            <h3 className="text-white font-bold text-xl mb-8">Safety Check</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.historyProstateBreastCancer 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.historyProstateBreastCancer && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
-              )}
-              {medicalForm?.heartRate && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">Heart Rate</h4>
-                  <p className="text-white text-base">{medicalForm.heartRate}</p>
+                <span className="text-white">History of Prostate/Breast Cancer</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.historyBloodClotsMIStroke 
+                    ? 'bg-red-500 border-red-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.historyBloodClotsMIStroke && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
-              )}
-              {medicalForm?.temperature && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">Temperature</h4>
-                  <p className="text-white text-base">{medicalForm.temperature}</p>
+                <span className="text-white">History of Blood Clots/MI/Stroke</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.currentlyUsingHormonesPeptides 
+                    ? 'bg-yellow-500 border-yellow-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.currentlyUsingHormonesPeptides && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
-              )}
-              {medicalForm?.weight && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">Weight</h4>
-                  <p className="text-white text-base">{medicalForm.weight}</p>
+                <span className="text-white">Currently Using Hormones/Peptides</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.planningChildrenNext12Months 
+                    ? 'bg-yellow-500 border-yellow-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.planningChildrenNext12Months && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
-              )}
-              {medicalForm?.height && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">Height</h4>
-                  <p className="text-white text-base">{medicalForm.height}</p>
-                </div>
-              )}
-              {medicalForm?.bmi && (
-                <div>
-                  <h4 className="text-gray-400 text-sm mb-2">BMI</h4>
-                  <p className="text-white text-base">{medicalForm.bmi}</p>
-                </div>
-              )}
+                <span className="text-white">Planning Children Next 12 Months</span>
+              </div>
             </div>
-            {!medicalForm?.bloodPressure && !medicalForm?.heartRate && !medicalForm?.temperature && 
-             !medicalForm?.weight && !medicalForm?.height && !medicalForm?.bmi && (
-              <p className="text-gray-400 text-base">No vital signs recorded</p>
-            )}
+          </>
+        );
+
+      case "screen8":
+        return (
+          <>
+            <h3 className="text-white font-bold text-xl mb-8">Labs & Uploads</h3>
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Lab Uploads</h4>
+                <p className="text-white text-base">{medicalForm?.labUploads || 'No lab uploads'}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  medicalForm?.labSchedulingNeeded 
+                    ? 'bg-blue-500 border-blue-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {medicalForm?.labSchedulingNeeded && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Lab Scheduling Needed</span>
+              </div>
+            </div>
+          </>
+        );
+
+      case "screen9":
+        return (
+          <>
+            <h3 className="text-white font-bold text-xl mb-8">Consent & Finalize</h3>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  editedFormData?.consentTelemedicineCare 
+                    ? 'bg-green-500 border-green-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {editedFormData?.consentTelemedicineCare && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Consent to Telemedicine Care</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  editedFormData?.consentElectiveOptimizationTreatment 
+                    ? 'bg-green-500 border-green-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {editedFormData?.consentElectiveOptimizationTreatment && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Consent to Elective Optimization Treatment</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
+                  editedFormData?.consentRequiredLabMonitoring 
+                    ? 'bg-green-500 border-green-500' 
+                    : 'border-gray-400 bg-transparent'
+                }`}>
+                  {editedFormData?.consentRequiredLabMonitoring && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-white">Consent to Required Lab Monitoring</span>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Digital Signature</h4>
+                <p className="text-white text-base">{editedFormData?.digitalSignature || 'Not provided'}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-400 text-sm mb-2">Consent Date</h4>
+                <p className="text-white text-base">
+                  {editedFormData?.consentDate ? new Date(editedFormData.consentDate).toLocaleDateString() : 'Not provided'}
+                </p>
+              </div>
+            </div>
           </>
         );
 
@@ -331,64 +979,55 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
             </button>
           )}
           <h1 className="text-3xl font-bold text-white tracking-tight drop-shadow-lg">
-            Patient History
-          </h1>
+          Patient History
+        </h1>
         </div>
 
-        {/* Main Content Container */}
-        <div className="flex flex-row gap-8">
-          {/* First Container - Patient Image and Info */}
-          <div className="w-full lg:w-1/3">
+        {/* Patient Details - Horizontal Rectangle at Top */}
             <div className="border border-gray-800 rounded-2xl p-6 shadow-lg bg-black">
+          <div className="flex items-center gap-8">
               {/* Patient Image */}
-              <div className="flex justify-center mb-6">
-                <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center">
-                  <User className="w-16 h-16 text-gray-400" />
-                </div>
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">
+                <User className="w-10 h-10 text-gray-400" />
+              </div>
               </div>
 
-              {/* Patient Info */}
-              <div className="space-y-4">
+            {/* Patient Info - Horizontal Layout */}
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-6 gap-6">
                 <div>
                   <p className="text-gray-400 text-sm">Name</p>
                   <p className="text-white font-semibold text-lg">
-                    {currentPatientData.name}
+                  {currentPatientData.name}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-gray-400 text-sm">Email</p>
                   <p className="text-white font-semibold text-lg">
-                    {currentPatientData.email}
+                  {currentPatientData.email}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-gray-400 text-sm">DOB</p>
                   <p className="text-white font-semibold text-lg">
-                    {currentPatientData.dob}
+                  {currentPatientData.dob}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-gray-400 text-sm">Age</p>
                   <p className="text-white font-semibold text-lg">
-                    {currentPatientData.age} Years Old
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-gray-400 text-sm">Alerts</p>
-                  <p className="text-white font-semibold text-lg">
-                    {currentPatientData.alerts || 'None'}
+                  {currentPatientData.age} Years Old
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Second Container - Tabs and Content */}
-          <div className="w-full lg:w-2/3">
+        {/* Tabs and Content Container */}
+        <div className="w-full">
             {/* Tabs */}
             <div className="flex flex-wrap gap-3">
               {tabs.map((tab) => (
@@ -408,6 +1047,43 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
               ))}
             </div>
 
+            {/* Edit/Save Buttons */}
+            {activeTab !== "visits" && activeTab !== "screen9" && (
+              <div className="flex justify-end gap-3 mt-4">
+                {!isEditing ? (
+                  <button
+                    onClick={handleEditToggle}
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Edit
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleEditToggle}
+                      className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* Content Area */}
             <div className="border border-gray-800 rounded-2xl shadow-xl bg-black mt-6">
               <div className="p-8">
@@ -415,7 +1091,42 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
               </div>
             </div>
 
-          </div>
+            {/* Internal Notes Section */}
+            <div className="border border-gray-800 rounded-2xl shadow-xl bg-black mt-6">
+              <div className="p-8">
+                <h3 className="text-white font-bold text-xl mb-6">Internal Notes</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Doctor's Internal Notes for this Appointment
+                    </label>
+                    <textarea
+                      value={internalNotes}
+                      onChange={(e) => setInternalNotes(e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500 resize-none"
+                      placeholder="Add your internal notes about this appointment..."
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSaveInternalNotes}
+                      disabled={savingNotes}
+                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
+                    >
+                      {savingNotes ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Internal Notes'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
