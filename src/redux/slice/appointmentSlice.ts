@@ -12,6 +12,8 @@ import {
   fetchPrimaryServicesApi,
   fetchGlobalServicesApi,
   fetchGlobalSlotsApi,
+  getAvailableDoctorsForAppointmentApi,
+  assignDoctorToAppointmentApi,
   Doctor,
   Service,
   PrimaryService,
@@ -291,6 +293,44 @@ export const fetchGlobalSlots = createAsyncThunk<
   }
 });
 
+// Get available doctors for an appointment
+export const getAvailableDoctorsForAppointment = createAsyncThunk<
+  any[],
+  string,
+  { rejectValue: string }
+>("appointment/getAvailableDoctorsForAppointment", async (appointmentId, thunkAPI) => {
+  try {
+    console.log("Getting available doctors for appointment:", appointmentId);
+    const doctors = await getAvailableDoctorsForAppointmentApi(appointmentId);
+    console.log("Available doctors fetched successfully:", doctors);
+    return doctors;
+  } catch (err: any) {
+    console.error("Error in getAvailableDoctorsForAppointment thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || "Failed to fetch available doctors"
+    );
+  }
+});
+
+// Assign doctor to appointment
+export const assignDoctorToAppointment = createAsyncThunk<
+  any,
+  { appointmentId: string; doctorId: string; slotId: string },
+  { rejectValue: string }
+>("appointment/assignDoctorToAppointment", async (assignData, thunkAPI) => {
+  try {
+    console.log("Assigning doctor to appointment:", assignData);
+    const result = await assignDoctorToAppointmentApi(assignData);
+    console.log("Doctor assigned successfully:", result);
+    return result;
+  } catch (err: any) {
+    console.error("Error in assignDoctorToAppointment thunk:", err);
+    return thunkAPI.rejectWithValue(
+      err.response?.data?.message || "Failed to assign doctor"
+    );
+  }
+});
+
 const appointmentSlice = createSlice({
   name: "appointment",
   initialState,
@@ -519,6 +559,38 @@ const appointmentSlice = createSlice({
         console.log("Fetch global slots rejected:", action.payload);
         state.loading = false;
         state.error = action.payload || 'Failed to fetch global slots';
+      })
+      // Get available doctors for appointment
+      .addCase(getAvailableDoctorsForAppointment.pending, (state) => {
+        console.log("Get available doctors pending");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAvailableDoctorsForAppointment.fulfilled, (state, action) => {
+        console.log("Get available doctors fulfilled:", action.payload);
+        state.loading = false;
+        // Store available doctors in state if needed
+      })
+      .addCase(getAvailableDoctorsForAppointment.rejected, (state, action) => {
+        console.log("Get available doctors rejected:", action.payload);
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch available doctors';
+      })
+      // Assign doctor to appointment
+      .addCase(assignDoctorToAppointment.pending, (state) => {
+        console.log("Assign doctor pending");
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(assignDoctorToAppointment.fulfilled, (state, action) => {
+        console.log("Assign doctor fulfilled:", action.payload);
+        state.loading = false;
+        // Update appointment state if needed
+      })
+      .addCase(assignDoctorToAppointment.rejected, (state, action) => {
+        console.log("Assign doctor rejected:", action.payload);
+        state.loading = false;
+        state.error = action.payload || 'Failed to assign doctor';
       });
   },
 });

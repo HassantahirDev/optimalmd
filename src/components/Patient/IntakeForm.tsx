@@ -115,10 +115,10 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen3 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 3 - Your Goals</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Your Goals</h3>
       <p className="text-gray-600">What are your main goals? (check all that apply)</p>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         {[
           { key: 'goalMoreEnergy', label: 'More energy & motivation' },
           { key: 'goalBetterSexualPerformance', label: 'Better sexual performance' },
@@ -137,19 +137,23 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
           </div>
         ))}
         
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="goalOther"
-            checked={formData.goalOther}
-            onCheckedChange={(checked) => handleInputChange('goalOther', checked)}
-          />
-          <Label htmlFor="goalOther">Other:</Label>
-          <Input
-            placeholder="Please specify"
-            value={formData.goalOtherDescription}
-            onChange={(e) => handleInputChange('goalOtherDescription', e.target.value)}
-            disabled={!formData.goalOther}
-          />
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="goalOther"
+              checked={formData.goalOther}
+              onCheckedChange={(checked) => handleInputChange('goalOther', checked)}
+            />
+            <Label htmlFor="goalOther">Other:</Label>
+          </div>
+          {formData.goalOther && (
+            <Input
+              placeholder="Please specify"
+              value={formData.goalOtherDescription}
+              onChange={(e) => handleInputChange('goalOtherDescription', e.target.value)}
+              className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
+            />
+          )}
         </div>
       </div>
     </div>
@@ -157,9 +161,9 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen4 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 4 - Medical Background</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Medical Background</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <Label htmlFor="chronicConditions">Chronic conditions</Label>
           <Textarea
@@ -167,6 +171,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             placeholder="List any chronic conditions you have"
             value={formData.chronicConditions}
             onChange={(e) => handleInputChange('chronicConditions', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
           />
         </div>
 
@@ -177,6 +182,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             placeholder="Describe any past surgeries or hospitalizations"
             value={formData.pastSurgeriesHospitalizations}
             onChange={(e) => handleInputChange('pastSurgeriesHospitalizations', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
           />
         </div>
 
@@ -187,6 +193,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             placeholder="List your current medications"
             value={formData.currentMedications}
             onChange={(e) => handleInputChange('currentMedications', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
           />
         </div>
 
@@ -197,6 +204,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             placeholder="List any allergies you have"
             value={formData.allergies}
             onChange={(e) => handleInputChange('allergies', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
           />
         </div>
       </div>
@@ -205,136 +213,150 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen5 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 5 - Lifestyle & Habits</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Lifestyle & Habits</h3>
       
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="sleepHours">Sleep: Hours/night</Label>
-          <Input
-            id="sleepHours"
-            placeholder="e.g., 7-8"
-            value={formData.sleepHoursPerNight}
-            onChange={(e) => handleInputChange('sleepHoursPerNight', e.target.value)}
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Column 1 */}
+        <div className="space-y-6">
+          <div>
+            <Label htmlFor="sleepHours">Sleep: Hours/night</Label>
+            <Input
+              id="sleepHours"
+              placeholder="e.g., 7-8"
+              value={formData.sleepHoursPerNight}
+              onChange={(e) => handleInputChange('sleepHoursPerNight', e.target.value)}
+              className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
+            />
+          </div>
 
-        <div>
-          <Label>Sleep Quality:</Label>
-          <RadioGroup
-            value={formData.sleepQuality}
-            onValueChange={(value) => handleInputChange('sleepQuality', value)}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Poor" id="sleep-poor" />
-              <Label htmlFor="sleep-poor">Poor</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Fair" id="sleep-fair" />
-              <Label htmlFor="sleep-fair">Fair</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Good" id="sleep-good" />
-              <Label htmlFor="sleep-good">Good</Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label>Exercise:</Label>
-          <RadioGroup
-            value={formData.exerciseFrequency}
-            onValueChange={(value) => handleInputChange('exerciseFrequency', value)}
-          >
-            {['None', '1-2x/week', '3-5x/week', 'Daily'].map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`exercise-${option}`} />
-                <Label htmlFor={`exercise-${option}`}>{option}</Label>
+          <div>
+            <Label>Sleep Quality:</Label>
+            <RadioGroup
+              value={formData.sleepQuality}
+              onValueChange={(value) => handleInputChange('sleepQuality', value)}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Poor" id="sleep-poor" />
+                <Label htmlFor="sleep-poor">Poor</Label>
               </div>
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label>Diet:</Label>
-          <RadioGroup
-            value={formData.dietType}
-            onValueChange={(value) => handleInputChange('dietType', value)}
-          >
-            {['Balanced', 'High protein', 'Low-carb', 'Plant-based', 'Other'].map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`diet-${option}`} />
-                <Label htmlFor={`diet-${option}`}>{option}</Label>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Fair" id="sleep-fair" />
+                <Label htmlFor="sleep-fair">Fair</Label>
               </div>
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label>Alcohol use:</Label>
-          <RadioGroup
-            value={formData.alcoholUse}
-            onValueChange={(value) => handleInputChange('alcoholUse', value)}
-          >
-            {['None', 'Social', 'Regular'].map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`alcohol-${option}`} />
-                <Label htmlFor={`alcohol-${option}`}>{option}</Label>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Good" id="sleep-good" />
+                <Label htmlFor="sleep-good">Good</Label>
               </div>
-            ))}
-          </RadioGroup>
+            </RadioGroup>
+          </div>
+
+          <div>
+            <Label>Exercise:</Label>
+            <RadioGroup
+              value={formData.exerciseFrequency}
+              onValueChange={(value) => handleInputChange('exerciseFrequency', value)}
+            >
+              {['None', '1-2x/week', '3-5x/week', 'Daily'].map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`exercise-${option}`} />
+                  <Label htmlFor={`exercise-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
         </div>
 
-        <div>
-          <Label>Tobacco:</Label>
-          <RadioGroup
-            value={formData.tobaccoUse}
-            onValueChange={(value) => handleInputChange('tobaccoUse', value)}
-          >
-            {['Never', 'Current', 'Former'].map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`tobacco-${option}`} />
-                <Label htmlFor={`tobacco-${option}`}>{option}</Label>
+        {/* Column 2 */}
+        <div className="space-y-6">
+          <div>
+            <Label>Diet:</Label>
+            <RadioGroup
+              value={formData.dietType}
+              onValueChange={(value) => handleInputChange('dietType', value)}
+            >
+              {['Balanced', 'High protein', 'Low-carb', 'Plant-based', 'Other'].map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`diet-${option}`} />
+                  <Label htmlFor={`diet-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          <div>
+            <Label>Alcohol use:</Label>
+            <RadioGroup
+              value={formData.alcoholUse}
+              onValueChange={(value) => handleInputChange('alcoholUse', value)}
+            >
+              {['None', 'Social', 'Regular'].map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`alcohol-${option}`} />
+                  <Label htmlFor={`alcohol-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          <div>
+            <Label>Tobacco:</Label>
+            <RadioGroup
+              value={formData.tobaccoUse}
+              onValueChange={(value) => handleInputChange('tobaccoUse', value)}
+            >
+              {['Never', 'Current', 'Former'].map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`tobacco-${option}`} />
+                  <Label htmlFor={`tobacco-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        </div>
+
+        {/* Column 3 */}
+        <div className="space-y-6">
+          <div>
+            <Label>Cannabis/Other substances:</Label>
+            <RadioGroup
+              value={formData.cannabisOtherSubstances}
+              onValueChange={(value) => handleInputChange('cannabisOtherSubstances', value)}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="None" id="substances-none" />
+                <Label htmlFor="substances-none">None</Label>
               </div>
-            ))}
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label>Cannabis/Other substances:</Label>
-          <RadioGroup
-            value={formData.cannabisOtherSubstances}
-            onValueChange={(value) => handleInputChange('cannabisOtherSubstances', value)}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="None" id="substances-none" />
-              <Label htmlFor="substances-none">None</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Yes" id="substances-yes" />
-              <Label htmlFor="substances-yes">Yes – List:</Label>
-              <Input
-                placeholder="Please specify"
-                value={formData.cannabisOtherSubstancesList}
-                onChange={(e) => handleInputChange('cannabisOtherSubstancesList', e.target.value)}
-                disabled={formData.cannabisOtherSubstances !== 'Yes'}
-              />
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label>Stress level:</Label>
-          <RadioGroup
-            value={formData.stressLevel}
-            onValueChange={(value) => handleInputChange('stressLevel', value)}
-          >
-            {['Low', 'Medium', 'High'].map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`stress-${option}`} />
-                <Label htmlFor={`stress-${option}`}>{option}</Label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="Yes" id="substances-yes" />
+                  <Label htmlFor="substances-yes">Yes – List:</Label>
+                </div>
+                {formData.cannabisOtherSubstances === 'Yes' && (
+                  <Input
+                    placeholder="Please specify"
+                    value={formData.cannabisOtherSubstancesList}
+                    onChange={(e) => handleInputChange('cannabisOtherSubstancesList', e.target.value)}
+                    className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
+                  />
+                )}
               </div>
-            ))}
-          </RadioGroup>
+            </RadioGroup>
+          </div>
+
+          <div>
+            <Label>Stress level:</Label>
+            <RadioGroup
+              value={formData.stressLevel}
+              onValueChange={(value) => handleInputChange('stressLevel', value)}
+            >
+              {['Low', 'Medium', 'High'].map((option) => (
+                <div key={option} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`stress-${option}`} />
+                  <Label htmlFor={`stress-${option}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
         </div>
       </div>
     </div>
@@ -342,10 +364,10 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen6 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 6 - Symptom Check</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Symptom Check</h3>
       <p className="text-gray-600">How are you feeling lately?</p>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         {[
           { key: 'symptomFatigue', label: 'Fatigue / low energy' },
           { key: 'symptomLowLibido', label: 'Low libido / ED' },
@@ -372,9 +394,9 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen7 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 7 - Safety Check</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Safety Check</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         {[
           { key: 'historyProstateBreastCancer', label: 'History of prostate/breast cancer' },
           { key: 'historyBloodClotsMIStroke', label: 'History of blood clots/MI/stroke' },
@@ -404,9 +426,9 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen8 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 8 - Labs & Uploads</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Labs & Uploads</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
           <Label htmlFor="labUploads">Upload your latest labs:</Label>
           <Input
@@ -419,6 +441,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
                 handleInputChange('labUploads', file.name);
               }
             }}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
           />
         </div>
 
@@ -436,10 +459,10 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
   const renderScreen9 = () => (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-blue-600">Screen 9 - Consent & Finalize</h3>
+      <h3 className="text-xl font-semibold text-blue-600">Consent & Finalize</h3>
       <p className="text-gray-600">Please review and agree:</p>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center space-x-2">
           <Checkbox
             id="consentTelemedicineCare"
@@ -474,6 +497,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             placeholder="Type your full name"
             value={formData.digitalSignature}
             onChange={(e) => handleInputChange('digitalSignature', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
             required
           />
         </div>
@@ -485,6 +509,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             type="date"
             value={formData.consentDate}
             onChange={(e) => handleInputChange('consentDate', e.target.value)}
+            className="bg-white border-gray-300 text-black focus:outline-none focus:border-gray-300 focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-gray-300"
             required
           />
         </div>
@@ -546,11 +571,11 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
               onClick={() => handleTabClick(screen.id)}
               className={`flex-1 px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                 currentScreen === screen.id
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-red-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              {screen.id}: {screen.title}
+              {screen.title}
             </button>
           ))}
         </div>
@@ -558,9 +583,9 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
 
       {/* Form Content */}
       <div className="mx-4 sm:mx-6 lg:mx-8 overflow-x-hidden">
-        <div className="bg-gray-800 rounded-b-2xl p-4 sm:p-6 lg:p-8" style={{ backgroundColor: "#2a2a2a" }}>
+        <div className="bg-white rounded-b-2xl p-6 sm:p-8 lg:p-10 border border-gray-200 text-black overflow-hidden">
           {error && (
-            <div className="text-red-400 text-sm text-center mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
+            <div className="text-red-600 text-sm text-center mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               {error}
             </div>
           )}
@@ -586,7 +611,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !canProceed}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-red-600 hover:bg-red-700"
               >
                 {loading ? (
                   <>
@@ -600,7 +625,7 @@ const IntakeForm: React.FC<IntakeFormProps> = ({ appointmentId, onComplete }) =>
             ) : (
               <Button 
                 onClick={handleNext}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-red-600 hover:bg-red-700"
               >
                 Next
                 <ChevronRight className="ml-2 h-4 w-4" />

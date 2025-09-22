@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Calendar, Clock, Mail, AlertTriangle, ArrowLeft } from "lucide-react";
 import api from "@/service/api";
+import { formatTime } from "@/utils/timeUtils";
 
 
 
@@ -294,7 +295,7 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                             })()}
                             {appointment.appointmentTime && (
                               <span className="text-gray-400 text-sm ml-2">
-                                {appointment.appointmentTime}
+                                {formatTime(appointment.appointmentTime)}
                               </span>
                             )}
                           </p>
@@ -1004,8 +1005,8 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
   };
 
   return (
-    <div className="min-h-screen text-white p-6 bg-gradient-to-br from-black via-black-900 to-black-700">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen text-white p-4 sm:p-6 bg-gradient-to-br from-black via-black-900 to-black-700">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Page Title with Back Button */}
         <div className="flex items-center gap-4 mb-8">
           {onBack && (
@@ -1023,68 +1024,70 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
         </div>
 
         {/* Patient Details - Horizontal Rectangle at Top */}
-            <div className="border border-gray-800 rounded-2xl p-6 shadow-lg bg-black">
-          <div className="flex items-center gap-8">
-              {/* Patient Image */}
+        <div className="border border-gray-800 rounded-2xl p-6 shadow-lg bg-black">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            {/* Patient Image */}
             <div className="flex-shrink-0">
               <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center">
                 <User className="w-10 h-10 text-gray-400" />
               </div>
-              </div>
+            </div>
 
-            {/* Patient Info - Horizontal Layout */}
-            <div className="flex-1 grid grid-cols-2 md:grid-cols-6 gap-6">
-                <div>
-                  <p className="text-gray-400 text-sm">Name</p>
-                  <p className="text-white font-semibold text-lg">
-                  {currentPatientData.name}
+            {/* Patient Info - Responsive Grid Layout */}
+            <div className="flex-1 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="min-w-0">
+                  <p className="text-gray-400 text-sm mb-1">Name</p>
+                  <p className="text-white font-semibold text-lg truncate">
+                    {currentPatientData.name}
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-gray-400 text-sm">Email</p>
-                  <p className="text-white font-semibold text-lg">
-                  {currentPatientData.email}
+                <div className="min-w-0">
+                  <p className="text-gray-400 text-sm mb-1">Email</p>
+                  <p className="text-white font-semibold text-lg truncate">
+                    {currentPatientData.email}
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-gray-400 text-sm">DOB</p>
+                <div className="min-w-0">
+                  <p className="text-gray-400 text-sm mb-1">DOB</p>
                   <p className="text-white font-semibold text-lg">
-                  {currentPatientData.dob}
+                    {currentPatientData.dob}
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-gray-400 text-sm">Age</p>
+                <div className="min-w-0">
+                  <p className="text-gray-400 text-sm mb-1">Age</p>
                   <p className="text-white font-semibold text-lg">
-                  {currentPatientData.age} Years Old
+                    {currentPatientData.age} Years Old
                   </p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
         {/* Tabs and Content Container */}
         <div className="w-full">
-            {/* Tabs */}
-            <div className="flex flex-wrap gap-3">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`rounded-full px-6 py-2 text-base font-semibold transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black
-                    ${
-                      activeTab === tab.id
-                        ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-black border border-gray-800 text-gray-300 hover:bg-gray-900 hover:text-white"
-                    }
-                  `}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+          {/* Tabs */}
+          <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`rounded-full px-4 sm:px-6 py-2 text-sm sm:text-base font-semibold transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black whitespace-nowrap
+                  ${
+                    activeTab === tab.id
+                      ? "bg-red-500 hover:bg-red-600 text-white"
+                      : "bg-black border border-gray-800 text-gray-300 hover:bg-gray-900 hover:text-white"
+                  }
+                `}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
             {/* Edit/Save Buttons */}
             {activeTab !== "visits" && activeTab !== "screen9" && (

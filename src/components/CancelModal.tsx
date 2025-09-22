@@ -6,6 +6,7 @@ import { Loader2, AlertTriangle, XCircle } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/reduxHooks';
 import { cancelAppointment, clearCancelState } from '@/redux/slice/appointmentSlice';
 import { toast } from 'react-toastify';
+import { formatTime } from '@/utils/timeUtils';
 
 interface CancelModalProps {
   isOpen: boolean;
@@ -73,13 +74,6 @@ const CancelModal: React.FC<CancelModalProps> = ({
     }));
   };
 
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

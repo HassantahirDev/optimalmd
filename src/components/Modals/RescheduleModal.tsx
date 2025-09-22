@@ -7,6 +7,7 @@ import {
   setSelectedDate,
 } from "@/redux/slice/appointmentSlice";
 import { Calendar, Clock, ChevronRight, CalendarDays, Loader2 } from "lucide-react";
+import { formatTime } from "@/utils/timeUtils";
 
 interface RescheduleModalProps {
   isOpen: boolean;
@@ -82,14 +83,6 @@ export default function RescheduleModal({
     });
   };
 
-  const formatTime = (time: string) => {
-    if (!time) return "";
-    const [hours, minutes] = time.split(":");
-    const h = parseInt(hours);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const displayHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
 
   const formatDateShort = (dateString: string) => {
     const date = new Date(dateString);

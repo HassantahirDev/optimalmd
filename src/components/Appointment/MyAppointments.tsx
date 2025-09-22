@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { getUserId } from "@/lib/utils";
+import { formatTime } from "@/utils/timeUtils";
 import {
   fetchPatientAppointments,
   rescheduleAppointment,
@@ -158,14 +159,6 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
       year: "numeric",
     });
 
-  const formatTime = (time: string) => {
-    if (!time) return "";
-    const [hours, minutes] = time.split(":");
-    const h = parseInt(hours);
-    const ampm = h >= 12 ? "PM" : "AM";
-    const displayHour = h > 12 ? h - 12 : h === 0 ? 12 : h;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
 
   // Get status badge
   const getStatusBadge = (status: string) => {

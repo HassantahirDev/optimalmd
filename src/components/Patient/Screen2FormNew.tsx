@@ -40,7 +40,7 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
     <div style={{ minHeight: '100vh', backgroundColor: '#1f2937', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div style={{ width: '100%', maxWidth: '28rem', backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb', textAlign: 'center', marginBottom: '1rem' }}>
-          Screen 2 - About You
+          Patient's BMI
         </h2>
         <p style={{ color: '#6b7280', textAlign: 'center', marginBottom: '1.5rem' }}>
           Please provide your physical measurements
@@ -108,7 +108,7 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
               cursor: loading ? 'not-allowed' : 'pointer' 
             }}
           >
-            {loading ? 'Completing...' : 'Complete Screen 2'}
+            {loading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>

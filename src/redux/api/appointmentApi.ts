@@ -399,3 +399,31 @@ export const fetchGlobalSlotsApi = async (date: string): Promise<AvailableSlot[]
     throw error;
   }
 };
+
+// Get available doctors for an appointment
+export const getAvailableDoctorsForAppointmentApi = async (appointmentId: string): Promise<any[]> => {
+  try {
+    const response = await api.get(`appointments/available-doctors/${appointmentId}`);
+    console.log("Available doctors API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching available doctors:", error);
+    throw error;
+  }
+};
+
+// Assign doctor to appointment
+export const assignDoctorToAppointmentApi = async (assignDoctorDto: {
+  appointmentId: string;
+  doctorId: string;
+  slotId: string;
+}): Promise<any> => {
+  try {
+    const response = await api.post('appointments/assign-doctor', assignDoctorDto);
+    console.log("Assign doctor API response:", response.data);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error assigning doctor:", error);
+    throw error;
+  }
+};

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import api from "@/service/api";
+import { formatTime, formatTimeRange } from "@/utils/timeUtils";
 
 interface TimeSlot {
   id: string;
@@ -19,6 +20,7 @@ interface TimeSlot {
     serviceName: string;
     notes?: string;
     status: string;
+    googleMeetLink?: string;
   };
 }
 
@@ -50,7 +52,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
     return `${year}-${month}-${day}`;
   };
 
-  // Generate days (today first, then future, then past)
+  // Generate days (today first, then future dates only)
   const generateDays = () => {
     const days = [];
     const today = new Date();
@@ -69,8 +71,8 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
       isToday: true
     });
     
-    // Generate 30 days in the future
-    for (let i = 1; i <= 30; i++) {
+    // Generate 60 days in the future (increased from 30 to 60)
+    for (let i = 1; i <= 60; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       
@@ -84,24 +86,6 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
         fullDayName,
         displayDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         isPast: false
-      });
-    }
-    
-    // Generate 7 days in the past (these will be at the end, revealed when scrolling right)
-    for (let i = -7; i < 0; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      const dateString = formatDateLocal(date);
-      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-      const fullDayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-      
-      days.push({
-        date: dateString,
-        dayName,
-        fullDayName,
-        displayDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        isPast: true
       });
     }
     
@@ -154,7 +138,8 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                 patientPhone: slot.appointment.patientPhone || slot.appointment.patient?.phone || '',
                 serviceName: slot.appointment.serviceName || slot.appointment.service?.name || 'General Consultation',
                 notes: slot.appointment.notes || '',
-                status: slot.appointment.status
+                status: slot.appointment.status,
+                googleMeetLink: slot.appointment.googleMeetLink
               } : undefined
             }))
           };
@@ -268,7 +253,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
             <h1 className="text-3xl font-bold text-white">Doctor Slots</h1>
           </div>
           <p className="text-gray-400 text-lg">
-            View and manage your appointment slots. Today is shown first, scroll right to see past dates.
+            View and manage your appointment slots. Today is shown first, scroll right to see future dates.
           </p>
         </div>
 
@@ -283,8 +268,6 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                 className={`flex-shrink-0 min-w-[80px] ${
                   selectedDate === day.date
                     ? "bg-red-500 hover:bg-red-600 text-white"
-                    : day.isPast
-                    ? "bg-gray-700 border-gray-500 text-gray-400 hover:bg-gray-600"
                     : day.isToday
                     ? "bg-blue-500 border-blue-400 text-white hover:bg-blue-600"
                     : "bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700"
@@ -311,11 +294,6 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                     Today
                   </Badge>
                 )}
-                {allDays.find(d => d.date === selectedDate)?.isPast && (
-                  <Badge variant="secondary" className="ml-2 bg-gray-500 text-white">
-                    Past
-                  </Badge>
-                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -333,7 +311,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                       className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${getStatusColor(slot.status)}`}
                     >
                       <div className="text-center">
-                        <div className="text-sm font-medium mb-1">{slot.startTime} - {slot.endTime}</div>
+                        <div className="text-sm font-medium mb-1">{formatTimeRange(slot.startTime, slot.endTime)}</div>
                         <div className="flex items-center justify-center gap-1">
                           {getStatusIcon(slot.status)}
                           <span className="text-xs font-medium">
@@ -368,7 +346,7 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                 <div className="p-4 bg-gray-700 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">Time</span>
-                    <span className="font-medium">{selectedSlot.startTime} - {selectedSlot.endTime}</span>
+                    <span className="font-medium">{formatTimeRange(selectedSlot.startTime, selectedSlot.endTime)}</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">Status</span>
@@ -425,6 +403,24 @@ const DoctorSlots: React.FC<DoctorSlotsProps> = ({ doctorId: propDoctorId }) => 
                         )}
                       </div>
                     </div>
+
+                    {selectedSlot.appointment.googleMeetLink && (
+                      <div className="p-4 bg-gray-700 rounded-lg">
+                        <h3 className="font-semibold mb-3 flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Video Call
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-400">Google Meet Link</span>
+                          <Button
+                            onClick={() => window.open(selectedSlot.appointment?.googleMeetLink, '_blank')}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            Join Now
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

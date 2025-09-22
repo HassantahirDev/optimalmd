@@ -3,6 +3,7 @@ import { Calendar, ChevronDown, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
 import { getUserId } from "@/lib/utils";
+import { formatTime } from "@/utils/timeUtils";
 import {
   fetchGlobalServices,
   fetchGlobalSlots,
@@ -278,6 +279,34 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
       const result = response.data;
       const appointmentId = result.data.id;
       
+      // Automatically find and assign a doctor
+      try {
+        console.log('Finding available doctors for appointment:', appointmentId);
+        const availableDoctorsResponse = await api.get(`/appointments/available-doctors/${appointmentId}`);
+        const availableDoctors = availableDoctorsResponse.data.data;
+        
+        if (availableDoctors && availableDoctors.length > 0) {
+          // Assign the first available doctor
+          const firstDoctor = availableDoctors[0];
+          console.log('Assigning first available doctor:', firstDoctor);
+          
+          const assignResponse = await api.post('/appointments/assign-doctor', {
+            appointmentId: appointmentId,
+            doctorId: firstDoctor.id,
+            slotId: firstDoctor.slotId
+          });
+          
+          console.log('Doctor assigned successfully:', assignResponse.data);
+        } else {
+          console.log('No available doctors found, appointment will be assigned later');
+          toast.info('Your appointment has been booked. A doctor will be assigned shortly.');
+        }
+      } catch (assignError) {
+        console.error('Error assigning doctor:', assignError);
+        // Don't fail the booking if doctor assignment fails
+        toast.info('Your appointment has been booked. A doctor will be assigned shortly.');
+      }
+      
       // Store appointment data with the created appointment ID and show payment modal
       setTempAppointmentData({
         ...appointmentData,
@@ -348,14 +377,6 @@ const BookAppointment: React.FC<BookAppointmentProps> = ({
     setIsCreatingAppointment(false);
   };
 
-  // Format time for display
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
 
   return (
     <div className="flex-1 text-white">
