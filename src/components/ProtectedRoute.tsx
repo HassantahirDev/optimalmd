@@ -4,7 +4,7 @@ import { getAuthToken, getUserType, isAuthenticatedAndValid } from '@/lib/utils'
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredUserType?: 'user' | 'doctor';
+  requiredUserType?: 'user' | 'doctor' | 'admin';
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 

@@ -35,3 +35,4 @@ export const formatTimeRange = (startTime: string, endTime: string): string => {
   
   return `${formatTime(startTime)} - ${formatTime(endTime)}`;
 };
+

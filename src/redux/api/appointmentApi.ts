@@ -99,6 +99,8 @@ export interface PatientAppointment {
   status: string;
   patientNotes?: string;
   symptoms?: string;
+  // Optional medications JSON keyed by service name
+  medications?: Record<string, string[]>;
   createdAt: string;
   updatedAt: string;
   doctor?: {

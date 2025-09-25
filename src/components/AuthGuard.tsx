@@ -40,6 +40,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
           navigate('/dashboard');
         } else if (userType === 'doctor') {
           navigate('/doctor-dashboard');
+        } else if (userType === 'admin') {
+          navigate('/superadmin-dashboard');
         }
       }
     }

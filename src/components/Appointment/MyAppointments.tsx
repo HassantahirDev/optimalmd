@@ -27,6 +27,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AppointmentDetailsModal from "./AppointmentDetailsModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { RescheduleAppointmentDto } from "@/redux/api/appointmentApi";
@@ -102,6 +103,7 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
   const [selectedAppointmentId, setSelectedAppointmentId] =
     useState<string>("");
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [isDetailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -253,6 +255,17 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
       className="flex-1 text-white min-h-full dashboard-container"
       style={{ backgroundColor: "#151515" }}
     >
+      {appointmentsLoading && (
+        <div className="flex-1 text-white p-4 sm:p-6 lg:p-8 w-full">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+              <p className="text-gray-400">Loading appointments...</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {!appointmentsLoading && (<>
       {/* Header Section */}
       <div className="p-3 sm:p-4 md:p-6 lg:p-8 pb-3 sm:pb-4 md:pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 md:gap-6">
@@ -342,6 +355,9 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 sm:ml-2 md:ml-4">
                           {getStatusBadge(appointment.status)}
+                          {appointment.medications && Object.values(appointment.medications as Record<string, string[]>)?.some((m: any) => (m as string[])?.length > 0) && (
+                            <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Medication Assigned</Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4">
@@ -349,6 +365,13 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                           <Video className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           <span className="hidden sm:inline">Join</span>
                           <span className="sm:hidden">Join</span>
+                        </button>
+                        {/* Keep only one Details in Today section */}
+                        <button
+                          onClick={() => { setSelectedAppointment(appointment); setDetailsOpen(true); }}
+                          className="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-3 bg-gray-700 text-white rounded-full font-medium hover:bg-gray-600 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-[48px] md:min-h-[52px] flex items-center justify-center"
+                        >
+                          Details
                         </button>
                         {appointment.status.toLowerCase() === "confirmed" && (
                           <>
@@ -465,10 +488,15 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 sm:ml-2 md:ml-4">
                           {getStatusBadge(appointment.status)}
+                          {appointment.medications && Object.values(appointment.medications as Record<string, string[]>)?.some((m: any) => (m as string[])?.length > 0) && (
+                            <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Medication Assigned</Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4">
+                        {/* Use the existing first Details button to open modal */}
                         <button
+                          onClick={() => { setSelectedAppointment(appointment); setDetailsOpen(true); }}
                           className="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-3 bg-gray-600 text-white rounded-full font-medium hover:bg-gray-500 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-[48px] md:min-h-[52px] flex items-center justify-center"
                           style={{ backgroundColor: "#444444" }}
                         >
@@ -590,12 +618,21 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
                         </div>
                         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 sm:ml-2 md:ml-4">
                           {getStatusBadge(appointment.status)}
+                          {appointment.medications && Object.values(appointment.medications as Record<string, string[]>)?.some((m: any) => (m as string[])?.length > 0) && (
+                            <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5">Medication Assigned</Badge>
+                          )}
                         </div>
                       </div>
                       <button className="px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-3 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-[48px] md:min-h-[52px] w-full sm:w-auto flex items-center justify-center">
                         <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         <span className="hidden sm:inline">Rebook</span>
                         <span className="sm:hidden">Rebook</span>
+                      </button>
+                      <button
+                        onClick={() => { setSelectedAppointment(appointment); setDetailsOpen(true); }}
+                        className="mt-3 px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-3 bg-gray-700 text-white rounded-full font-medium hover:bg-gray-600 transition-colors w-full sm:w-auto"
+                      >
+                        Details
                       </button>
                     </div>
                   ))}
@@ -611,6 +648,13 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Details Modal */}
+        <AppointmentDetailsModal
+          isOpen={isDetailsOpen}
+          appointment={selectedAppointment}
+          onClose={() => setDetailsOpen(false)}
+        />
 
         {/* Reschedule Modal */}
         <RescheduleModal
@@ -635,8 +679,11 @@ const MyAppointments: React.FC<MyAppointmentsProps> = ({
           />
         )}
       </div>
+      </>)}
     </div>
   );
 };
 
 export default MyAppointments;
+// Render Appointment Details Modal root
+// Note: placing after default export would be ignored; include JSX before return above.

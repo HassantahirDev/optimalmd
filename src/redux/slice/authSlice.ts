@@ -289,19 +289,21 @@ const authSlice = createSlice({
         loginUser.fulfilled,
         (state, action: PayloadAction<AuthResponseDataDto>) => {
           state.loading = false;
-          state.user = action.payload.user;
-          state.token = action.payload.accessToken;
-          state.userType = action.payload.userType;
-          localStorage.setItem("authToken", action.payload.accessToken);
-          localStorage.setItem("userType", action.payload.userType);
-          localStorage.setItem("userId", action.payload.user.id);
-          localStorage.setItem("name", action.payload.user.firstName);
-          // Store email based on user type
-          const userEmail = action.payload.userType === 'doctor' 
-            ? (action.payload.user as DoctorResponseDto).email 
-            : (action.payload.user as UserResponseDto).primaryEmail;
-          localStorage.setItem("email", userEmail);
-          localStorage.setItem("profilePicture", (action.payload.user as any).profilePicture || null);
+          const payload = action.payload as any;
+          const userType = payload.userType as 'user' | 'doctor' | 'admin';
+          const entity = userType === 'doctor' ? payload.doctor : userType === 'admin' ? payload.admin : payload.user;
+
+          state.user = entity;
+          state.token = payload.accessToken;
+          state.userType = userType as any;
+
+          localStorage.setItem("authToken", payload.accessToken);
+          localStorage.setItem("userType", userType);
+          if (entity?.id) localStorage.setItem("userId", entity.id);
+          if (entity?.firstName) localStorage.setItem("name", entity.firstName);
+          const email = userType === 'doctor' ? entity?.email : userType === 'admin' ? entity?.email : entity?.primaryEmail;
+          if (email) localStorage.setItem("email", email);
+          if (entity?.profilePicture) localStorage.setItem("profilePicture", entity.profilePicture);
         }
       )
       .addCase(loginUser.rejected, (state, action) => {

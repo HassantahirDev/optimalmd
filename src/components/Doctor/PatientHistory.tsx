@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { User, Calendar, Clock, Mail, AlertTriangle, ArrowLeft } from "lucide-react";
 import api from "@/service/api";
 import { formatTime } from "@/utils/timeUtils";
+import NewMedicationModal from "./NewMedicationModal";
 
 
 
@@ -41,6 +42,7 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
   const [saving, setSaving] = useState(false);
   const [internalNotes, setInternalNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
+  const [showMedicationModal, setShowMedicationModal] = useState(false);
   
   // Use passed patient data or fallback to default
   const currentPatientData = patient || {
@@ -1065,6 +1067,18 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                 </div>
               </div>
             </div>
+
+            {/* New Medication Button */}
+            {currentPatientData.appointmentId && (
+              <div className="ml-auto">
+                <button
+                  onClick={() => setShowMedicationModal(true)}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                >
+                  New Medication
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1169,6 +1183,13 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                 </div>
               </div>
             </div>
+
+            {/* Medications Modal */}
+            <NewMedicationModal
+              appointmentId={currentPatientData.appointmentId || ""}
+              isOpen={showMedicationModal}
+              onClose={() => setShowMedicationModal(false)}
+            />
         </div>
       </div>
     </div>

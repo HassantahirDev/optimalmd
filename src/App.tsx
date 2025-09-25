@@ -13,11 +13,13 @@ import FoundersPage from "./pages/Leadership";
 import HowItWorks from "./pages/HowItWorks";
 import OurServicesPage from "./pages/OurServices";
 import LoginPage from "./pages/Login";
+import AdminLoginPage from "./pages/AdminLogin";
 import RegisterPage from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import VerifyEmailPendingPage from "./pages/VerifyEmailPending";
 import PatientDashboard from "./pages/Dashboard/Patient";
 import DoctorPage from "./pages/Dashboard/Doctor";
+import SuperAdminDashboard from "./components/SuperAdmin/SuperAdminDashboard";
 import PrivacyPage from "./pages/Privacy&Policy";
 import TermsPage from "./pages/Terms&Service";
 import ContactPage from "./pages/ContactUs";
@@ -57,6 +59,7 @@ const App = () => (
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/our-services" element={<OurServicesPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/admin-login" element={<AdminLoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route
@@ -94,6 +97,14 @@ const App = () => (
                 path="/dashboard/doctor"
                 element={
                     <DoctorPage />
+                }
+              />
+              <Route
+                path="/superadmin-dashboard"
+                element={
+                  <ProtectedRoute requiredUserType="admin">
+                    <SuperAdminDashboard />
+                  </ProtectedRoute>
                 }
               />
               <Route

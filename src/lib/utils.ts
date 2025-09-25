@@ -10,8 +10,8 @@ export const getAuthToken = (): string | null => {
   return localStorage.getItem('authToken');
 };
 
-export const getUserType = (): 'user' | 'doctor' | null => {
-  return localStorage.getItem('userType') as 'user' | 'doctor' | null;
+export const getUserType = (): 'user' | 'doctor' | 'admin' | null => {
+  return localStorage.getItem('userType') as 'user' | 'doctor' | 'admin' | null;
 };
 
 export const getUserId = (): string | null => {
@@ -28,6 +28,10 @@ export const isUser = (): boolean => {
 
 export const isDoctor = (): boolean => {
   return getUserType() === 'doctor';
+};
+
+export const isAdmin = (): boolean => {
+  return getUserType() === 'admin';
 };
 
 export const clearAuthData = (): void => {
