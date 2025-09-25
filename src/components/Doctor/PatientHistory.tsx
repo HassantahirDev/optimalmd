@@ -656,41 +656,133 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Sleep Hours/Night</h4>
-                <p className="text-white text-base">{medicalForm?.sleepHoursPerNight || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.sleepHoursPerNight || ''}
+                    onChange={(e) => handleFieldChange('sleepHoursPerNight', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="e.g., 6-8"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.sleepHoursPerNight || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Sleep Quality</h4>
-                <p className="text-white text-base">{medicalForm?.sleepQuality || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.sleepQuality || ''}
+                    onChange={(e) => handleFieldChange('sleepQuality', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Poor/Fair/Good"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.sleepQuality || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Exercise Frequency</h4>
-                <p className="text-white text-base">{medicalForm?.exerciseFrequency || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.exerciseFrequency || ''}
+                    onChange={(e) => handleFieldChange('exerciseFrequency', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="None/1-2x/week/3-5x/week/Daily"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.exerciseFrequency || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Diet Type</h4>
-                <p className="text-white text-base">{medicalForm?.dietType || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.dietType || ''}
+                    onChange={(e) => handleFieldChange('dietType', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Balanced/High protein/Low-carb/Plant-based/Other"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.dietType || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Alcohol Use</h4>
-                <p className="text-white text-base">{medicalForm?.alcoholUse || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.alcoholUse || ''}
+                    onChange={(e) => handleFieldChange('alcoholUse', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="None/Social/Regular"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.alcoholUse || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Tobacco Use</h4>
-                <p className="text-white text-base">{medicalForm?.tobaccoUse || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.tobaccoUse || ''}
+                    onChange={(e) => handleFieldChange('tobaccoUse', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Never/Current/Former"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.tobaccoUse || 'Not specified'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Cannabis/Other Substances</h4>
-                <p className="text-white text-base">{medicalForm?.cannabisOtherSubstances || 'Not specified'}</p>
+                {isEditing ? (
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={!!editedFormData?.cannabisOtherSubstances}
+                      onChange={(e) => handleFieldChange('cannabisOtherSubstances', e.target.checked)}
+                      className="w-4 h-4 text-green-500 bg-gray-800 border-gray-600 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                    <span className="text-white">Uses substances</span>
+                  </div>
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.cannabisOtherSubstances ? 'Yes' : 'No'}</p>
+                )}
               </div>
               <div>
                 <h4 className="text-gray-400 text-sm mb-2">Stress Level</h4>
-                <p className="text-white text-base">{medicalForm?.stressLevel || 'Not specified'}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedFormData?.stressLevel || ''}
+                    onChange={(e) => handleFieldChange('stressLevel', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="Low/Medium/High"
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.stressLevel || 'Not specified'}</p>
+                )}
               </div>
             </div>
-            {medicalForm?.cannabisOtherSubstancesList && (
+            {(editedFormData?.cannabisOtherSubstances || isEditing) && (
               <div className="mt-6">
                 <h4 className="text-gray-400 text-sm mb-2">Substances List</h4>
-                <p className="text-white text-base">{medicalForm.cannabisOtherSubstancesList}</p>
+                {isEditing ? (
+                  <textarea
+                    value={editedFormData?.cannabisOtherSubstancesList || ''}
+                    onChange={(e) => handleFieldChange('cannabisOtherSubstancesList', e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
+                    placeholder="List substances..."
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-white text-base">{editedFormData?.cannabisOtherSubstancesList || 'Not specified'}</p>
+                )}
               </div>
             )}
           </>
@@ -701,132 +793,41 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
           <>
             <h3 className="text-white font-bold text-xl mb-8">Symptom Check</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3">
+              {[
+                ['symptomFatigue', 'Fatigue'],
+                ['symptomLowLibido', 'Low Libido'],
+                ['symptomMuscleLoss', 'Muscle Loss'],
+                ['symptomWeightGain', 'Weight Gain'],
+                ['symptomGynecomastia', 'Gynecomastia'],
+                ['symptomBrainFog', 'Brain Fog'],
+                ['symptomMoodSwings', 'Mood Swings'],
+                ['symptomPoorSleep', 'Poor Sleep'],
+                ['symptomHairThinning', 'Hair Thinning'],
+              ].map(([key, label]) => (
+                <div key={key} className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={!!editedFormData?.[key]}
+                      onChange={(e) => handleFieldChange(key as string, e.target.checked)}
+                      className="w-4 h-4 text-red-500 bg-gray-800 border-gray-600 rounded focus:ring-red-500 focus:ring-2"
+                    />
+                  ) : (
                 <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomFatigue 
+                      editedFormData?.[key]
                     ? 'bg-red-500 border-red-500' 
                     : 'border-gray-400 bg-transparent'
                 }`}>
-                  {medicalForm?.symptomFatigue && (
+                      {editedFormData?.[key] && (
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
                 </div>
-                <span className="text-white">Fatigue</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomLowLibido 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomLowLibido && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
                   )}
+                  <span className="text-white">{label}</span>
                 </div>
-                <span className="text-white">Low Libido</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomMuscleLoss 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomMuscleLoss && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Muscle Loss</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomWeightGain 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomWeightGain && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Weight Gain</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomGynecomastia 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomGynecomastia && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Gynecomastia</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomBrainFog 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomBrainFog && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Brain Fog</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomMoodSwings 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomMoodSwings && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Mood Swings</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomPoorSleep 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomPoorSleep && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Poor Sleep</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.symptomHairThinning 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.symptomHairThinning && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Hair Thinning</span>
-              </div>
+              ))}
             </div>
           </>
         );
@@ -836,62 +837,36 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
           <>
             <h3 className="text-white font-bold text-xl mb-8">Safety Check</h3>
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
+              {[
+                ['historyProstateBreastCancer', 'History of Prostate/Breast Cancer'],
+                ['historyBloodClotsMIStroke', 'History of Blood Clots/MI/Stroke'],
+                ['currentlyUsingHormonesPeptides', 'Currently Using Hormones/Peptides'],
+                ['planningChildrenNext12Months', 'Planning Children Next 12 Months'],
+              ].map(([key, label], idx) => (
+                <div key={key} className="flex items-center gap-3">
+                  {isEditing ? (
+                    <input
+                      type="checkbox"
+                      checked={!!editedFormData?.[key]}
+                      onChange={(e) => handleFieldChange(key as string, e.target.checked)}
+                      className={`w-4 h-4 ${idx < 2 ? 'text-red-500' : 'text-yellow-500'} bg-gray-800 border-gray-600 rounded focus:ring-2 focus:ring-offset-0 ${idx < 2 ? 'focus:ring-red-500' : 'focus:ring-yellow-500'}`}
+                    />
+                  ) : (
                 <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.historyProstateBreastCancer 
-                    ? 'bg-red-500 border-red-500' 
+                      editedFormData?.[key]
+                        ? (idx < 2 ? 'bg-red-500 border-red-500' : 'bg-yellow-500 border-yellow-500')
                     : 'border-gray-400 bg-transparent'
                 }`}>
-                  {medicalForm?.historyProstateBreastCancer && (
+                      {editedFormData?.[key] && (
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
                 </div>
-                <span className="text-white">History of Prostate/Breast Cancer</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.historyBloodClotsMIStroke 
-                    ? 'bg-red-500 border-red-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.historyBloodClotsMIStroke && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
                   )}
+                  <span className="text-white">{label}</span>
                 </div>
-                <span className="text-white">History of Blood Clots/MI/Stroke</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.currentlyUsingHormonesPeptides 
-                    ? 'bg-yellow-500 border-yellow-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.currentlyUsingHormonesPeptides && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Currently Using Hormones/Peptides</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  medicalForm?.planningChildrenNext12Months 
-                    ? 'bg-yellow-500 border-yellow-500' 
-                    : 'border-gray-400 bg-transparent'
-                }`}>
-                  {medicalForm?.planningChildrenNext12Months && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-white">Planning Children Next 12 Months</span>
-              </div>
+              ))}
             </div>
           </>
         );
