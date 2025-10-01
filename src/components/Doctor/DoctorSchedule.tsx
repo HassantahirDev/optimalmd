@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FileText } from "lucide-react";
 import api from "@/service/api";
+import { toast } from "@/components/ui/use-toast";
 
 interface ScheduleItem {
   date: string;
@@ -12,6 +13,8 @@ interface ScheduleItem {
   age?: number;
   lastVisit?: string;
   outstandingLabs?: number;
+  appointmentId: string;
+  reportPdfPath?: string | null;
 }
 
 const DoctorSchedule: React.FC = () => {
@@ -115,7 +118,9 @@ const DoctorSchedule: React.FC = () => {
           appointmentType: apt.appointmentType === 'IN_PERSON' ? 'In-person' : 'Telemedicine',
           age: calculateAge(apt.patient.dateOfBirth),
           lastVisit: apt.patient.dateOfBirth ? 'N/A' : 'N/A', // This would need to be calculated from previous appointments
-          outstandingLabs: 0 // This would need to be calculated from lab results
+          outstandingLabs: 0, // This would need to be calculated from lab results
+          appointmentId: apt.id,
+          reportPdfPath: apt.reportPdfPath || null
         }));
 
         setScheduleData(appointments);
@@ -177,6 +182,43 @@ const DoctorSchedule: React.FC = () => {
       'RESCHEDULED': 'Rescheduled',
     };
     return statusMap[status] || status;
+  };
+
+  // Report actions using authenticated api client
+  const viewReport = async (appointmentId: string) => {
+    try {
+      const response = await api.get(`/reports/download/${appointmentId}`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      toast({ title: 'Report opened', description: 'Report opened in a new tab.' });
+    } catch (error) {
+      console.error('Error viewing report:', error);
+      toast({ title: 'Failed to open', description: 'Please try again.' });
+    }
+  };
+
+  const downloadReport = async (appointmentId: string) => {
+    try {
+      const response = await api.get(`/reports/download/${appointmentId}`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `report_${appointmentId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Download started', description: 'Your report is downloading.' });
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast({ title: 'Failed to download', description: 'Please try again.' });
+    }
   };
 
   const calculateAge = (dateOfBirth: string | null) => {
@@ -366,22 +408,7 @@ const DoctorSchedule: React.FC = () => {
         </div>
       </div>
 
-      {/* Batch Actions */}
-      <div className="mx-4 sm:mx-6 lg:mx-8 mb-2 flex flex-wrap gap-2">
-        <button
-          className="px-4 py-2 rounded-full font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm"
-          onClick={handleMessageNoShows}
-        >
-          Message All No-shows
-        </button>
-        <button
-          className="px-4 py-2 rounded-full font-medium bg-yellow-500 text-black hover:bg-yellow-600 transition-colors text-sm"
-          onClick={handleRescheduleSelected}
-          disabled={selectedAppointments.length === 0}
-        >
-          Reschedule Selected
-        </button>
-      </div>
+      {/* Batch Actions removed */}
 
       {/* Schedule List */}
       <div className="mx-4 sm:mx-6 lg:mx-8">
@@ -399,13 +426,13 @@ const DoctorSchedule: React.FC = () => {
             <table className="w-full">
               <thead className="bg-black-700">
                 <tr>
-                  <th className="px-2"><input type="checkbox" checked={selectedAppointments.length === filteredAppointments.length && filteredAppointments.length > 0} onChange={handleSelectAll} /></th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Date</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Time</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Patient</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300 hidden sm:table-cell">Appointment Purpose</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Type</th>
                   <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Status</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium text-gray-300">Report</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
@@ -418,7 +445,6 @@ const DoctorSchedule: React.FC = () => {
                 ) : (
                   filteredAppointments.map((appointment, index) => (
                   <tr key={index} className="hover:bg-gray-750">
-                    <td className="px-2"><input type="checkbox" checked={selectedAppointments.includes(index)} onChange={() => handleSelectAppointment(index)} /></td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.date}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.time}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm relative group">
@@ -439,6 +465,26 @@ const DoctorSchedule: React.FC = () => {
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-300 hidden sm:table-cell">{appointment.purpose}</td>
                     <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-white">{appointment.appointmentType}</td>
                     <td className={`px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold ${getStatusColor(appointment.status)}`}>{appointment.status}</td>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm">
+                      {appointment.reportPdfPath ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => viewReport(appointment.appointmentId)}
+                            className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-white flex items-center gap-1"
+                          >
+                            <FileText className="w-4 h-4" /> View
+                          </button>
+                          <button
+                            onClick={() => downloadReport(appointment.appointmentId)}
+                            className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white flex items-center gap-1"
+                          >
+                            <Download className="w-4 h-4" /> Download
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">No report</span>
+                      )}
+                    </td>
                   </tr>
                   ))
                 )}

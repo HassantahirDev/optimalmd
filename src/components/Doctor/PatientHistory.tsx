@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { User, Calendar, Clock, Mail, AlertTriangle, ArrowLeft } from "lucide-react";
+import { User, Calendar, Clock, Mail, AlertTriangle, ArrowLeft, FileText, Download } from "lucide-react";
 import api from "@/service/api";
+import { toast } from "@/components/ui/use-toast";
 import { formatTime } from "@/utils/timeUtils";
 import NewMedicationModal from "./NewMedicationModal";
 
@@ -43,6 +44,8 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
   const [internalNotes, setInternalNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [showMedicationModal, setShowMedicationModal] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState(false);
   
   // Use passed patient data or fallback to default
   const currentPatientData = patient || {
@@ -146,6 +149,104 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
     fetchAppointments();
   }, [currentPatientData.id]);
 
+  // Check if report already exists
+  useEffect(() => {
+    const checkReportExists = async () => {
+      if (!currentPatientData.appointmentId) return;
+      
+      try {
+        const response = await api.get(`/appointments/${currentPatientData.appointmentId}`);
+        if (response.data.success && response.data.data.reportPdfPath) {
+          setReportGenerated(true);
+        }
+      } catch (error) {
+        console.error('Error checking report:', error);
+      }
+    };
+
+    checkReportExists();
+  }, [currentPatientData.appointmentId]);
+
+  const handleGenerateReport = async () => {
+    if (!currentPatientData.appointmentId) return;
+
+    setGeneratingReport(true);
+    try {
+      const response = await api.post(`/reports/generate/${currentPatientData.appointmentId}`);
+      if (response.data.success) {
+        setReportGenerated(true);
+        toast({
+          title: "Report generated",
+          description: "PDF has been generated and emailed to you.",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast({
+        title: "Failed to generate",
+        description: "Please try again.",
+      });
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
+
+  const handleDownloadReport = async (appointmentId?: string) => {
+    const targetId = appointmentId || currentPatientData.appointmentId;
+    if (!targetId) return;
+
+    try {
+      const response = await api.get(`/reports/download/${targetId}`, {
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `report_${targetId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({
+        title: "Download started",
+        description: "Your report is downloading.",
+      });
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast({
+        title: "Failed to download",
+        description: "Please try again.",
+      });
+    }
+  };
+
+  const handleViewReport = async (appointmentId?: string) => {
+    const targetId = appointmentId || currentPatientData.appointmentId;
+    if (!targetId) return;
+
+    try {
+      const response = await api.get(`/reports/download/${targetId}`, {
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      toast({
+        title: "Report opened",
+        description: "Your report opened in a new tab.",
+      });
+    } catch (error) {
+      console.error('Error viewing report:', error);
+      toast({
+        title: "Failed to open",
+        description: "Please try again.",
+      });
+    }
+  };
+
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     if (isEditing) {
@@ -231,13 +332,14 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                 {/* Desktop Table */}
                 <div className="hidden md:block overflow-x-auto">
                   <div className="min-w-full">
-                    <div className="grid grid-cols-3 gap-6 pb-4 border-b border-gray-800">
+                    <div className="grid grid-cols-4 gap-6 pb-4 border-b border-gray-800">
                       <div className="text-gray-400 text-base font-semibold">Date</div>
                       <div className="text-gray-400 text-base font-semibold">Appointment Purpose</div>
                       <div className="text-gray-400 text-base font-semibold">Status</div>
+                      <div className="text-gray-400 text-base font-semibold">Report</div>
                     </div>
                     {appointments.map((appointment, i) => (
-                      <div key={i} className="grid grid-cols-3 gap-6 py-5 border-b border-gray-800 last:border-0">
+                      <div key={i} className="grid grid-cols-4 gap-6 py-5 border-b border-gray-800 last:border-0">
                         <div className="text-white text-base">
                           {(() => {
                             try {
@@ -268,6 +370,19 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                           }`}>
                             {appointment.status}
                           </span>
+                        </div>
+                        <div className="text-white text-base">
+                          {appointment.reportPdfPath ? (
+                            <button
+                              onClick={() => handleDownloadReport(appointment.id)}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download
+                            </button>
+                          ) : (
+                            <span className="text-gray-500 text-sm">No report</span>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -315,6 +430,20 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                           }`}>
                             {appointment.status}
                           </span>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs mb-1">Report</p>
+                          {appointment.reportPdfPath ? (
+                            <button
+                              onClick={() => handleDownloadReport(appointment.id)}
+                              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-sm w-full justify-center"
+                            >
+                              <Download className="w-4 h-4" />
+                              Download Report
+                            </button>
+                          ) : (
+                            <span className="text-gray-500 text-sm">No report available</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -985,19 +1114,61 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
     <div className="min-h-screen text-white p-4 sm:p-6 bg-gradient-to-br from-black via-black-900 to-black-700">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Page Title with Back Button */}
-        <div className="flex items-center gap-4 mb-8">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Patients
-            </button>
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Back to Patients
+              </button>
+            )}
+            <h1 className="text-3xl font-bold text-white tracking-tight drop-shadow-lg">
+              Patient History
+            </h1>
+          </div>
+          
+          {/* Generate/View Report Buttons */}
+          {currentPatientData.appointmentId && (
+            <div className="flex items-center gap-3">
+              {!reportGenerated ? (
+                <button
+                  onClick={handleGenerateReport}
+                  disabled={generatingReport}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
+                >
+                  <FileText className="w-5 h-5" />
+                  {generatingReport ? 'Generating...' : 'Generate Report'}
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleViewReport()}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors font-medium"
+                  >
+                    <FileText className="w-5 h-5" />
+                    View Report
+                  </button>
+                  <button
+                    onClick={() => handleDownloadReport()}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download
+                  </button>
+                  <button
+                    onClick={handleGenerateReport}
+                    disabled={generatingReport}
+                    className="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors text-sm"
+                  >
+                    {generatingReport ? 'Regenerating...' : 'Regenerate'}
+                  </button>
+                </>
+              )}
+            </div>
           )}
-          <h1 className="text-3xl font-bold text-white tracking-tight drop-shadow-lg">
-          Patient History
-        </h1>
         </div>
 
         {/* Patient Details - Horizontal Rectangle at Top */}
