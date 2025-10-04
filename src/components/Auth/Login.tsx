@@ -173,7 +173,7 @@ export default function LoginComponent() {
               disabled={loading}
               className="w-full py-3 sm:py-4 rounded-full bg-[#ff4757] hover:bg-[#e63b4d] disabled:bg-gray-600 text-white font-medium text-base sm:text-lg transition-colors"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Logging in..." : "Secure Login"}
             </button>
 
             {/* Error Display */}

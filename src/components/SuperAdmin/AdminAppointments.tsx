@@ -13,14 +13,19 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { formatTime } from "@/utils/timeUtils";
 import { adminApi, Appointment, Doctor, Service, Patient } from "@/services/adminApi";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // Using interfaces from adminApi
 
@@ -48,6 +53,12 @@ const AdminAppointments: React.FC = () => {
   const [formNotes, setFormNotes] = useState("");
   const [availableSlots, setAvailableSlots] = useState<{ id: string; startTime: string; endTime: string }[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+
+  // Searchable dropdown states
+  const [patientOpen, setPatientOpen] = useState(false);
+  const [doctorOpen, setDoctorOpen] = useState(false);
+  const [patientSearchValue, setPatientSearchValue] = useState("");
+  const [doctorSearchValue, setDoctorSearchValue] = useState("");
 
   // Load data from APIs
   useEffect(() => {
@@ -389,33 +400,119 @@ const AdminAppointments: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="block text-gray-400 text-sm mb-2">Patient</label>
-                  <select
-                    value={formPatientId}
-                    onChange={(e) => setFormPatientId(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
-                  >
-                    <option value="">Select Patient</option>
-                    {patients.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.firstName} {p.lastName} - {p.primaryEmail}
-                      </option>
-                    ))}
-                  </select>
+                  <Popover open={patientOpen} onOpenChange={setPatientOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={patientOpen}
+                        className="w-full justify-between bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                      >
+                        {formPatientId
+                          ? patients.find((p) => p.id === formPatientId)?.firstName + " " + patients.find((p) => p.id === formPatientId)?.lastName + " - " + patients.find((p) => p.id === formPatientId)?.primaryEmail
+                          : "Select Patient..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-gray-800 border-gray-600">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search patients..."
+                          value={patientSearchValue}
+                          onValueChange={setPatientSearchValue}
+                          className="bg-gray-700 text-white px-3 py-3 my-2"
+                        />
+                        <CommandList className="max-h-64">
+                          <CommandEmpty>No patient found.</CommandEmpty>
+                          <CommandGroup>
+                            {patients
+                              .filter((patient) =>
+                                `${patient.firstName} ${patient.lastName} ${patient.primaryEmail}`
+                                  .toLowerCase()
+                                  .includes(patientSearchValue.toLowerCase())
+                              )
+                              .map((patient) => (
+                                <CommandItem
+                                  key={patient.id}
+                                  value={`${patient.firstName} ${patient.lastName} - ${patient.primaryEmail}`}
+                                  onSelect={() => {
+                                    setFormPatientId(patient.id);
+                                    setPatientOpen(false);
+                                  }}
+                                  className="text-white hover:bg-gray-600"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formPatientId === patient.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {patient.firstName} {patient.lastName} - {patient.primaryEmail}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Doctor</label>
-                  <select
-                    value={formDoctorId}
-                    onChange={(e) => setFormDoctorId(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
-                  >
-                    <option value="">Select Doctor</option>
-                    {doctors.map((doctor) => (
-                      <option key={doctor.id} value={doctor.id}>
-                        {doctor.firstName} {doctor.lastName}
-                      </option>
-                    ))}
-                  </select>
+                  <Popover open={doctorOpen} onOpenChange={setDoctorOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={doctorOpen}
+                        className="w-full justify-between bg-gray-700 border-gray-600 text-white hover:bg-gray-600"
+                      >
+                        {formDoctorId
+                          ? doctors.find((d) => d.id === formDoctorId)?.firstName + " " + doctors.find((d) => d.id === formDoctorId)?.lastName
+                          : "Select Doctor..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-gray-800 border-gray-600">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search doctors..."
+                          value={doctorSearchValue}
+                          onValueChange={setDoctorSearchValue}
+                          className="bg-gray-700 text-white px-3 py-3 my-2"
+                        />
+                        <CommandList className="max-h-64">
+                          <CommandEmpty>No doctor found.</CommandEmpty>
+                          <CommandGroup>
+                            {doctors
+                              .filter((doctor) =>
+                                `${doctor.firstName} ${doctor.lastName}`
+                                  .toLowerCase()
+                                  .includes(doctorSearchValue.toLowerCase())
+                              )
+                              .map((doctor) => (
+                                <CommandItem
+                                  key={doctor.id}
+                                  value={`${doctor.firstName} ${doctor.lastName}`}
+                                  onSelect={() => {
+                                    setFormDoctorId(doctor.id);
+                                    setDoctorOpen(false);
+                                  }}
+                                  className="text-white hover:bg-gray-600"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formDoctorId === doctor.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {doctor.firstName} {doctor.lastName}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Service</label>
