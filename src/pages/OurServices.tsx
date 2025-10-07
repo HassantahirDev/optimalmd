@@ -4,19 +4,25 @@ import Navigation from "@/components/LandingPage/Navigation";
 import PageBanner from "@/components/HowItWork/Pagebanner";
 import StartNowBanner from "@/components/HowItWork/StartNowBanner";
 import Footer from "@/components/LandingPage/Footer";
+import heroCollage from "@/assets/hero-collage.jpg";
 
 const OurServicesPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-black">
       <Navigation />
       <PageBanner
-        title="Our Services"
+        title="Services Designed to Help You Look, Feel, and Perform Better"
+        subHeadline="At OptimaleMD, we provide physician-led programs that address the root causes of fatigue, weight gain, hair loss, low libido, and aging. Every treatment is customized to your labs, lifestyle, and goals."
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Services", href: "/services" },
         ]}
-        backgroundImage="bg.png"
-        className="h-[320px]"
+        backgroundImage={heroCollage}
+        className="h-[450px]"
+        ctaButton={{
+          text: "Book Your Physician Consult",
+          href: "/book-appointment"
+        }}
       />
       {/* Page Content */}
       <main className="flex-grow py-12">
@@ -27,78 +33,76 @@ const OurServicesPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ServiceCard
-              title="Hormone optimization/TRT"
-              description="Testosterone Replacement Therapy (TRT) is designed for men experiencing symptoms of low testosterone."
-              whatsIncluded="Comprehensive lab work, physician evaluation, personalized treatment."
-              eligibility="Based on lab results, symptoms, and medical history."
-              pricing="Transparent monthly plans available."
-              link=""
+              title="Hormone Optimization / TRT"
+              subtitle="Restore energy, focus, and drive."
+              description="Low testosterone can leave you feeling tired, unmotivated, and weaker than you should. Our doctor-supervised testosterone replacement therapy helps restore hormone balance, improve performance, and bring back your vitality."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/trt.png"
             />
 
             <ServiceCard
               title="Hair Loss Treatment"
-              description="Thinning hair? We offer proven treatments like oral medications, topical solutions, and regenerative therapies to slow hair loss."
-              whatsIncluded="Consultation, treatment recommendations, optional prescription."
-              eligibility="Men and women with genetic or hormonal hair loss."
-              pricing="Varies by treatment type."
-              link=""
+              subtitle="Regrow with confidence."
+              description="Hair loss doesn't just affect appearance — it affects confidence. We offer oral and topical medications, advanced PRP therapy, and combination treatments designed to stop shedding and stimulate healthy regrowth."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/ImageforBlog/Hairloss.png"
             />
 
             <ServiceCard
               title="Weight Loss & Obesity Medicine"
-              description="Our weight management program goes beyond generic diets. We combine metabolic testing and prescription support."
-              whatsIncluded="Medical consultation, custom meal plans, progress tracking, supplements."
-              eligibility="Adults with BMI over 25 or metabolic concerns."
-              pricing="Starting at $199/month with flexible payment options."
-              link=""
+              subtitle="Lose weight safely — and keep it off."
+              description="Whether you're struggling with stubborn fat or want to break through a plateau, we provide GLP-1 medications, metabolic programs, and lifestyle coaching to help you lose weight and maintain results long-term."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/loss.png"
             />
 
             <ServiceCard
               title="Sexual Health"
-              description="We help address sexual performance concerns such as erectile dysfunction, low libido, and performance anxiety."
-              whatsIncluded="Confidential consultation, treatment options including medications."
-              eligibility="Men over 18, based on symptoms and evaluation."
-              pricing="$600/month."
-              link=""
+              subtitle="Stronger performance, renewed confidence."
+              description="From erectile dysfunction to low libido, we help men overcome performance issues with evidence-based therapies, advanced procedures like the P-Shot, and personalized protocols that restore sexual health."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/sexual.png"
             />
 
             <ServiceCard
-              title="Peptides & Longevity Medicine"
-              description="Peptide therapy is a cutting-edge approach to improving cellular health, recovery, sleep, and aging."
-              whatsIncluded="Physician-guided peptide protocols, lab testing, & ongoing evaluation."
-              eligibility="Based on specific goals, symptoms, and labs."
-              pricing="$300/month.."
-              link=""
+              title="Peptide & Longevity Medicine"
+              subtitle="Cutting-edge science for recovery, performance, and aging."
+              description="Our peptide and longevity programs leverage advanced therapies to accelerate recovery, improve fat metabolism, sharpen focus, and slow the effects of aging — helping you stay at your best for longer."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/long.png"
             />
 
             <ServiceCard
-              title="lab Testing"
-              description="We offer comprehensive lab panels that help uncover the root causes of fatigue, weight gain, low libido, and more."
-              whatsIncluded="At-home or local lab draw, hormone panels & metabolic markers."
-              eligibility="All patients are required to undergo lab testing for most programs."
-              pricing="$90 for a full panel."
-              link=""
+              title="Lab Testing"
+              subtitle="Know your numbers."
+              description="Optimization starts with knowledge. Our comprehensive lab panels check hormones, lipids, metabolism, and key health markers so we can design the right treatment plan for you."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/test.png"
             />
 
             <ServiceCard
-              title="Anti-Aging Program"
-              description="Our curated line of medical-grade supplements supports your wellness goals — from immune health to hormonal balance."
-              whatsIncluded="Recommendations based on your labs and symptoms."
-              eligibility="Available to patients and non-patients."
-              pricing="$500/month."
-              link=""
+              title="Supplements"
+              subtitle="Daily essentials for optimal health."
+              description="We offer physician-recommended supplements that support hormones, immunity, energy, and longevity. Designed to complement your treatment plan and maximize results."
+              link="/book-appointment"
+              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/supplement.png"
             />
           </div>
         </div>
       </main>
-      <StartNowBanner />
+      <StartNowBanner 
+        title="Not Sure Where to Start? Let's Find the Right Program for You."
+        description="Book a free 10-minute consultation with Dr. Sam and get clear, personalized recommendations based on your goals and lab results."
+        ctaLabel="Start My Free Consult Today"
+        ctaHref="/book-appointment"
+      />
 
       {/* Footer */}
       <Footer />

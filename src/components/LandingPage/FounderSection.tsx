@@ -10,16 +10,17 @@ const FounderSection = () => {
             <div className="space-y-6">
               {/* Quote */}
               <div className="border-l-4 border-primary pl-6">
-                <p className="text-xl lg:text-2xl leading-relaxed text-foreground">
-                  Over time, I found it incredibly difficult to get medical oversight for myself and my 
-                  family that reflected the most cutting-edge literature, and that was preventative- 
-                  that's why I started OptimaleMD.
-                </p>
+                <h2 className="text-2xl lg:text-3xl font-bold leading-tight text-foreground mb-4">
+                  "I started OptimaleMD because men deserve better care."
+                </h2>
               </div>
-              
+              <p className="text-lg leading-relaxed text-foreground">
+                As a board-certified physician, I saw firsthand how insurance-driven medicine failed men. OptimaleMD was built to deliver cutting-edge therapies, personalized coaching, and care that puts you first.
+              </p>
               <p className="text-muted-foreground text-lg">
                 - Sam Samarrai, MD
               </p>
+              
             </div>
 
             {/* Founder Info Card */}

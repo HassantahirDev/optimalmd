@@ -4,19 +4,19 @@ const OptimizationSection = () => {
   const features = [
     {
       icon: Beaker,
-      title: "Personalized lab work",
+      title: "Licensed Physician Consultation with Personalized Lab orders",
       description: "Discover the full picture of your health with our in-depth lab work that cover hormones, vitamins, metabolic markers, and more.",
       color: "text-red-400"
     },
     {
       icon: Video, 
-      title: "1 on 1 expert health coaching",
+      title: "Complete your labs and receive Expert Coaching",
       description: "OptimaleMD coaches are your health strategists, dedicated to understanding your specific health circumstances, goals, and challenges.",
       color: "text-green-400"
     },
     {
       icon: FileText,
-      title: "Customized treatment protocol",
+      title: "Customized Treatment Plan",
       description: "OptimaleMD Coaches create a personalized blueprint for each client, continuously refining and adapting it to your evolving health profile.",
       color: "text-blue-400"
     }

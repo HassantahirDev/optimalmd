@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Check, Shield, Clock, Star, Award, Users, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import phoneImage from "../../assets/phone-consultation.jpg";
@@ -8,17 +8,17 @@ const InvestmentSection = () => {
   const navigate = useNavigate();
   const benefits = [
     {
-      title: "Personalized Assessment",
+      title: "Personalized assessment → Understand root causes, not just symptoms.",
       description:
         "Meet your expert OptimaleMD Coach to discuss your symptoms and goals.",
     },
     {
-      title: "In-Depth Lab Analysis",
+      title: "In-depth lab analysis → Data that drives real results.",
       description:
         "Receive a custom report with actionable recommendations based on your individual lab results.",
     },
     {
-      title: "Expert Medical Oversight",
+      title: "Expert oversight → Doctor-led, evidence-based care you can trust.",
       description:
         "A 25-minute consultation with a licensed medical provider to discuss your health blueprint and prescription treatments.",
     },
@@ -35,10 +35,10 @@ const InvestmentSection = () => {
   ];
 
   const trustBadges = [
-    { icon: Shield, text: "Partnered with licensed Medical Providers" },
-    { icon: Users, text: "Insurance not required" },
-    { icon: Clock, text: "Treatments delivered" },
-    { icon: Users, text: "Partnered with licensed Medical Providers" },
+    { emoji: "✅", text: "Licensed providers" },
+    { emoji: "🚫", text: "No insurance required" },
+    { emoji: "📦", text: "Medications delivered" },
+    { emoji: "🧑‍⚕️", text: "Ongoing physician oversight" },
   ];
 
   const cardRef = useRef<HTMLDivElement>(null);
@@ -91,8 +91,7 @@ const InvestmentSection = () => {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h2 className="text-3xl lg:text-4xl font-bold text-black">
-                  Invest in your health with
-                  <br />
+                Your Personalized Health Roadmap — In Just 3 Steps                  <br />
                   <span className="text-gradient">Guided Optimization</span>®
                 </h2>
                 <p className="text-lg text-black">
@@ -147,7 +146,7 @@ const InvestmentSection = () => {
                   key={index}
                   className="flex items-center space-x-2 text-sm text-primary-foreground px-8"
                 >
-                  <badge.icon size={16} className="text-primary-foreground" />
+                  <span className="text-lg">{badge.emoji}</span>
                   <span>{badge.text}</span>
                 </div>
               ))}
