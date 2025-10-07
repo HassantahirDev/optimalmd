@@ -4,9 +4,7 @@ const ProblemsSection = () => {
       <div className="container-custom">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-3xl lg:text-5xl font-bold leading-tight">
-            Let's face it, traditional healthcare is broken. You deserve better than 
-            stubborn insurance companies, overworked physicians, and outdated 
-            treatment guidelines.
+          Most men’s health clinics rush you through. At OptimaleMD, we take the time to understand your labs, lifestyle, and goals — and create a personalized plan that works.
           </h2>
           
           <div className="space-y-4">

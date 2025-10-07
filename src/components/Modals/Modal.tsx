@@ -29,7 +29,7 @@ export function Modal({
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl max-h-[80vh] overflow-y-auto">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold">{title}</h2>
+          <h2 className="text-xl font-semibold text-center">{title}</h2>
         </div>
         <div className="p-6 text-gray-700 space-y-4">{children}</div>
         <div className="p-4 flex justify-end gap-3 border-t">

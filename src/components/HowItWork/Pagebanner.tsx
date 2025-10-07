@@ -5,16 +5,24 @@ type Breadcrumb = {
 
 interface PageBannerProps {
   title: string;
+  subHeadline?: string;
   breadcrumbs: Breadcrumb[];
   backgroundImage: string;
   className?: string;
+  ctaButton?: {
+    text: string;
+    href: string;
+    onClick?: () => void;
+  };
 }
 
 export default function PageBanner({
   title,
+  subHeadline,
   breadcrumbs,
   backgroundImage,
   className = "",
+  ctaButton,
 }: PageBannerProps) {
   return (
     <section
@@ -46,8 +54,36 @@ export default function PageBanner({
           {title}
         </h1>
 
+        {/* Sub-headline */}
+        {subHeadline && (
+          <p className="mt-4 text-lg sm:text-xl md:text-2xl text-white/90 leading-relaxed max-w-3xl text-justify">
+            {subHeadline}
+          </p>
+        )}
+
+        {/* CTA Button */}
+        {ctaButton && (
+          <div className="mt-6">
+            {ctaButton.href ? (
+              <a
+                href={ctaButton.href}
+                className="inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                {ctaButton.text}
+              </a>
+            ) : (
+              <button
+                onClick={ctaButton.onClick}
+                className="inline-flex items-center px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                {ctaButton.text}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Breadcrumbs */}
-        <nav className="mt-6" aria-label="Breadcrumb">
+        <nav className="mt-8" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm sm:text-base">
             {breadcrumbs.map((crumb, index) => {
               const isLast = index === breadcrumbs.length - 1;

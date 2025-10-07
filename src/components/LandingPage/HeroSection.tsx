@@ -7,13 +7,13 @@ const HeroSection = () => {
   const navigate = useNavigate();
   
   const features = [
-    "Personalized lab testing",
-    "1 on 1 expert health coaching", 
-    "Supplements & prescriptions"
+    "Comprehensive lab testing to uncover the root cause.",
+    "One-on-one coaching with a physician who listens.", 
+    "Targeted therapies — from testosterone to weight loss — shipped to your door."
   ];
 
   const stats = [
-    { number: "50,000+", text: "OptimaleMD clients transformed" }
+    { number: "500+", text: "OptimaleMD clients transformed" }
   ];
 
   const handleStartJourney = () => {
@@ -44,11 +44,11 @@ const HeroSection = () => {
             {/* Main Headline */}
             <div className="space-y-4">
               <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
-                Look, Feel, & Perform Better Today
+                Reclaim Your Energy and Confidence
               </h2>
-              <span className="text-xl text-muted-foreground">
-                {stats[0].number} OptimaleMD clients transformed
-              </span>
+              <p className="text-xl text-muted-foreground">
+                Personalized health optimization without insurance hassles or cookie-cutter care.
+              </p>
             </div>
 
             {/* Features List */}

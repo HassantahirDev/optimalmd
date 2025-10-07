@@ -15,8 +15,8 @@ type StartNowBannerProps = {
 };
 
 const StartNowBanner: React.FC<StartNowBannerProps> = ({
-  title = "Start now",
-  description = "The first step towards optimizing your health online is to book your intake assessment, which includes:",
+  title = "Take the First Step — Book Your Physician Consult",
+  description = "No insurance, no hassle, just clear answers and a personalized plan:",
   ctaLabel = "Register Today",
   ctaHref = "/register",
   imageLeftSrc,

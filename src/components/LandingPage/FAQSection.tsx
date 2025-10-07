@@ -1,15 +1,32 @@
 import { Plus, Minus } from "lucide-react";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 const FAQSection = () => {
+  const navigate = useNavigate();
   const [openItems, setOpenItems] = useState<number[]>([]);
 
   const faqs = [
     {
-      question:
-        "I am NOT a United States Resident, can I still work with OptimaleMD?",
+      question: "How soon will I see results?",
       answer:
-        "Currently, OptimaleMD services are only available to residents of the United States due to regulatory requirements.",
+        "Most patients notice changes in energy, mood, and performance within weeks.",
+    },
+    {
+      question: "What's included in the monthly cost?",
+      answer:
+        "Regular appointments with your health coaches, discounted medications, lab work every 3 to 6 months, personalized treatment plans.",
+    },
+    {
+      question: "Do you ship nationwide?",
+      answer:
+        "Yes — we serve most U.S. states through telemedicine.",
+    },
+    {
+      question: "Are treatments safe and FDA-approved?",
+      answer:
+        "Yes. All programs are physician-supervised and use FDA-approved medications when available.",
     },
     {
       question: "What qualifies for Hormone Replacement Therapy?",
@@ -71,7 +88,7 @@ const FAQSection = () => {
                 {openItems.includes(index) && (
                   <div className="pb-6 animate-fade-in">
                     <p className="text-lg text-muted-foreground">
-                      {faq.answer.split(".").slice(0, 1).join(". ")}
+                      {faq.answer}
                     </p>
                   </div>
                 )}
@@ -79,14 +96,17 @@ const FAQSection = () => {
             ))}
           </div>
 
-          {/* Link to more FAQs */}
-          <div className="text-center">
-            <a
-              href="faqs"
-              className="text-primary hover:text-primary/80 transition-colors font-medium"
+          {/* CTA Button */}
+          <div className="text-center space-y-4">
+            <p className="text-xl text-muted-foreground">
+              Still have questions?
+            </p>
+            <Button 
+              className="btn-hero"
+              onClick={() => window.location.href = 'tel:+12543148990'}
             >
-              See more FAQs
-            </a>
+              Book a Free Call
+            </Button>
           </div>
         </div>
       </div>

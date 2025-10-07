@@ -3,6 +3,7 @@ import React from "react";
 
 interface ServiceCardProps {
   title?: string;
+  subtitle?: string;
   description?: string;
   whatsIncluded?: string;
   eligibility?: string;
@@ -17,6 +18,7 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   title,
+  subtitle,
   description,
   whatsIncluded,
   eligibility,
@@ -29,7 +31,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   imageUrl,
 }) => {
   return (
-    <div className="bg-black text-white rounded-2xl overflow-hidden flex flex-col p-6 gap-4 shadow-lg border border-gray-800">
+    <div className="bg-black text-white rounded-2xl overflow-hidden flex flex-col p-6 gap-4 shadow-lg border border-gray-800 h-full transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/20 hover:border-red-500/50 hover:scale-[1.02]">
       {/* ✅ Service Image */}
       {imageUrl && (
         <div className="w-full h-48 relative rounded-lg overflow-hidden">
@@ -44,8 +46,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       {/* Title */}
       {title && <h2 className="text-xl font-bold">{title}</h2>}
 
+      {/* Subtitle */}
+      {subtitle && <p className="text-lg font-semibold text-red-500 -mt-2">{subtitle}</p>}
+
       {/* Description */}
-      {description && <p className="text-gray-300">{description}</p>}
+      {description && <p className="text-gray-300 text-justify">{description}</p>}
 
       {/* Whats Included */}
       {whatsIncluded && (
@@ -78,6 +83,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           {readTime && <span>• {readTime}</span>}
         </div>
       )}
+
+      {/* Spacer to push button to bottom */}
+      <div className="flex-grow"></div>
 
       {/* Button */}
       {buttonText && (

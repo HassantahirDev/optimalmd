@@ -21,30 +21,30 @@ type StepItem = {
 const steps: StepItem[] = [
   {
     id: 1,
-    title: 'Step 1: Create Your Account',
+    title: 'Step 1: Book Your Physician Consultation',
     description:
-      'Register securely, complete your health profile, and verify your identity.',
+      'Quick 10-minute call to review your goals and see if OptimaleMD is right for you.',
     imgSrc: '/icon1.svg',
   },
   {
     id: 2,
-    title: 'Step 2: Book Your Appointment',
+    title: 'Step 2: Complete Your Labs',
     description:
-      'Choose a service, select a provider, and schedule a convenient time.',
+      'Convenient at-home kit or local lab draw to uncover what’s holding you back.',
       imgSrc: "/icon2.svg",
   },
   {
     id: 3,
-    title: 'Step 3: Meet Your Provider Online',
+    title: 'Step 3: Get Your Personalized Plan',
     description:
-      'Expect up to a 30 minute appointment to develop an individualized treatment plan.',
-      imgSrc: '/icon3.svg  ',
+      'Physician-designed treatment tailored to your labs, lifestyle, and goals.',
+      imgSrc: '/icon3.svg',
   },
   {
     id: 4,
-    title: 'Step 4: Receive Your Care Plan',
+    title: 'Step 4: Start Your Optimization Journey',
     description:
-      'Get prescriptions, lab orders, and follow-up instructions electronically.',
+      'Ongoing support, progress tracking, and adjustments so results keep improving.',
       imgSrc: '/icon4.svg',
   },
   {
@@ -58,7 +58,7 @@ const steps: StepItem[] = [
 
 const StepCard: React.FC<StepItem> = ({ title, description, Icon, imgSrc, imgAlt }) => {
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 shadow-xl p-6 md:p-8">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 shadow-xl p-6 md:p-8 h-full flex flex-col">
       <div className="h-12 w-12 rounded-full bg-red-600/20 text-red-500 flex items-center justify-center overflow-hidden">
         {imgSrc ? (
           <img src={imgSrc} alt={imgAlt || ''} className="h-12 w-12 object-contain" />
@@ -67,7 +67,7 @@ const StepCard: React.FC<StepItem> = ({ title, description, Icon, imgSrc, imgAlt
         )}
       </div>
       <h3 className="mt-6 text-lg md:text-xl font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm md:text-base text-white/70 leading-relaxed">{description}</p>
+      <p className="mt-3 text-sm md:text-base text-white/70 leading-relaxed flex-grow text-justify">{description}</p>
     </div>
   );
 };

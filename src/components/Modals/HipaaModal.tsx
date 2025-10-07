@@ -16,11 +16,7 @@ export function HipaaModal({ isOpen, onClose, onAccept }: HipaaModalProps) {
       title="HIPAA Privacy Notice"
     >
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-center text-black">
-          HIPAA Privacy Notice
-        </h2>
-
-        <div className="whitespace-pre-line text-sm leading-relaxed">
+        <div className="whitespace-pre-line text-sm leading-relaxed text-white">
           {HIPAA_NOTICE}
         </div>
       </div>

@@ -1,6 +1,6 @@
 import Navigation from "@/components/LandingPage/Navigation";
 import PageBanner from "@/components/HowItWork/Pagebanner";
-import phoneConsultation from "@/assets/phone-consultation.jpg";
+import heroCollage from "@/assets/hero-collage.jpg";
 import StepProcess from "@/components/HowItWork/StepProcess";
 import FAQSection from "@/components/LandingPage/FAQSection";
 import StartNowBanner from "@/components/HowItWork/StartNowBanner";
@@ -12,10 +12,15 @@ const HowItWorks = () => {
       <Navigation />
 
       <PageBanner
-        title="How It Works"
+        title="Your Path to Health Optimization — Simple, Clear, Effective"
+        subHeadline="In just 3 steps, you'll move from symptoms and frustration to energy, confidence, and results."
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "How It Works" }]}
-        backgroundImage="/bg.png"
-        className="h-[320px]"
+        backgroundImage={heroCollage}
+        className="h-[400px]"
+        ctaButton={{
+          text: "Start Your Journey",
+          href: "/register"
+        }}
       />
 
       <StepProcess />

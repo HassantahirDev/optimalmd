@@ -9,20 +9,11 @@ const OurMission: React.FC = () => {
           <h2 className="text-4xl md:text-5xl font-extrabold mb-6">
             Our Mission
           </h2>
-          <p className="text-lg mb-6 leading-relaxed">
-            We started <span className="font-semibold">OptimaleMD</span> with
-            one goal: to help men feel like themselves again.
+          <p className="text-lg mb-6 leading-relaxed text-justify">
+            At <span className="font-semibold">OptimaleMD</span>, we believe every man deserves to feel energized, confident, and in control of his health.
           </p>
-          <p className="text-lg mb-6 leading-relaxed">
-            Too many guys are told to just "deal with it" — the fatigue, low
-            energy, weight gain, and all the things that slowly chip away at
-            their confidence and quality of life. We think that's unacceptable.
-          </p>
-          <p className="text-lg mb-10 leading-relaxed">
-            At <span className="font-semibold">OptimaleMD</span>, we believe men
-            deserve real answers, real treatment, and real results. We're here
-            to support your health, your goals, and your longevity — with care
-            that's modern, judgment-free, and built around you.
+          <p className="text-lg mb-10 leading-relaxed text-justify">
+            We combine advanced medical therapies with personal coaching to deliver care that is transparent, effective, and designed around your lifestyle.
           </p>
 
           {/* Bottom Stats */}
