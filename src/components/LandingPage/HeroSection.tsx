@@ -65,7 +65,7 @@ const HeroSection = () => {
 
             {/* CTA Button */}
             <div className="pt-4">
-              <Button className="btn-hero" onClick={() => navigate("/book-appointment")}>
+              <Button className="btn-hero" onClick={() => navigate("/register")}>
                 Book Appointment
               </Button>
             </div>
