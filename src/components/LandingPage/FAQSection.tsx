@@ -103,9 +103,9 @@ const FAQSection = () => {
             </p>
             <Button 
               className="btn-hero"
-              onClick={() => window.location.href = 'tel:+12543148990'}
+              onClick={() => navigate("/contact-us")}
             >
-              Book a Free Call
+              Contact Us
             </Button>
           </div>
         </div>

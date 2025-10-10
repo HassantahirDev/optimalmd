@@ -14,6 +14,7 @@ import HowItWorks from "./pages/HowItWorks";
 import OurServicesPage from "./pages/OurServices";
 import LoginPage from "./pages/Login";
 import AdminLoginPage from "./pages/AdminLogin";
+import DoctorLoginPage from "./pages/DoctorLogin";
 import RegisterPage from "./pages/Register";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import VerifyEmailPendingPage from "./pages/VerifyEmailPending";
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/our-services" element={<OurServicesPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/admin-login" element={<AdminLoginPage />} />
+              <Route path="/doctor-login" element={<DoctorLoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               <Route

@@ -15,9 +15,9 @@ const Footer = () => (
             <Link to="/our-services" className="text-white/80 hover:text-white transition-colors">
               Services
             </Link>
-            <Link to="/our-blogs" className="text-white/80 hover:text-white transition-colors">
+            {/* <Link to="/our-blogs" className="text-white/80 hover:text-white transition-colors">
               Blog
-            </Link>
+            </Link> */}
             <Link to="/faqs" className="text-white/80 hover:text-white transition-colors">
               FAQs
             </Link>
@@ -56,32 +56,11 @@ const Footer = () => (
                 +1 254-314-8990
               </a>
               <div className="text-white/60 text-sm mt-2">
-                Mon-Fri: 9:00 am – 5:00 pm EST
+                Mon-Fri: 9:00 am – 5:00 pm CST
               </div>
             </div>
           </div>
 
-          {/* Follow Us Section */}
-          <div className="space-y-4">
-            <h4 className="font-bold text-white text-lg mb-4">Follow Us</h4>
-            <div className="flex gap-4">
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                  <i className="fab fa-instagram text-2xl text-white/80 hover:text-white transition-colors" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                  <i className="fab fa-facebook text-2xl text-white/80 hover:text-white transition-colors" />
-                </a>
-              </Button>
-              <Button variant="ghost" size="icon" asChild>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                  <i className="fab fa-linkedin text-2xl text-white/80 hover:text-white transition-colors" />
-                </a>
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
 

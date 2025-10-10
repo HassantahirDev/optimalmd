@@ -119,13 +119,9 @@ const InvestmentSection = () => {
                 ))}
               </div>
 
-              {/* Pricing */}
-              <div className="flex items-center space-x-4 pt-4">
+              {/* CTA Button */}
+              <div className="pt-4">
                 <Button className="btn-hero" onClick={handleStartTreatment}>Start treatment online</Button>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-black">$250</div>
-                  <div className="line-through text-black/50">$500</div>
-                </div>
               </div>
             </div>
           </div>

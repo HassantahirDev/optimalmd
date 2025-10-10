@@ -64,15 +64,8 @@ const HeroSection = () => {
             </div>
 
             {/* CTA Button */}
-            <div className="pt-4 flex flex-col sm:flex-row gap-4">
-              <Button className="btn-hero" onClick={handleStartJourney}>
-                Start your journey
-              </Button>
-              <Button 
-                variant="outline" 
-                className="btn-hero border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                onClick={() => navigate("/login")}
-              >
+            <div className="pt-4">
+              <Button className="btn-hero" onClick={() => navigate("/book-appointment")}>
                 Book Appointment
               </Button>
             </div>
@@ -84,7 +77,7 @@ const HeroSection = () => {
               <img 
                 src={heroImage} 
                 alt="Diverse group of OptimaleMD clients"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-contain"
               />
               {/* Overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

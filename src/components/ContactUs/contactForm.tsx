@@ -131,7 +131,7 @@ const App: React.FC<ContactFormProps> = () => {
               <div className="flex items-center space-x-3 text-red-500">
                 <MapPin size={24} />
                 <h3 className="text-xl sm:text-2xl font-semibold text-white">
-                  2057 S 61st Street, STE 120, Temple TX
+                  2027 S 61st Street, STE 120, Temple TX
                 </h3>
               </div>
               <p className="text-neutral-400 text-base leading-relaxed">

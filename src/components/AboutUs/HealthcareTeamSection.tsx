@@ -18,11 +18,11 @@ const HealthcareTeamSection = () => {
         {/* Doctor card */}
         <div className="bg-neutral-900 rounded-3xl p-8 shadow-2xl flex flex-col border border-gray-800">
           {/* Doctor photo */}
-          <div className="w-full h-80 bg-gray-300 rounded-2xl mb-6 overflow-hidden">
+          <div className="w-full h-80 bg-gray-300 rounded-2xl mb-6 overflow-hidden flex items-center justify-center">
             <img
-              src="/doctor.png"
+              src="https://placehold.co/400x320/1C1C1C/FFFFFF?text=Doctor+Image"
               alt="Dr. Sam Samarrai"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
 

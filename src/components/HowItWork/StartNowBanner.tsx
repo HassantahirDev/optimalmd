@@ -16,7 +16,7 @@ type StartNowBannerProps = {
 
 const StartNowBanner: React.FC<StartNowBannerProps> = ({
   title = "Take the First Step — Book Your Physician Consult",
-  description = "No insurance, no hassle, just clear answers and a personalized plan:",
+  description = "",
   ctaLabel = "Register Today",
   ctaHref = "/register",
   imageLeftSrc,
@@ -60,14 +60,14 @@ const StartNowBanner: React.FC<StartNowBannerProps> = ({
                   <img
                     src={leftSrc}
                     alt="Consultation"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 </div>
                 <div className="col-span-1 h-[240px] sm:h-[280px] md:h-[320px] lg:h-[360px] rounded-2xl overflow-hidden">
                   <img
                     src={rightSrc}
                     alt="Provider"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 </div>
               </div>

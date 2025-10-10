@@ -81,7 +81,7 @@ const OptimizationSection = () => {
           </div>
 
           {/* Featured On Section */}
-          <div className="text-center space-y-8">
+          {/* <div className="text-center space-y-8">
             <h3 className="text-2xl lg:text-3xl font-bold text-muted-foreground">
               Featured On
             </h3>
@@ -100,7 +100,7 @@ const OptimizationSection = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

@@ -40,7 +40,7 @@ const OurMission: React.FC = () => {
             <img
               src="/dd.png"
               alt="Doctor consulting patient"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           {/* Bottom Three Images */}
@@ -49,21 +49,21 @@ const OurMission: React.FC = () => {
               <img
                 src="/s3.png"
                 alt="Medical staff"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <div className="rounded-xl overflow-hidden">
               <img
                 src="/cv.png"
                 alt="Hospital corridor"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <div className="rounded-xl overflow-hidden">
               <img
                 src="cvv.png"
                 alt="Doctor smiling"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
           </div>

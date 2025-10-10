@@ -21,7 +21,7 @@ const Index = () => {
       <InvestmentSection />
       <TreatmentGoalsSection />
       <TestimonialsSection />
-      <FounderSection />
+      {/* <FounderSection /> */}
       <ExpertsSection />
       <FAQSection />
       <NewsletterSection />

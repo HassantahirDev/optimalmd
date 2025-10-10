@@ -36,8 +36,6 @@ const OurServicesPage: React.FC = () => {
               title="Hormone Optimization / TRT"
               subtitle="Restore energy, focus, and drive."
               description="Low testosterone can leave you feeling tired, unmotivated, and weaker than you should. Our doctor-supervised testosterone replacement therapy helps restore hormone balance, improve performance, and bring back your vitality."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/trt.png"
             />
 
@@ -45,8 +43,6 @@ const OurServicesPage: React.FC = () => {
               title="Hair Loss Treatment"
               subtitle="Regrow with confidence."
               description="Hair loss doesn't just affect appearance — it affects confidence. We offer oral and topical medications, advanced PRP therapy, and combination treatments designed to stop shedding and stimulate healthy regrowth."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/ImageforBlog/Hairloss.png"
             />
 
@@ -54,8 +50,6 @@ const OurServicesPage: React.FC = () => {
               title="Weight Loss & Obesity Medicine"
               subtitle="Lose weight safely — and keep it off."
               description="Whether you're struggling with stubborn fat or want to break through a plateau, we provide GLP-1 medications, metabolic programs, and lifestyle coaching to help you lose weight and maintain results long-term."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/loss.png"
             />
 
@@ -63,8 +57,6 @@ const OurServicesPage: React.FC = () => {
               title="Sexual Health"
               subtitle="Stronger performance, renewed confidence."
               description="From erectile dysfunction to low libido, we help men overcome performance issues with evidence-based therapies, advanced procedures like the P-Shot, and personalized protocols that restore sexual health."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/sexual.png"
             />
 
@@ -72,8 +64,6 @@ const OurServicesPage: React.FC = () => {
               title="Peptide & Longevity Medicine"
               subtitle="Cutting-edge science for recovery, performance, and aging."
               description="Our peptide and longevity programs leverage advanced therapies to accelerate recovery, improve fat metabolism, sharpen focus, and slow the effects of aging — helping you stay at your best for longer."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/long.png"
             />
 
@@ -81,8 +71,6 @@ const OurServicesPage: React.FC = () => {
               title="Lab Testing"
               subtitle="Know your numbers."
               description="Optimization starts with knowledge. Our comprehensive lab panels check hormones, lipids, metabolism, and key health markers so we can design the right treatment plan for you."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/test.png"
             />
 
@@ -90,18 +78,25 @@ const OurServicesPage: React.FC = () => {
               title="Supplements"
               subtitle="Daily essentials for optimal health."
               description="We offer physician-recommended supplements that support hormones, immunity, energy, and longevity. Designed to complement your treatment plan and maximize results."
-              link="/book-appointment"
-              buttonText="Explore Treatment →"
               imageUrl="/imageforservice/supplement.png"
             />
+          </div>
+          
+          {/* Explore More Button */}
+          <div className="text-center mt-12">
+            <a
+              href="/register"
+              className="inline-block px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors duration-200 text-lg"
+            >
+              Explore More Services →
+            </a>
           </div>
         </div>
       </main>
       <StartNowBanner 
-        title="Not Sure Where to Start? Let's Find the Right Program for You."
-        description="Book a free 10-minute consultation with Dr. Sam and get clear, personalized recommendations based on your goals and lab results."
-        ctaLabel="Start My Free Consult Today"
-        ctaHref="/book-appointment"
+        title="Not Sure Where to Start? Book your labs & initial consult to find out what works for you best."
+        ctaLabel="Start Now"
+        ctaHref="/register"
       />
 
       {/* Footer */}

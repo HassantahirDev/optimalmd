@@ -1,4 +1,4 @@
-const founderImage = "/sam.jpeg";
+const founderImage = "https://placehold.co/400x500/1C1C1C/FFFFFF?text=Doctor+Image";
 
 const FounderSection = () => {
   return (
@@ -40,7 +40,7 @@ const FounderSection = () => {
               <img 
                 src={founderImage}
                 alt="Saad, Co-Founder of OptimaleMD"
-                className="w-full h-auto object-cover aspect-[4/5]"
+                className="w-full h-auto object-contain aspect-[4/5]"
               />
               {/* Overlay gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />

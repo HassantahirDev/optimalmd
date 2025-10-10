@@ -3,9 +3,9 @@ import { Shield, UserCheck, Lock } from "lucide-react";
 
 const PrivacyHipaaSection = () => {
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-8 p-8 max-w-7xl mx-auto">
-      {/* Left Side - Privacy Content */}
-      <div className="flex-1 bg-red-500 rounded-3xl p-12 text-white">
+    <div className="flex flex-col items-center gap-8 p-8 max-w-7xl mx-auto">
+      {/* Privacy Content - Full Width */}
+      <div className="w-full bg-red-500 rounded-3xl p-12 text-white">
         <h2 className="text-5xl font-bold leading-tight mb-6">
           Your Privacy, Protected by Law
         </h2>
@@ -39,17 +39,6 @@ const PrivacyHipaaSection = () => {
             <h3 className="font-bold text-sm mb-1">Secure Telehealth</h3>
             <p className="text-xs opacity-90">Encrypted consultations</p>
           </div>
-        </div>
-      </div>
-
-      {/* Right Side - HIPAA Certificate Image */}
-      <div className="flex-1 max-w-lg">
-        <div className="relative">
-          <img
-            src="/certificate.png"
-            alt="HIPAA Training Certificate of Completion"
-            className="w-full h-auto rounded-2xl shadow-2xl"
-          />
         </div>
       </div>
     </div>

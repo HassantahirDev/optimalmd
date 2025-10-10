@@ -38,7 +38,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <img
             src={imageUrl}
             alt={title || "Service Image"}
-            className="object-cover"
+            className="w-full h-full object-contain"
           />
         </div>
       )}

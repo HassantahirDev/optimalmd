@@ -8,6 +8,7 @@ import {
   FileText,
   Shield,
   HelpCircle,
+  Stethoscope,
   LucideIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -66,19 +67,17 @@ const Navigation = () => {
     { label: "About Us", path: "/about-us" },
     { label: "Our Services", path: "/our-services" },
     {
-      label: "Book Appointment",
-      path: "/login",
-      icon: Calendar,
+      label: "Contact Us",
+      path: "/contact-us",
+      icon: Phone,
       highlight: false,
     },
-    { label: "Our Blog", path: "/our-blog" },
   ];
 
   const dropdownItems: NavItem[] = [
     { label: "Contact Us", path: "/contact-us", icon: Phone },
     { label: "FAQs", path: "/faqs", icon: HelpCircle },
-    { label: "Terms & Service", path: "/terms&service", icon: FileText },
-    { label: "Privacy Policy", path: "/privacy-policy", icon: Shield },
+    { label: "Doctor Login", path: "/doctor-login", icon: Stethoscope },
   ];
 
   const handleStartJourney = () => {

@@ -20,8 +20,22 @@ export const patientRegistrationSchema = Yup.object({
     .required("Date of Birth is required"),
   
   gender: Yup.string()
-    .oneOf(['Male', 'Female', 'Other'], "Please select a valid gender")
-    .required("Gender is required"),
+    .required("Gender is required")
+    .test('is-male', 'Invalid gender selection', 
+      function(value) {
+        if (value === 'Female') {
+          return this.createError({
+            message: 'Our practice specializes in men\'s health. We recommend consulting with a healthcare provider who specializes in women\'s health for your specific needs.',
+          });
+        }
+        if (value === 'Other') {
+          return this.createError({
+            message: 'Our practice specializes in men\'s health.  Please consult with a healthcare provider who specializes in your specific health requirements.',
+          });
+        }
+        return value === 'Male';
+      }
+    ),
   
   completeAddress: Yup.string()
     .required("Complete Address is required"),
@@ -161,8 +175,22 @@ export const adminPatientCreationSchema = Yup.object({
     .required("Date of Birth is required"),
   
   gender: Yup.string()
-    .oneOf(['Male', 'Female', 'Other'], "Please select a valid gender")
-    .required("Gender is required"),
+    .required("Gender is required")
+    .test('is-male', 'Invalid gender selection', 
+      function(value) {
+        if (value === 'Female') {
+          return this.createError({
+            message: 'Our practice specializes in male hormone optimization and men\'s health. We recommend consulting with a healthcare provider who specializes in women\'s health for your specific needs.',
+          });
+        }
+        if (value === 'Other') {
+          return this.createError({
+            message: 'Our practice focuses on male-specific hormone therapy and men\'s health optimization. Please consult with a healthcare provider who specializes in your specific health requirements.',
+          });
+        }
+        return value === 'Male';
+      }
+    ),
   
   completeAddress: Yup.string()
     .required("Complete Address is required"),

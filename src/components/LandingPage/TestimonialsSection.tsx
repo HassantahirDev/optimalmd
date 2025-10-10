@@ -7,26 +7,26 @@ const TestimonialsSection = () => {
   const testimonials = [
     {
       name: "Cheyanne",
-      date: "Dec 16, 2023",
+      date: "Oct 5, 2025",
       text: "OptimaleMD gave me the clarity and support I needed to truly transform my health.",
       rating: 5
     },
     {
       name: "L.R.",
-      date: "Jul 26, 2022", 
+      date: "Sep 28, 2025", 
       text: "I never imagined feeling this energetic and focused until I joined OptimaleMD.",
       rating: 5
     },
     {
       name: "Jack",
-      date: "Jun 29, 2023",
+      date: "Oct 2, 2025",
       text: "The OptimaleMD team helped me unlock a new level of wellness and confidence.",
       rating: 5
     },
     {
       name: "Alexander Sutton", 
-      date: "Mar 11, 2024",
-      text: "OptimaleMD’s approach made a real difference in my daily life and happiness.",
+      date: "Sep 25, 2025",
+      text: "OptimaleMD's approach made a real difference in my daily life and happiness.",
       rating: 5
     }
   ];
