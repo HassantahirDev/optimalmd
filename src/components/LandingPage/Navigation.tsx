@@ -77,7 +77,6 @@ const Navigation = () => {
   const dropdownItems: NavItem[] = [
     { label: "Contact Us", path: "/contact-us", icon: Phone },
     { label: "FAQs", path: "/faqs", icon: HelpCircle },
-    { label: "Doctor Login", path: "/doctor-login", icon: Stethoscope },
   ];
 
   const handleStartJourney = () => {

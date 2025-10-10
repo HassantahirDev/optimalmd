@@ -39,7 +39,7 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#1f2937', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
       <div style={{ width: '100%', maxWidth: '28rem', backgroundColor: 'white', padding: '1.5rem', borderRadius: '0.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb', textAlign: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ff4757', textAlign: 'center', marginBottom: '1rem' }}>
           Patient's BMI
         </h2>
         <p style={{ color: '#6b7280', textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -56,7 +56,17 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
               placeholder={'e.g., 5\'10" or 178 cm'}
               value={formData.height}
               onChange={(e) => handleInputChange('height', e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              style={{ 
+                width: '100%', 
+                padding: '0.5rem 0.75rem', 
+                border: '2px solid #ff4757', 
+                borderRadius: '0.375rem', 
+                color: '#1f2937', 
+                fontSize: '1rem',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#000000'}
+              onBlur={(e) => e.target.style.borderColor = '#ff4757'}
               required
             />
           </div>
@@ -70,7 +80,17 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
               placeholder={'e.g., 70 kg or 154 lbs'}
               value={formData.weight}
               onChange={(e) => handleInputChange('weight', e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              style={{ 
+                width: '100%', 
+                padding: '0.5rem 0.75rem', 
+                border: '2px solid #ff4757', 
+                borderRadius: '0.375rem', 
+                color: '#1f2937', 
+                fontSize: '1rem',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#000000'}
+              onBlur={(e) => e.target.style.borderColor = '#ff4757'}
               required
             />
           </div>
@@ -84,7 +104,17 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
               placeholder={'e.g., 32 inches or 81 cm'}
               value={formData.waist}
               onChange={(e) => handleInputChange('waist', e.target.value)}
-              style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              style={{ 
+                width: '100%', 
+                padding: '0.5rem 0.75rem', 
+                border: '2px solid #ff4757', 
+                borderRadius: '0.375rem', 
+                color: '#1f2937', 
+                fontSize: '1rem',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#000000'}
+              onBlur={(e) => e.target.style.borderColor = '#ff4757'}
               required
             />
           </div>
@@ -100,12 +130,14 @@ const Screen2FormNew: React.FC<Screen2FormProps> = ({ onComplete }) => {
             disabled={loading}
             style={{ 
               width: '100%', 
-              backgroundColor: loading ? '#9ca3af' : '#2563eb', 
+              backgroundColor: loading ? '#9ca3af' : '#ff4757', 
               color: 'white', 
               padding: '0.5rem 1rem', 
               borderRadius: '0.375rem', 
               border: 'none', 
-              cursor: loading ? 'not-allowed' : 'pointer' 
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600'
             }}
           >
             {loading ? 'Submitting...' : 'Submit'}
