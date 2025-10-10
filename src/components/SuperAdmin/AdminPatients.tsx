@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Users,
   UserPlus,
@@ -157,6 +157,7 @@ const AdminPatients: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -172,11 +173,20 @@ const AdminPatients: React.FC = () => {
     "screen2" | "screen3" | "screen4" | "screen5" | "screen6" | "screen7" | "screen8" | "screen9"
   >("screen2");
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Load patients from API
   useEffect(() => {
     loadPatients();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, statusFilter]);
+  }, [debouncedSearchTerm, statusFilter]);
 
   const loadPatients = async () => {
     try {
@@ -184,7 +194,7 @@ const AdminPatients: React.FC = () => {
       const response = await adminApi.patient.getPatients({
         page: 1,
         limit: 50,
-        search: searchTerm || undefined,
+        search: debouncedSearchTerm || undefined,
         status: statusFilter === "all" ? undefined : statusFilter,
       });
       setPatients(response.data);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Calendar,
   User,
@@ -37,6 +37,7 @@ const AdminAppointments: React.FC = () => {
   const [primaryServices, setPrimaryServices] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "scheduled" | "confirmed" | "completed" | "cancelled">("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
@@ -60,10 +61,19 @@ const AdminAppointments: React.FC = () => {
   const [patientSearchValue, setPatientSearchValue] = useState("");
   const [doctorSearchValue, setDoctorSearchValue] = useState("");
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Load data from APIs
   useEffect(() => {
     loadData();
-  }, [searchTerm, statusFilter]);
+  }, [debouncedSearchTerm, statusFilter]);
 
   const loadData = async () => {
     try {
@@ -74,7 +84,7 @@ const AdminAppointments: React.FC = () => {
         adminApi.appointment.getAppointments({
           page: 1,
           limit: 50,
-          search: searchTerm || undefined,
+          search: debouncedSearchTerm || undefined,
           status: statusFilter === 'all' ? undefined : statusFilter
         }),
         adminApi.patient.getPatients({ page: 1, limit: 200 }),

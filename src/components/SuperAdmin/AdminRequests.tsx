@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Clock,
   User,
@@ -26,6 +26,7 @@ const AdminRequests: React.FC = () => {
   const [requests, setRequests] = useState<(AppointmentRequest | Appointment)[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "assigned" | "rejected">("all");
   const [source, setSource] = useState<'bookings' | 'unassigned'>('unassigned');
   const [assignOpen, setAssignOpen] = useState(false);
@@ -35,10 +36,19 @@ const AdminRequests: React.FC = () => {
   const [availableDoctorOptions, setAvailableDoctorOptions] = useState<Array<{ id: string; firstName: string; lastName: string; slotId: string; slotStartTime: string; slotEndTime: string }>>([]);
   const [assignLoading, setAssignLoading] = useState(false);
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Load requests from API
   useEffect(() => {
     loadRequests();
-  }, [searchTerm, statusFilter]);
+  }, [debouncedSearchTerm, statusFilter]);
 
   const loadRequests = async () => {
     try {
@@ -55,7 +65,7 @@ const AdminRequests: React.FC = () => {
           page: 1,
           limit: 50,
           status: statusFilter === 'all' ? undefined : statusFilter as any,
-          search: searchTerm || undefined
+          search: debouncedSearchTerm || undefined
         });
         setRequests(response.data);
       }

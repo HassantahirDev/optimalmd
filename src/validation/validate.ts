@@ -50,17 +50,17 @@ export const patientRegistrationSchema = Yup.object({
     .optional(),
   
   emergencyContactName: Yup.string()
-    .required("Emergency Contact Name is required"),
+    .optional(),
   
   emergencyContactRelationship: Yup.string()
     .optional(),
   
   emergencyContactPhone: Yup.string()
-    .required("Emergency Contact Phone Number is required"),
+    .optional(),
   
   referringSource: Yup.string()
     .oneOf(['Online', 'Friend', 'Employee'], "Please select a valid referring source")
-    .required("Referring Source is required"),
+    .optional(),
   
   consentForTreatment: Yup.string()
     .oneOf(['Y', 'N'], "Please select Y or N")
@@ -191,17 +191,17 @@ export const adminPatientCreationSchema = Yup.object({
     .optional(),
   
   emergencyContactName: Yup.string()
-    .required("Emergency Contact Name is required"),
+    .optional(),
   
   emergencyContactRelationship: Yup.string()
     .optional(),
   
   emergencyContactPhone: Yup.string()
-    .required("Emergency Contact Phone is required"),
+    .optional(),
   
   referringSource: Yup.string()
     .oneOf(['Online', 'Friend', 'Employee', 'Other'], "Please select a valid referring source")
-    .required("Referring Source is required"),
+    .optional(),
   
   consentForTreatment: Yup.string()
     .oneOf(['Y', 'N'], "Please select Y or N")

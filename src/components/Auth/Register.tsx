@@ -99,9 +99,6 @@ export default function Register() {
         "zipcode",
         "primaryEmail",
         "primaryPhone",
-        "emergencyContactName",
-        "emergencyContactPhone",
-        "referringSource",
         "consentForTreatment",
         "hipaaPrivacyNoticeAcknowledgment",
         "releaseOfMedicalRecordsConsent",
@@ -316,9 +313,9 @@ export default function Register() {
       }
       
     } else if (activeSection === 2) {
-      // Validate Emergency Contact section
+      // Validate Emergency Contact section - now optional
       const requiredFields = [
-        'emergencyContactName', 'emergencyContactPhone'
+        // Emergency contact fields are now optional
       ];
       
       requiredFields.forEach(field => {
@@ -329,7 +326,7 @@ export default function Register() {
     } else if (activeSection === 3) {
       // Validate Consent & Legal section
       const requiredFields = [
-        'referringSource', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment',
+        'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment',
         'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication'
       ];
       
@@ -857,7 +854,7 @@ export default function Register() {
               {/* Emergency Contact Name */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Emergency Contact Name <span className="text-red-500">*</span>
+                  Emergency Contact Name
                 </label>
                 <input
                   type="text"
@@ -900,7 +897,7 @@ export default function Register() {
               {/* Emergency Contact Phone Number */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Emergency Contact Phone Number <span className="text-red-500">*</span>
+                  Emergency Contact Phone Number
                 </label>
                 <input
                   type="tel"
@@ -950,7 +947,7 @@ export default function Register() {
               {/* Referring Source */}
               <div className="mb-4">
                 <label className="block text-base text-white mb-2">
-                  Referring Source <span className="text-red-500">*</span>
+                  Referring Source
                 </label>
                 <select
                   name="referringSource"

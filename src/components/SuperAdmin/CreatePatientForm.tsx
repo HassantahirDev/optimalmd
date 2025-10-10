@@ -245,7 +245,7 @@ const CreatePatientForm: React.FC<CreatePatientFormProps> = ({ onClose, onSucces
           Object.entries(values).map(([key, value]) => [
             key,
             // Convert empty strings to undefined for optional fields, except for required fields
-            value === '' && !['firstName', 'lastName', 'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode', 'primaryEmail', 'primaryPhone', 'emergencyContactName', 'emergencyContactPhone', 'referringSource', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment', 'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication'].includes(key)
+            value === '' && !['firstName', 'lastName', 'dateOfBirth', 'gender', 'completeAddress', 'city', 'state', 'zipcode', 'primaryEmail', 'primaryPhone', 'consentForTreatment', 'hipaaPrivacyNoticeAcknowledgment', 'releaseOfMedicalRecordsConsent', 'preferredMethodOfCommunication'].includes(key)
               ? undefined 
               : value
           ])
@@ -532,7 +532,7 @@ const CreatePatientForm: React.FC<CreatePatientFormProps> = ({ onClose, onSucces
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="emergencyContactName">Emergency Contact Name *</Label>
+              <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
               <Input
                 id="emergencyContactName"
                 name="emergencyContactName"
@@ -556,7 +556,7 @@ const CreatePatientForm: React.FC<CreatePatientFormProps> = ({ onClose, onSucces
               />
             </div>
             <div>
-              <Label htmlFor="emergencyContactPhone">Emergency Contact Phone *</Label>
+              <Label htmlFor="emergencyContactPhone">Emergency Contact Phone</Label>
               <Input
                 id="emergencyContactPhone"
                 name="emergencyContactPhone"
@@ -581,7 +581,7 @@ const CreatePatientForm: React.FC<CreatePatientFormProps> = ({ onClose, onSucces
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="referringSource">Referring Source *</Label>
+              <Label htmlFor="referringSource">Referring Source</Label>
               <Select
                 value={formik.values.referringSource}
                 onValueChange={(value) => formik.setFieldValue('referringSource', value)}
@@ -683,7 +683,7 @@ const CreatePatientForm: React.FC<CreatePatientFormProps> = ({ onClose, onSucces
           </div>
 
           <div>
-            <Label htmlFor="disabilityAccessibilityNeeds">Disability/Accessibility Needs *</Label>
+            <Label htmlFor="disabilityAccessibilityNeeds">Disability/Accessibility Needs</Label>
             <Textarea
               id="disabilityAccessibilityNeeds"
               name="disabilityAccessibilityNeeds"
