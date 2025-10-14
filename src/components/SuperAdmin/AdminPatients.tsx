@@ -154,8 +154,19 @@ function toYesNo(v: any): string {
 /* -------------------- Main component -------------------- */
 
 const AdminPatients: React.FC = () => {
+  // Format date for display (MM-DD-YYYY)
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
@@ -186,11 +197,25 @@ const AdminPatients: React.FC = () => {
   useEffect(() => {
     loadPatients();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle search and filter changes
+  useEffect(() => {
+    if (debouncedSearchTerm !== "" || statusFilter !== "all") {
+      loadPatients(true);
+    } else {
+      loadPatients(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, statusFilter]);
 
-  const loadPatients = async () => {
+  const loadPatients = async (isSearch = false) => {
     try {
-      setLoading(true);
+      if (isSearch) {
+        setSearchLoading(true);
+      } else {
+        setLoading(true);
+      }
       const response = await adminApi.patient.getPatients({
         page: 1,
         limit: 50,
@@ -202,7 +227,11 @@ const AdminPatients: React.FC = () => {
       console.error("Error loading patients:", error);
       toast.error("Failed to load patients");
     } finally {
-      setLoading(false);
+      if (isSearch) {
+        setSearchLoading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -1266,11 +1295,21 @@ const AdminPatients: React.FC = () => {
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            {searchLoading && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
+              </div>
+            )}
             <input
               type="text"
-              placeholder="Search by name, email, or phone..."
+              placeholder="Search by name, email, phone, or date of birth..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
             />
           </div>
@@ -1286,6 +1325,16 @@ const AdminPatients: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* Search Loading Indicator */}
+        {searchLoading && (
+          <div className="mb-4 flex items-center justify-center py-4">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-500"></div>
+              <span className="text-white">Searching patients...</span>
+            </div>
+          </div>
+        )}
 
         {/* Patients List */}
         <div className="space-y-6">
@@ -1350,7 +1399,7 @@ const AdminPatients: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <div>
                       <p className="text-gray-400 text-sm mb-1">Age</p>
-                      <p className="text-white font-medium">{getPatientAge(patient.dateOfBirth)} years old</p>
+                      <p className="text-white font-medium">{getPatientAge(patient.dateOfBirth)} years old ({formatDateForDisplay(patient.dateOfBirth)})</p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm mb-1">Gender</p>

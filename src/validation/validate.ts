@@ -155,6 +155,81 @@ export const patientRegistrationSchema = Yup.object({
 });
 
 // Admin patient creation schema (no password required)
+// Schema for editing patients - all fields optional except basic validation
+export const adminPatientEditSchema = Yup.object({
+  // Basic validation only - no required fields for editing
+  title: Yup.string()
+    .oneOf(['Mr', 'Mrs', 'Ms', 'Dr', 'Other'], "Please select a valid title")
+    .optional(),
+  
+  firstName: Yup.string().optional(),
+  middleName: Yup.string().optional(),
+  lastName: Yup.string().optional(),
+  
+  dateOfBirth: Yup.string()
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
+    .optional(),
+  
+  gender: Yup.string().optional(),
+  completeAddress: Yup.string().optional(),
+  city: Yup.string().optional(),
+  state: Yup.string().optional(),
+  zipcode: Yup.string().optional(),
+  
+  primaryEmail: Yup.string()
+    .email("Invalid email format")
+    .optional(),
+  
+  alternativeEmail: Yup.string()
+    .email("Invalid email format")
+    .optional(),
+  
+  primaryPhone: Yup.string().optional(),
+  alternativePhone: Yup.string().optional(),
+  
+  emergencyContactName: Yup.string().optional(),
+  emergencyContactRelationship: Yup.string().optional(),
+  emergencyContactPhone: Yup.string().optional(),
+  
+  referringSource: Yup.string()
+    .oneOf(['Online', 'Friend', 'Employee', 'Other'], "Please select a valid referring source")
+    .optional(),
+  
+  consentForTreatment: Yup.string()
+    .oneOf(['Y', 'N'], "Please select Y or N")
+    .optional(),
+  
+  hipaaPrivacyNoticeAcknowledgment: Yup.string()
+    .oneOf(['Y', 'N'], "Please select Y or N")
+    .optional(),
+  
+  releaseOfMedicalRecordsConsent: Yup.string()
+    .oneOf(['Y', 'N'], "Please select Y or N")
+    .optional(),
+  
+  preferredMethodOfCommunication: Yup.string()
+    .oneOf(['Phone', 'Email', 'Mail'], "Please select a valid communication method")
+    .optional(),
+  
+  disabilityAccessibilityNeeds: Yup.string().optional(),
+  
+  // Optional fields
+  careProviderPhone: Yup.string().optional(),
+  lastFourDigitsSSN: Yup.string().optional(),
+  languagePreference: Yup.string().optional(),
+  ethnicityRace: Yup.string().optional(),
+  primaryCarePhysician: Yup.string().optional(),
+  insuranceProviderName: Yup.string().optional(),
+  insurancePolicyNumber: Yup.string().optional(),
+  insuranceGroupNumber: Yup.string().optional(),
+  insurancePhoneNumber: Yup.string().optional(),
+  guarantorResponsibleParty: Yup.string().optional(),
+  dateOfFirstVisitPlanned: Yup.string().optional(),
+  interpreterRequired: Yup.string().optional(),
+  advanceDirectives: Yup.string().optional(),
+  isActive: Yup.boolean().optional(),
+});
+
 export const adminPatientCreationSchema = Yup.object({
   // Mandatory Fields (Green in image)
   title: Yup.string()

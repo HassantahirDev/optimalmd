@@ -25,6 +25,7 @@ import { toast } from "sonner";
 const AdminRequests: React.FC = () => {
   const [requests, setRequests] = useState<(AppointmentRequest | Appointment)[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "assigned" | "rejected">("all");
@@ -48,11 +49,20 @@ const AdminRequests: React.FC = () => {
   // Load requests from API
   useEffect(() => {
     loadRequests();
-  }, [debouncedSearchTerm, statusFilter]);
+  }, []);
 
-  const loadRequests = async () => {
+  // Handle search and filter changes
+  useEffect(() => {
+    loadRequests(true);
+  }, [debouncedSearchTerm, statusFilter, source]);
+
+  const loadRequests = async (isSearch = false) => {
     try {
-      setLoading(true);
+      if (isSearch) {
+        setSearchLoading(true);
+      } else {
+        setLoading(true);
+      }
       if (source === 'unassigned') {
         const response = await adminApi.appointment.getUnassignedAppointments({
           page: 1,
@@ -73,7 +83,11 @@ const AdminRequests: React.FC = () => {
       console.error('Error loading requests:', error);
       toast.error('Failed to load appointment requests');
     } finally {
-      setLoading(false);
+      if (isSearch) {
+        setSearchLoading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -185,11 +199,21 @@ const AdminRequests: React.FC = () => {
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            {searchLoading && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+              </div>
+            )}
             <input
               type="text"
               placeholder="Search by patient name, email, or service..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
             />
           </div>
@@ -214,6 +238,16 @@ const AdminRequests: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* Search Loading Indicator */}
+        {searchLoading && (
+          <div className="mb-4 flex items-center justify-center py-4">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+              <span className="text-white">Searching requests...</span>
+            </div>
+          </div>
+        )}
 
         {/* Requests List */}
         <div className="space-y-6">

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { adminPatientCreationSchema } from '@/validation/validate';
+import { adminPatientEditSchema } from '@/validation/validate';
 import { adminApi, Patient } from '@/services/adminApi';
 import { X } from 'lucide-react';
 
@@ -47,6 +47,85 @@ interface PatientFormData {
 
 const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [dobDisplayValue, setDobDisplayValue] = useState("");
+
+  // Initialize dobDisplayValue when component mounts
+  useEffect(() => {
+    if (patient.dateOfBirth) {
+      setDobDisplayValue(formatDateForDisplay(patient.dateOfBirth));
+    }
+  }, [patient.dateOfBirth]);
+
+  // Format date for display (MM-DD-YYYY)
+  const formatDateForDisplay = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
+  // Handle custom date input
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    let numbersOnly = value.replace(/[^\d]/g, '');
+    numbersOnly = numbersOnly.slice(0, 8);
+    let formatted = '';
+    if (numbersOnly.length > 0) {
+      formatted = numbersOnly.slice(0, 2);
+      if (numbersOnly.length > 2) {
+        formatted += '-' + numbersOnly.slice(2, 4);
+      }
+      if (numbersOnly.length > 4) {
+        formatted += '-' + numbersOnly.slice(4, 8);
+      }
+    }
+    setDobDisplayValue(formatted);
+    if (numbersOnly.length === 8) {
+      const month = parseInt(numbersOnly.slice(0, 2));
+      const day = parseInt(numbersOnly.slice(2, 4));
+      const year = parseInt(numbersOnly.slice(4, 8));
+      if (month < 1 || month > 12) {
+        formik.setFieldValue("dateOfBirth", "INVALID");
+        formik.setFieldError("dateOfBirth", "Month must be between 01 and 12");
+        formik.setFieldTouched("dateOfBirth", true, false);
+        return;
+      }
+      if (day < 1 || day > 31) {
+        formik.setFieldValue("dateOfBirth", "INVALID");
+        formik.setFieldError("dateOfBirth", "Day must be between 01 and 31");
+        formik.setFieldTouched("dateOfBirth", true, false);
+        return;
+      }
+      if (year < 1900 || year > 2100) {
+        formik.setFieldValue("dateOfBirth", "INVALID");
+        formik.setFieldError("dateOfBirth", "Year must be between 1900 and 2100");
+        formik.setFieldTouched("dateOfBirth", true, false);
+        return;
+      }
+      const date = new Date(year, month - 1, day);
+      if (date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+        const monthStr = String(month).padStart(2, '0');
+        const dayStr = String(day).padStart(2, '0');
+        const localDateString = `${year}-${monthStr}-${dayStr}`;
+        formik.setFieldValue("dateOfBirth", localDateString);
+        formik.setFieldError("dateOfBirth", "");
+        formik.setFieldTouched("dateOfBirth", true, false);
+      } else {
+        formik.setFieldValue("dateOfBirth", "INVALID");
+        formik.setFieldError("dateOfBirth", "Invalid date (e.g., February only has 28/29 days)");
+        formik.setFieldTouched("dateOfBirth", true, false);
+      }
+    } else {
+      if (numbersOnly.length === 0) {
+        formik.setFieldValue("dateOfBirth", "");
+        formik.setFieldError("dateOfBirth", "");
+      }
+    }
+  };
 
   const formik = useFormik<PatientFormData>({
     initialValues: {
@@ -54,7 +133,7 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
       firstName: patient.firstName || "",
       middleName: patient.middleName || "",
       lastName: patient.lastName || "",
-      dateOfBirth: patient.dateOfBirth || "",
+      dateOfBirth: patient.dateOfBirth ? new Date(patient.dateOfBirth).toISOString().split('T')[0] : "",
       gender: patient.gender || "",
       completeAddress: patient.completeAddress || "",
       city: patient.city || "",
@@ -74,8 +153,11 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
       preferredMethodOfCommunication: patient.preferredMethodOfCommunication || "",
       disabilityAccessibilityNeeds: patient.disabilityAccessibilityNeeds || "",
     },
-    validationSchema: adminPatientCreationSchema,
-    onSubmit: async (values) => {
+    validationSchema: adminPatientEditSchema,
+    onSubmit: async (values, { setSubmitting, errors, touched }) => {
+      console.log('Form submitted with values:', values);
+      console.log('Form errors:', errors);
+      console.log('Form touched:', touched);
       setLoading(true);
       try {
         // Clean up the form data - remove empty strings for optional fields
@@ -104,6 +186,7 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
         toast.error(error.response?.data?.message || 'Failed to update patient');
       } finally {
         setLoading(false);
+        setSubmitting(false);
       }
     },
   });
@@ -119,7 +202,11 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
         </div>
 
         <div className="p-6">
-          <form onSubmit={formik.handleSubmit} className="space-y-6">
+          <form onSubmit={(e) => {
+            console.log('Form submit event triggered');
+            e.preventDefault();
+            formik.handleSubmit(e);
+          }} className="space-y-6">
             {/* Section 1: Basic Information */}
             <Card>
               <CardHeader>
@@ -169,17 +256,20 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-                    <Input
-                      id="dateOfBirth"
-                      name="dateOfBirth"
-                      type="date"
-                      value={formik.values.dateOfBirth}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className={formik.errors.dateOfBirth && formik.touched.dateOfBirth ? 'border-red-500' : ''}
-                    />
-                    {formik.errors.dateOfBirth && formik.touched.dateOfBirth && (
+                    <Label htmlFor="dateOfBirth">Date of Birth (MM/DD/YYYY) *</Label>
+                    <div className="relative">
+                      <Input
+                        id="dateOfBirth"
+                        name="dateOfBirth"
+                        type="text"
+                        value={dobDisplayValue || formatDateForDisplay(formik.values.dateOfBirth)}
+                        onChange={handleDateInputChange}
+                        onBlur={formik.handleBlur}
+                        placeholder="MM-DD-YYYY"
+                        className={formik.errors.dateOfBirth && formik.touched.dateOfBirth ? 'border-red-500' : ''}
+                      />
+                    </div>
+                    {formik.errors.dateOfBirth && (
                       <p className="text-red-500 text-sm mt-1">{formik.errors.dateOfBirth}</p>
                     )}
                   </div>
@@ -379,132 +469,6 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
               </CardContent>
             </Card>
 
-            {/* Section 4: Additional Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Additional Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="referringSource">Referring Source</Label>
-                    <Select
-                      value={formik.values.referringSource}
-                      onValueChange={(value) => formik.setFieldValue('referringSource', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select referring source" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Online">Online</SelectItem>
-                        <SelectItem value="Friend">Friend</SelectItem>
-                        <SelectItem value="Employee">Employee</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formik.errors.referringSource && formik.touched.referringSource && (
-                      <p className="text-red-500 text-sm mt-1">{formik.errors.referringSource}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="preferredMethodOfCommunication">Preferred Communication *</Label>
-                    <Select
-                      value={formik.values.preferredMethodOfCommunication}
-                      onValueChange={(value) => formik.setFieldValue('preferredMethodOfCommunication', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select communication method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Email">Email</SelectItem>
-                        <SelectItem value="Phone">Phone</SelectItem>
-                        <SelectItem value="SMS">SMS</SelectItem>
-                        <SelectItem value="Mail">Mail</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formik.errors.preferredMethodOfCommunication && formik.touched.preferredMethodOfCommunication && (
-                      <p className="text-red-500 text-sm mt-1">{formik.errors.preferredMethodOfCommunication}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="consentForTreatment">Consent for Treatment *</Label>
-                    <RadioGroup
-                      value={formik.values.consentForTreatment}
-                      onValueChange={(value) => formik.setFieldValue('consentForTreatment', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Y" id="consent-y" />
-                        <Label htmlFor="consent-y">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="N" id="consent-n" />
-                        <Label htmlFor="consent-n">No</Label>
-                      </div>
-                    </RadioGroup>
-                    {formik.errors.consentForTreatment && formik.touched.consentForTreatment && (
-                      <p className="text-red-500 text-sm mt-1">{formik.errors.consentForTreatment}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="hipaaPrivacyNoticeAcknowledgment">HIPAA Privacy Notice *</Label>
-                    <RadioGroup
-                      value={formik.values.hipaaPrivacyNoticeAcknowledgment}
-                      onValueChange={(value) => formik.setFieldValue('hipaaPrivacyNoticeAcknowledgment', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Y" id="hipaa-y" />
-                        <Label htmlFor="hipaa-y">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="N" id="hipaa-n" />
-                        <Label htmlFor="hipaa-n">No</Label>
-                      </div>
-                    </RadioGroup>
-                    {formik.errors.hipaaPrivacyNoticeAcknowledgment && formik.touched.hipaaPrivacyNoticeAcknowledgment && (
-                      <p className="text-red-500 text-sm mt-1">{formik.errors.hipaaPrivacyNoticeAcknowledgment}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="releaseOfMedicalRecordsConsent">Release of Medical Records Consent *</Label>
-                    <RadioGroup
-                      value={formik.values.releaseOfMedicalRecordsConsent}
-                      onValueChange={(value) => formik.setFieldValue('releaseOfMedicalRecordsConsent', value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Y" id="release-y" />
-                        <Label htmlFor="release-y">Yes</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="N" id="release-n" />
-                        <Label htmlFor="release-n">No</Label>
-                      </div>
-                    </RadioGroup>
-                    {formik.errors.releaseOfMedicalRecordsConsent && formik.touched.releaseOfMedicalRecordsConsent && (
-                      <p className="text-red-500 text-sm mt-1">{formik.errors.releaseOfMedicalRecordsConsent}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="disabilityAccessibilityNeeds">Disability/Accessibility Needs</Label>
-                  <Textarea
-                    id="disabilityAccessibilityNeeds"
-                    name="disabilityAccessibilityNeeds"
-                    value={formik.values.disabilityAccessibilityNeeds}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    placeholder="Describe any disability or accessibility needs"
-                    className={formik.errors.disabilityAccessibilityNeeds && formik.touched.disabilityAccessibilityNeeds ? 'border-red-500' : ''}
-                  />
-                  {formik.errors.disabilityAccessibilityNeeds && formik.touched.disabilityAccessibilityNeeds && (
-                    <p className="text-red-500 text-sm mt-1">{formik.errors.disabilityAccessibilityNeeds}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
 
 
 
@@ -522,6 +486,14 @@ const EditPatientForm: React.FC<EditPatientFormProps> = ({ patient, onClose, onS
                 type="submit"
                 disabled={loading}
                 className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={(e) => {
+                  console.log('Submit button clicked');
+                  console.log('Form values:', formik.values);
+                  console.log('Form errors:', formik.errors);
+                  console.log('Form touched:', formik.touched);
+                  console.log('Form isValid:', formik.isValid);
+                  console.log('Form isSubmitting:', formik.isSubmitting);
+                }}
               >
                 {loading ? 'Updating...' : 'Update Patient'}
               </Button>

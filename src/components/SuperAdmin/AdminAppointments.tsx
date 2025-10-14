@@ -36,6 +36,7 @@ const AdminAppointments: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [primaryServices, setPrimaryServices] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "scheduled" | "confirmed" | "completed" | "cancelled">("all");
@@ -73,11 +74,20 @@ const AdminAppointments: React.FC = () => {
   // Load data from APIs
   useEffect(() => {
     loadData();
+  }, []);
+
+  // Handle search and filter changes
+  useEffect(() => {
+    loadData(true);
   }, [debouncedSearchTerm, statusFilter]);
 
-  const loadData = async () => {
+  const loadData = async (isSearch = false) => {
     try {
-      setLoading(true);
+      if (isSearch) {
+        setSearchLoading(true);
+      } else {
+        setLoading(true);
+      }
       
       // Load appointments, doctors, and services in parallel
       const [appointmentsResponse, patientsResponse, doctorsResponse, servicesResponse, primaryServicesResp] = await Promise.all([
@@ -102,7 +112,11 @@ const AdminAppointments: React.FC = () => {
       console.error('Error loading data:', error);
       toast.error('Failed to load appointments data');
     } finally {
-      setLoading(false);
+      if (isSearch) {
+        setSearchLoading(false);
+      } else {
+        setLoading(false);
+      }
     }
   };
 
@@ -268,11 +282,21 @@ const AdminAppointments: React.FC = () => {
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            {searchLoading && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+              </div>
+            )}
             <input
               type="text"
               placeholder="Search by patient, doctor, or service..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                }
+              }}
               className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500"
             />
           </div>
@@ -290,6 +314,16 @@ const AdminAppointments: React.FC = () => {
             </select>
           </div>
         </div>
+
+        {/* Search Loading Indicator */}
+        {searchLoading && (
+          <div className="mb-4 flex items-center justify-center py-4">
+            <div className="bg-gray-800 p-4 rounded-lg shadow-lg flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+              <span className="text-white">Searching appointments...</span>
+            </div>
+          </div>
+        )}
 
         {/* Appointments List */}
         <div className="space-y-6">
