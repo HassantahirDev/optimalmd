@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { User, Calendar, Clock, Mail, AlertTriangle, ArrowLeft, FileText, Download } from "lucide-react";
+import ReactMarkdown from 'react-markdown';
 import api from "@/service/api";
 import { toast } from "@/components/ui/use-toast";
 import { formatTime } from "@/utils/timeUtils";
 import NewMedicationModal from "./NewMedicationModal";
+import { Assessment, fetchAllAssessments, fetchAppointmentAssessmentData, createAppointmentAssessment } from "@/services/assessmentApi";
 
 
 
@@ -46,6 +48,17 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
   const [showMedicationModal, setShowMedicationModal] = useState(false);
   const [generatingReport, setGeneratingReport] = useState(false);
   const [reportGenerated, setReportGenerated] = useState(false);
+  
+  // Assessment states
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
+  const [lifestyleGuidanceAssessment, setLifestyleGuidanceAssessment] = useState<Assessment | null>(null);
+  const [selectedAssessment, setSelectedAssessment] = useState<string>('');
+  const [assessmentContent, setAssessmentContent] = useState<string>('');
+  const [lifestyleGuidance, setLifestyleGuidance] = useState<string>('');
+  const [loadingAssessments, setLoadingAssessments] = useState(false);
+  const [savingAssessment, setSavingAssessment] = useState(false);
+  const [assessmentError, setAssessmentError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
   
   // Use passed patient data or fallback to default
   const currentPatientData = patient || {
@@ -167,6 +180,35 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
     checkReportExists();
   }, [currentPatientData.appointmentId]);
 
+  // Fetch assessment options
+  useEffect(() => {
+    const loadAssessments = async () => {
+      setLoadingAssessments(true);
+      setAssessmentError(null);
+      try {
+        const assessmentList = await fetchAllAssessments();
+        // Ensure we always have an array
+        const allAssessments = Array.isArray(assessmentList) ? assessmentList : [];
+        
+        // Separate lifestyle guidance from regular assessments
+        const lifestyleGuidance = allAssessments.find(ass => ass.name === "Lifestyle Guidance");
+        const regularAssessments = allAssessments.filter(ass => ass.name !== "Lifestyle Guidance");
+        
+        setLifestyleGuidanceAssessment(lifestyleGuidance || null);
+        setAssessments(regularAssessments);
+      } catch (error) {
+        console.error('Error loading assessments:', error);
+        setAssessmentError('Failed to load assessments');
+        setAssessments([]); // Ensure it's always an array
+        setLifestyleGuidanceAssessment(null);
+      } finally {
+        setLoadingAssessments(false);
+      }
+    };
+
+    loadAssessments();
+  }, []);
+
   const handleGenerateReport = async () => {
     if (!currentPatientData.appointmentId) return;
 
@@ -244,6 +286,76 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
         title: "Failed to open",
         description: "Please try again.",
       });
+    }
+  };
+
+  // Assessment handling functions
+  const handleAssessmentSelect = (assessmentId: string) => {
+    setSelectedAssessment(assessmentId);
+    
+    // Load existing assessment data for this assessment
+    const loadExistingData = async () => {
+      try {
+        const existingData = await fetchAppointmentAssessmentData(currentPatientData.appointmentId || '');
+        if (existingData && existingData[assessmentId]) {
+          const content = existingData[assessmentId].content || '';
+          try {
+            // Try to parse as JSON (combined content)
+            const parsedContent = JSON.parse(content);
+            setAssessmentContent(parsedContent.assessmentContent || '');
+            setLifestyleGuidance(parsedContent.lifestyleGuidance || lifestyleGuidanceAssessment?.content || '');
+          } catch {
+            // If not JSON, treat as plain text (legacy format)
+            setAssessmentContent(content);
+            setLifestyleGuidance(lifestyleGuidanceAssessment?.content || '');
+          }
+        } else {
+          // Use default content from assessment
+          const assessment = assessments.find(ass => ass.id === assessmentId);
+          if (assessment) {
+            setAssessmentContent(assessment.content);
+            // Populate lifestyle guidance with the content from the "Lifestyle Guidance" assessment
+            setLifestyleGuidance(lifestyleGuidanceAssessment?.content || '');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading assessment data:', error);
+      }
+    };
+
+    loadExistingData();
+  };
+
+  const handleSaveAssessment = async () => {
+    if (!currentPatientData.appointmentId || !selectedAssessment) return;
+
+    setSavingAssessment(true);
+    try {
+      // Create a combined content that includes both assessment content and lifestyle guidance
+      const combinedContent = {
+        assessmentContent: assessmentContent,
+        lifestyleGuidance: lifestyleGuidance
+      };
+      
+      await createAppointmentAssessment({
+        appointmentId: currentPatientData.appointmentId,
+        assessmentId: selectedAssessment,
+        content: JSON.stringify(combinedContent),
+      });
+      
+      toast({
+        title: "Assessment saved",
+        description: "Assessment and lifestyle guidance have been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Error saving assessment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save assessment.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingAssessment(false);
     }
   };
 
@@ -1327,6 +1439,150 @@ export function PatientHistory({ patient, onBack }: PatientHistoryProps) {
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Assessment Section */}
+            <div className="border border-gray-800 rounded-2xl shadow-xl bg-black mt-6">
+              <div className="p-8">
+                <h3 className="text-white font-bold text-xl mb-6">Patient Assessment</h3>
+                
+                {/* Assessment Options Checkboxes */}
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-400 text-sm">Select Assessment (choose one at a time):</span>
+                  </div>
+
+                  {loadingAssessments ? (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span className="ml-2 text-gray-400">Loading assessments...</span>
+                    </div>
+                  ) : assessmentError ? (
+                    <div className="text-center py-6">
+                      <p className="text-red-400 mb-2">Error loading assessments</p>
+                      <p className="text-gray-500 text-sm">{assessmentError}</p>
+                      <button 
+                        onClick={() => loadAssessments()}
+                        className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {assessments && assessments.length > 0 ? assessments.map((assessment) => (
+                        <div key={assessment.id} className="flex items-center space-x-3 p-3 rounded-lg border border-gray-700 hover:bg-gray-800 transition-colors">
+                          <input
+                            type="radio"
+                            id={assessment.id}
+                            name="assessment"
+                            checked={selectedAssessment === assessment.id}
+                            onChange={() => handleAssessmentSelect(assessment.id)}
+                            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 focus:ring-blue-500"
+                          />
+                          <label htmlFor={assessment.id} className="flex-1 cursor-pointer">
+                            <div className="flex items-center justify-between">
+                              <span className="text-white font-medium">{assessment.name}</span>
+                            </div>
+                          </label>
+                        </div>
+                      )) : (
+                        <div className="col-span-full text-center py-6">
+                          <p className="text-gray-400">No assessments available.</p>
+                          <p className="text-gray-500 text-sm mt-1">
+                            Assessments need to be added to the database first.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Assessment Content */}
+                {selectedAssessment && assessmentContent && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-sm font-medium">Assessment Content:</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setEditMode(!editMode)}
+                          className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors"
+                        >
+                          {editMode ? 'View' : 'Edit'}
+                        </button>
+                        <button
+                          onClick={handleSaveAssessment}
+                          disabled={savingAssessment}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors font-medium flex items-center gap-2"
+                        >
+                          {savingAssessment ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Saving...
+                            </>
+                          ) : (
+                            'Save Assessment'
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {editMode ? (
+                      <textarea
+                        value={assessmentContent}
+                        onChange={(e) => setAssessmentContent(e.target.value)}
+                        placeholder="Assessment content will appear here..."
+                        rows={Math.max(8, Math.ceil(assessmentContent.split('\n').length * 1.2))}
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm resize-none"
+                      />
+                    ) : (
+                      <div className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm prose prose-invert prose-sm max-w-none">
+                        <ReactMarkdown>
+                          {assessmentContent}
+                        </ReactMarkdown>
+                      </div>
+                    )}
+                    
+                    <div className="text-xs text-gray-500">
+                      <p>💡 <strong>Tip:</strong> {editMode ? 'Edit the assessment content above. You can use markdown formatting for rich text.' : 'Click "Edit" to modify the content using markdown formatting.'}</p>
+                    </div>
+                    
+                    {/* Lifestyle Guidance Section */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 text-sm font-medium">Lifestyle Guidance:</span>
+                        <button
+                          onClick={() => setEditMode(!editMode)}
+                          className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm transition-colors"
+                        >
+                          {editMode ? 'View' : 'Edit'}
+                        </button>
+                      </div>
+                      
+                      {editMode ? (
+                        <textarea
+                          value={lifestyleGuidance}
+                          onChange={(e) => setLifestyleGuidance(e.target.value)}
+                          placeholder="Enter lifestyle guidance and recommendations..."
+                          rows={Math.max(6, Math.ceil(lifestyleGuidance.split('\n').length * 1.2))}
+                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 text-sm resize-none"
+                        />
+                      ) : (
+                        <div className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm prose prose-invert prose-sm max-w-none">
+                          <ReactMarkdown>
+                            {lifestyleGuidance}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                      
+                      <div className="text-xs text-gray-500">
+                        <p>💡 <strong>Tip:</strong> {editMode ? 'Add specific lifestyle recommendations, dietary advice, exercise suggestions, or other guidance for the patient.' : 'Click "Edit" to modify the lifestyle guidance content.'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
             </div>
 
