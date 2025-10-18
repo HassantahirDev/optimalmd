@@ -22,6 +22,13 @@ type NavItem = {
   highlight?: boolean;
 };
 
+type MainNavItem = {
+  label: string;
+  path: string;
+  icon?: LucideIcon;
+  highlight?: boolean;
+};
+
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -62,16 +69,10 @@ const Navigation = () => {
     };
   }, [dropdownOpen]);
 
-  const mainNavItems = [
+  const mainNavItems: MainNavItem[] = [
     { label: "How it Works", path: "/how-it-works" },
     { label: "About Us", path: "/about-us" },
     { label: "Our Services", path: "/our-services" },
-    {
-      label: "Contact Us",
-      path: "/contact-us",
-      icon: Phone,
-      highlight: false,
-    },
   ];
 
   const dropdownItems: NavItem[] = [

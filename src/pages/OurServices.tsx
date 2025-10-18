@@ -21,7 +21,7 @@ const OurServicesPage: React.FC = () => {
         className="h-[450px]"
         ctaButton={{
           text: "Book Your Physician Consult",
-          href: "/book-appointment"
+          href: "/register"
         }}
       />
       {/* Page Content */}
